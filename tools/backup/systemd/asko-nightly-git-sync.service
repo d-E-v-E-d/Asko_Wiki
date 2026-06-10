@@ -1,0 +1,12 @@
+[Unit]
+Description=Asko Nightly Git Sync for Docs and Drafts
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/asko-backup/backup.env
+ExecStart=/usr/local/bin/asko-nightly-git-sync.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

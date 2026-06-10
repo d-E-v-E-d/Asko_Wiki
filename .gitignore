@@ -1,0 +1,52 @@
+﻿# Runtime / build output
+site/
+wwwroot_arbeitsanweisung/
+backups/
+versions/
+review/
+data/
+*.log
+*.lock
+
+# Local/prod config and secrets
+config.json
+config.local.json
+users.json
+.env
+.env.*
+
+# Python / tooling
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Arbeitsanweisung content stays local/server-side only
+sites/**/docs/**/*.md
+sites/**/docs_draft/**/*.md
+sites/**/docs/**/.pages
+sites/**/docs_draft/**/.pages
+sites/**/docs/assets/images/
+sites/**/docs/assets/files/
+sites/**/docs_draft/assets/images/
+sites/**/docs_draft/assets/files/
+sites/**/docs/exports/
+sites/**/docs_draft/exports/
+
+# Keep empty local content roots as placeholders
+!sites/**/docs/.gitkeep
+!sites/**/docs_draft/.gitkeep
+
+# Shared is the tracked technical source for MkDocs assets/overrides
+!shared/**

@@ -1,0 +1,41 @@
+{
+  "paths": {
+    "mkdocs_yml": "mkdocs.yml",
+    "docs": "docs",
+    "docs_draft": "data/docs_draft",
+    "site": "site",
+    "wwwroot_arbeitsanweisung": "wwwroot_arbeitsanweisung",
+    "pdf_history": "data/pdf_history",
+    "pdf_history_network": ""
+  },
+  "security": {
+    "jwt_secret": "CHANGE_ME_LONG_RANDOM_SECRET",
+    "jwt_exp_minutes": 480,
+    "cookie_name": "editor_session"
+  },
+  "auth": {
+    "users_file": "data/users.json"
+  },
+  "sync_api": {
+    "token": "CHANGE_ME_INTERNAL_SYNC_TOKEN"
+  },
+  "pdf": {
+    "source_url": "https://docs.asko24.at/",
+    "filename_pattern": "Arbeitsanweisung_{date}_v{version}.pdf",
+    "current_filename": "Arbeitsanweisung_AKTUELL.pdf",
+    "format": "A4",
+    "margin_top": "14mm",
+    "margin_right": "12mm",
+    "margin_bottom": "16mm",
+    "margin_left": "12mm"
+  },
+  "versioning": {
+    "version_file": "version.json",
+    "footer_text": "Arbeitsanweisung – Version {version} vom {date}"
+  },
+  "git": {
+    "enabled": true,
+    "remote": "origin",
+    "branch": "main"
+  }
+}

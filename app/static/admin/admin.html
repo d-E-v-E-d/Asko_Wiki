@@ -1,0 +1,1598 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/editor/preview-fix.css">
+  <title>Admin Änderungsprüfung</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--border:#dfe3ea;--brand:#0b72b9;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);color:#111827}
+    .top{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#fff}
+    .top-left,.top-right{display:flex;align-items:center;gap:10px;min-width:0}
+    .top-left{flex:1 1 auto}
+    .top-right{margin-left:auto;padding-left:14px;border-left:1px solid #e5e7eb}
+    .title{font-weight:700}
+    .top-grow{flex:1}
+    .top-status{color:var(--muted);font-size:12px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .wrap{display:grid;grid-template-columns:360px 1fr;gap:10px;min-height:calc(100vh - 58px);padding:10px}
+
+    /* Panels: default scrollbar OK */
+    .panel{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:auto}
+    .panel h2{margin:10px 12px;font-size:14px;color:#374151}
+
+    .list .row{display:grid;grid-template-columns:1fr;gap:4px;padding:10px 12px;border-top:1px dashed #eef1f6;cursor:pointer}
+    .list .row:hover{background:#f7f9fc}
+    .meta{font-size:12px;color:#444}
+    .muted{color:var(--muted);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .diffwrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
+    .col{display:flex;flex-direction:column;min-height:280px}
+    .head{padding:8px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .label{font-size:12px;color:#374151}
+    .toolbar{display:flex;gap:8px;align-items:center}
+    .view-switch{display:flex;gap:6px;align-items:center}
+    .view-toggle.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .btn{padding:6px 10px;border:1px solid var(--border);border-radius:10px;background:#f2f5f9;cursor:pointer;font-size:12px}
+    .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .btn.admin{background:#7c3aed;border-color:#7c3aed;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(124,58,237,.18)}
+    .btn.admin:hover{background:#6d28d9;border-color:#6d28d9}
+    .btn.portal{background:#0f766e;border-color:#0f766e;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(15,118,110,.18)}
+    .btn.portal:hover{background:#115e59;border-color:#115e59}
+    .btn.danger{background:#b71c1c;color:#fff;border-color:#b71c1c}
+    .btn.warn{background:#f59e0b;color:#111;border-color:#f59e0b}
+    .btn.success{background:#15803d;border-color:#15803d;color:#fff;font-weight:600}
+    .btn.success:hover{background:#166534;border-color:#166534}
+    .btn.logout{background:#fee2e2;border-color:#fecaca;color:#991b1b}
+    .btn.logout:hover{background:#fecaca}
+    pre{margin:0;white-space:pre;overflow:auto;font:12px/1.5 ui-monospace,Consolas,Menlo,monospace;padding:10px}
+    .block{flex:1;border-top:1px solid var(--border)}
+    .rendered-block{display:none;flex:1;border-top:1px solid var(--border);overflow:auto;padding:16px 18px}
+    .rendered-block .md-typeset{font-size:14px}
+    .line{display:block}
+    .line-add{background:rgba(255,235,59,.22)}
+    .line-del{background:rgba(239,68,68,.16)}
+    .add{background:rgba(255,235,59,.35)}
+    .del{background:rgba(239,68,68,.28)}
+    .empty{padding:14px;color:var(--muted);font-size:13px}
+
+    /* History */
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:.85rem; margin:10px; }
+    .card-header { display:flex; flex-wrap:wrap; align-items:flex-end; gap:.75rem; justify-content:space-between; }
+    .card-header h2 { margin:0; font-size:.95rem; }
+    .filters { display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-end; }
+    .filters label { display:flex; flex-direction:column; font-size:.78rem; color:#4b5563; }
+    .filters input, .filters select { padding:.35rem .45rem; border:1px solid #cbd5e1; border-radius:8px; min-width:14rem; font-size:.82rem; }
+    #hist-reload { padding:.5rem .8rem; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; cursor:pointer; }
+    #hist-reload:hover { background:#eef2f7; }
+    .hist-results { margin-top:.75rem; }
+    .hist-empty { color:#9ca3af; padding:.75rem; font-style:italic; }
+    .hist-item { border:1px solid #e5e7eb; border-radius:10px; margin:.5rem 0; overflow:hidden; }
+    .hist-item summary { list-style:none; cursor:pointer; padding:.6rem .8rem; background:#f9fafb; display:flex; gap:.6rem; align-items:center; }
+    .hist-item summary::-webkit-details-marker { display:none; }
+    .hist-action { font-weight:600; text-transform:uppercase; font-size:.72rem; padding:.12rem .4rem; border-radius:6px; }
+    .hist-action.approved { color:#0b7a2a; background:#e9f7ee; border:1px solid #cfeede; }
+    .hist-action.rejected { color:#9a1111; background:#fbe9e9; border:1px solid #f3cdcd; }
+    .hist-action.draft_saved { color:#0b5cab; background:#e8f1fb; border:1px solid #cddff7; }
+    .hist-file { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.85rem; color:#111827; }
+    .hist-user { color:#374151; }
+    .hist-time { margin-left:auto; color:#6b7280; font-variant-numeric:tabular-nums; font-size:.85rem; }
+    .hist-body { padding:.8rem; background:#fff; }
+    .hist-kv { display:grid; grid-template-columns:140px 1fr; gap:.35rem .8rem; margin-bottom:.6rem; }
+    .hist-kv .k { color:#6b7280; }
+    .hist-kv .v { color:#111827; word-break:break-all; }
+
+    /* Modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50}
+    .dialog{background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:16px;min-width:320px;max-width:90vw}
+    .dialog h3{margin:0 0 10px 0}
+    .dialog p{margin:0 0 10px 0;font-size:13px}
+    .dialog label{display:block;font-size:12px;color:#374151;margin-top:8px}
+    .dialog input{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px}
+    .dialog .row{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+    .sort-dialog{width:min(760px,94vw);max-height:88vh;display:flex;flex-direction:column}
+    .sort-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:12px}
+    .sort-controls select{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px}
+    .sort-list{border:1px solid #e5e7eb;border-radius:10px;overflow:auto;min-height:180px;max-height:48vh;background:#f8fafc}
+    .sort-item{display:grid;grid-template-columns:28px 1fr auto auto;gap:8px;align-items:center;padding:9px 10px;border-top:1px solid #e5e7eb;background:#fff}
+    .sort-item:first-child{border-top:0}
+    .sort-item[draggable="true"]{cursor:grab}
+    .sort-item.drag-over{outline:2px solid rgba(11,114,185,.35);outline-offset:-2px;background:#eef6fd}
+    .sort-handle{color:#64748b;font-weight:700;text-align:center}
+    .sort-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+    .sort-type{font-size:11px;color:#475569;background:#eef2f7;border:1px solid #dbe3ed;border-radius:999px;padding:2px 7px}
+    .sort-actions{display:flex;gap:4px}
+    .sort-actions .btn{padding:4px 7px}
+    .sort-item.locked{background:#f3f4f6;color:#6b7280}
+    .sort-empty{padding:14px;color:#6b7280;font-size:13px}
+    .sort-status{min-height:18px;margin-top:8px;font-size:12px;color:#475569}
+    .sort-status.error{color:#b91c1c;font-weight:600}
+    .toast{position:fixed;right:18px;bottom:18px;z-index:1000;min-width:220px;max-width:min(420px,calc(100vw - 36px));padding:10px 13px;border-radius:10px;background:#111827;color:#fff;box-shadow:0 14px 35px rgba(15,23,42,.25);font-size:13px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+    .toast.show{opacity:1;transform:translateY(0)}
+    .toast.success{background:#166534}
+    .toast.error{background:#991b1b}
+
+    /* FIX: Live/Draft immer nebeneinander */
+    .diffwrap{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+      width:100%;
+      max-width:100%;
+      overflow:hidden;
+    }
+    .diffwrap .col{min-width:0;max-width:100%;display:flex;flex-direction:column;}
+    .diffwrap .block{flex:1;min-width:0;max-width:100%;overflow:auto;white-space:pre;}
+    .diffwrap .rendered-block{min-width:0;max-width:100%;}
+    #changeDiffPanel[data-view="preview"] .block{display:none}
+    #changeDiffPanel[data-view="preview"] .rendered-block{display:block}
+    #changeDiffPanel[data-view="diff"] .block{display:block}
+    #changeDiffPanel[data-view="diff"] .rendered-block{display:none}
+
+    /* WICHTIG: nur der rechte Diff-Panel soll horizontal NICHT scrollen */
+    .panel.diff-panel{overflow:hidden;}
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div class="top-left">
+      <div class="title">Änderungsprüfung</div>
+      <div id="status" class="top-status"></div>
+      <div class="top-grow"></div>
+    </div>
+    <div class="top-right">
+      <div id="who" class="muted"></div>
+      <button id="logoutBtn" class="btn logout" title="Benutzer wechseln">Benutzer wechseln</button>
+      <button id="editorBtn" class="btn admin" title="Zum Editor-Tool">Zum Editor-Tool</button>
+      <button id="portalBtn" class="btn portal" title="Zum Portal">Zum Portal</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <h2> Änderungslog (offene Entwürfe)</h2>
+      <div style="padding:0 12px 10px 12px;display:flex;gap:.5rem;align-items:center;">
+        <select id="change-area" style="padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;min-width:12rem;">
+          <option value="">Alle Bereiche</option>
+          <option value="schaden">Schaden</option>
+          <option value="betrieb">Betrieb</option>
+          <option value="vertrieb">Vertrieb</option>
+          <option value="allgemein">Allgemein</option>
+          <option value="buchhaltung">Buchhaltung</option>
+          <option value="novas">Novas</option>
+          <option value="datenschutz">Datenschutz</option>
+          <option value="wto">Warentransport Online</option>
+          <option value="it-faq">IT-FAQ</option>
+          <option value="testumgebung">Testumgebung</option>
+        </select>
+        <input id="change-search" type="text" placeholder="Änderungen suchen..." style="width:100%;padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;" />
+      </div>
+      <div id="list" class="list"></div>
+    </div>
+
+    <div class="panel diff-panel" id="changeDiffPanel" data-view="preview">
+      <div class="head">
+        <div class="label" id="selLabel">Keine Auswahl</div>
+        <div class="toolbar">
+          <div class="view-switch">
+            <button id="previewModeBtn" class="btn view-toggle active" type="button">Vorschau</button>
+            <button id="diffModeBtn" class="btn view-toggle" type="button">Text-Diff</button>
+          </div>
+          <button id="approveBtn" class="btn primary" disabled>Übernehmen</button>
+          <button id="rejectBtn" class="btn danger" disabled>Ablehnen</button>
+          <button id="editBtn" class="btn warn" disabled>Bearbeiten</button>
+          <button id="sortBtn" class="btn success" title="Reihenfolge von Dateien und Ordnern ändern">Sortierung ändern</button>
+        </div>
+      </div>
+      <div class="diffwrap">
+        <div class="col">
+          <div class="head"><div class="label">Live</div></div>
+          <div id="livePreview" class="rendered-block"></div>
+          <pre id="live" class="block"></pre>
+        </div>
+        <div class="col">
+          <div class="head"><div class="label">Draft</div></div>
+          <div id="draftPreview" class="rendered-block"></div>
+          <pre id="draft" class="block"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="version-card" class="card">
+    <header class="card-header">
+      <h2>Version & Veröffentlichung</h2>
+    </header>
+
+    <div style="margin-top:.5rem; font-size:.82rem;">
+      <div style="margin-bottom:.5rem;">
+        Aktuelle Version: <span id="v-current">–</span>
+        <span id="v-date" style="color:#6b7280;margin-left:.5rem;"></span>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;">
+        <label style="display:flex;flex-direction:column;font-size:.78rem;color:#4b5563;">
+          Bereich
+          <select id="siteSel" style="padding:.35rem .45rem;border:1px solid #cbd5e1;border-radius:8px;min-width:10rem;font-size:.82rem;">
+            <option value="schaden">Schaden</option>
+            <option value="betrieb">Betrieb</option>
+            <option value="vertrieb">Vertrieb</option>
+            <option value="allgemein">Allgemein</option>
+            <option value="buchhaltung">Buchhaltung</option>
+            <option value="novas">Novas Benutzerhandbuch</option>
+            <option value="wto">Warentransport Online</option>
+            <option value="datenschutz">Datenschutz</option>
+            <option value="it-faq">IT-FAQ</option>
+            <option value="testumgebung">Testumgebung</option>
+          </select>
+        </label>
+
+        <label style="display:flex;flex-direction:column;font-size:.78rem;color:#4b5563;">
+          Neue Version
+          <input type="text" id="v-new" placeholder="z.B. 1.4.3" style="padding:.35rem .45rem;border:1px solid #cbd5e1;border-radius:8px;min-width:9rem;font-size:.82rem;" />
+        </label>
+        <button id="btn-publish-site" class="btn primary">Veröffentlichen Bereich</button>
+        <button id="btn-publish-all" class="btn primary">Veröffentlichen Alle</button>
+
+        <button id="btn-pdf-site" class="btn primary">PDF Bereich</button>
+        <button id="btn-pdf-all" class="btn primary">PDF Alle</button>
+      </div>
+
+      <pre id="v-log" style="margin-top:.75rem;background:#0b0b0b;color:#e5e7eb;padding:.6rem .7rem;border-radius:8px;max-height:180px;overflow:auto;font-size:.8rem;"></pre>
+    </div>
+  </section>
+
+  <section id="history-card" class="card">
+    <header class="card-header">
+      <h2>Historie</h2>
+      <div class="filters">
+        <label>Aktion
+          <select id="hist-action">
+            <option value="">(alle)</option>
+            <option value="approved">approved</option>
+            <option value="rejected">rejected</option>
+            <option value="draft_saved">draft_saved</option>
+          </select>
+        </label>
+        <label>Bereich
+          <select id="hist-area">
+            <option value="">(alle)</option>
+            <option value="schaden">Schaden</option>
+            <option value="betrieb">Betrieb</option>
+            <option value="vertrieb">Vertrieb</option>
+            <option value="allgemein">Allgemein</option>
+            <option value="buchhaltung">Buchhaltung</option>
+            <option value="novas">Novas</option>
+            <option value="datenschutz">Datenschutz</option>
+            <option value="wto">Warentransport Online</option>
+            <option value="it-faq">IT-FAQ</option>
+            <option value="testumgebung">Testumgebung</option>
+          </select>
+        </label>
+        <label>Datei
+          <input type="text" id="hist-file" list="hist-file-options" placeholder="Datei suchen oder auswählen" />
+          <datalist id="hist-file-options"></datalist>
+        </label>
+        <label>Benutzer
+          <input type="text" id="hist-user" placeholder="Name oder Benutzername" />
+        </label>
+        <label>Limit
+          <input type="number" id="hist-limit" min="1" max="200" value="10" />
+        </label>
+        <button id="hist-reload">Laden</button>
+      </div>
+    </header>
+    <div id="hist-results" class="hist-results"></div>
+  </section>
+
+  <section class="card" id="local-rollback-card">
+    <header class="card-header">
+      <h2>Rollback (lokale Versionen)</h2>
+      <div class="filters">
+        <label>Bereich
+          <select id="gr-site">
+            <option value="schaden">Schaden</option>
+            <option value="betrieb">Betrieb</option>
+            <option value="vertrieb">Vertrieb</option>
+            <option value="allgemein">Allgemein</option>
+            <option value="buchhaltung">Buchhaltung</option>
+            <option value="novas">Novas</option>
+            <option value="datenschutz">Datenschutz</option>
+            <option value="wto">Warentransport Online</option>
+            <option value="it-faq">IT-FAQ</option>
+            <option value="testumgebung">Testumgebung</option>
+          </select>
+        </label>
+        <label>Art
+          <select id="gr-kind">
+            <option value="live">Live (docs)</option>
+          </select>
+        </label>
+        <label>Dateiname
+          <input id="gr-file" list="gr-file-options" placeholder="Datei suchen oder auswählen" />
+          <datalist id="gr-file-options"></datalist>
+        </label>
+        <label>Limit
+          <input id="gr-limit" type="number" min="1" max="50" value="5" />
+        </label>
+        <button id="gr-load" class="btn">Versionen laden</button>
+      </div>
+    </header>
+
+    <div style="display:grid;grid-template-columns:420px 1fr;gap:10px;margin-top:.75rem;">
+      <div class="panel" style="overflow:auto;max-height:360px;">
+        <div id="gr-list" class="list"></div>
+        <div class="empty" id="gr-empty" style="display:none;">Keine lokalen Versionen gefunden.</div>
+      </div>
+
+      <div class="panel diff-panel" style="overflow:hidden;">
+        <div class="head">
+          <div class="label" id="gr-diff-label">Diff</div>
+          <div class="toolbar">
+            <button id="gr-sync" class="btn" style="display:none" disabled>Git-Sync deaktiviert</button>
+            <button id="gr-rollback" class="btn danger" disabled>Rollback auf ausgewählte Version</button>
+          </div>
+        </div>
+        <div class="diffwrap">
+          <div class="col">
+            <div class="head"><div class="label">Aktueller Stand</div></div>
+            <pre id="gr-current" class="block"></pre>
+          </div>
+          <div class="col">
+            <div class="head"><div class="label">Ausgewählte Version</div></div>
+            <pre id="gr-old" class="block"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="adminModal" class="modal" style="display:none">
+    <div class="dialog">
+      <h3>Admin-Anmeldung</h3>
+      <p class="muted">Bitte gib deinen Namen ein (für das Protokoll) und das Admin-Passwort.</p>
+      <label>Dein Name</label>
+      <input id="admName" placeholder="z.B. Maria Muster" />
+      <label>Admin-Passwort</label>
+      <input id="admPass" type="password" placeholder="Passwort eingeben" />
+      <div class="row">
+        <button id="admLogin" class="btn primary">Anmelden</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sortModal" class="modal" style="display:none">
+    <div class="dialog sort-dialog">
+      <h3>Sortierung ändern</h3>
+      <p class="muted">Die Reihenfolge wird direkt in der .pages-Datei gespeichert. index.md bleibt immer oben.</p>
+      <div class="sort-controls">
+        <label>Bereich
+          <select id="sortSite">
+            <option value="schaden">Schaden</option>
+            <option value="betrieb">Betrieb</option>
+            <option value="vertrieb">Vertrieb</option>
+            <option value="allgemein">Allgemein</option>
+            <option value="buchhaltung">Buchhaltung</option>
+            <option value="novas">Novas Benutzerhandbuch</option>
+            <option value="datenschutz">Datenschutz</option>
+            <option value="wto">Warentransport Online</option>
+            <option value="it-faq">IT-FAQ</option>
+            <option value="testumgebung">Testumgebung</option>
+          </select>
+        </label>
+        <label>Ordner / Ebene
+          <select id="sortFolder"></select>
+        </label>
+        <button id="sortReloadBtn" class="btn" type="button">Laden</button>
+      </div>
+      <div id="sortList" class="sort-list"></div>
+      <div id="sortStatus" class="sort-status" aria-live="polite"></div>
+      <div class="row">
+        <button id="sortCloseBtn" class="btn" type="button">Schließen</button>
+        <button id="sortSaveBtn" class="btn primary" type="button">Speichern</button>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const qs = (s,r=document)=>r.querySelector(s);
+  const who = qs('#who'), statusEl = qs('#status');
+  const toastEl = qs('#toast');
+  const editorBtn = qs('#editorBtn');
+  const portalBtn = qs('#portalBtn');
+  const logoutBtn = qs('#logoutBtn');
+  const sortBtn = qs('#sortBtn');
+  const changeDiffPanel = qs('#changeDiffPanel');
+  const previewModeBtn = qs('#previewModeBtn');
+  const diffModeBtn = qs('#diffModeBtn');
+  const listEl = qs('#list'), liveEl = qs('#live'), draftEl = qs('#draft'), livePreviewEl = qs('#livePreview'), draftPreviewEl = qs('#draftPreview'), selLabel = qs('#selLabel');
+  const changeSearchInput = qs('#change-search');
+  const changeAreaSelect = qs('#change-area');
+  const approveBtn = qs('#approveBtn'), rejectBtn = qs('#rejectBtn'), editBtn = qs('#editBtn');
+  let currentFile = null;
+  let currentArea = null;
+  let currentChange = null;
+  let openDraftItems = [];
+  let sortItems = [];
+  let sortDraggedName = null;
+  let historyUiBound = false;
+
+  const siteSel = document.getElementById('siteSel');
+  const sortModal = document.getElementById('sortModal');
+  const sortSite = document.getElementById('sortSite');
+  const sortFolder = document.getElementById('sortFolder');
+  const sortList = document.getElementById('sortList');
+  const sortReloadBtn = document.getElementById('sortReloadBtn');
+  const sortSaveBtn = document.getElementById('sortSaveBtn');
+  const sortCloseBtn = document.getElementById('sortCloseBtn');
+  const sortStatus = document.getElementById('sortStatus');
+  function getSite(){
+    return ((siteSel && siteSel.value) ? siteSel.value : 'schaden').trim().toLowerCase();
+  }
+
+  function setDiffView(view){
+    const nextView = view === 'diff' ? 'diff' : 'preview';
+    changeDiffPanel.dataset.view = nextView;
+    previewModeBtn.classList.toggle('active', nextView === 'preview');
+    diffModeBtn.classList.toggle('active', nextView === 'diff');
+  }
+
+  function ensureStylesheets(urls){
+    if(!Array.isArray(urls)) return;
+    const head = document.head || document.getElementsByTagName('head')[0];
+
+    urls.forEach((href) => {
+      if(!href) return;
+      const exists = [...head.querySelectorAll('link[rel="stylesheet"]')].some((l) => l.getAttribute('href') === href);
+      if(exists) return;
+
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      head.appendChild(link);
+    });
+  }
+
+  function ensureExtraCss(site){
+    const head = document.head || document.getElementsByTagName('head')[0];
+    [
+      `/site/${site}/assets/css/custom.css`,
+      `/site/${site}/assets/css/pdf-print.css`,
+      `/site/${site}/assets/css/site-switcher.css`,
+      `/site/${site}/assets/stylesheets/extra.css`
+    ].forEach((href) => {
+      const exists = [...head.querySelectorAll('link[rel="stylesheet"]')].some((l) => l.getAttribute('href') === href);
+      if(exists) return;
+
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      head.appendChild(link);
+    });
+  }
+
+  // --- Lokales Rollback UI ---
+  const grSite  = document.getElementById('gr-site');
+  const grFile  = document.getElementById('gr-file');
+  const grKind  = document.getElementById('gr-kind');
+  const grLimit = document.getElementById('gr-limit');
+  const grFileOptions = document.getElementById('gr-file-options');
+  const histFileOptions = document.getElementById('hist-file-options');
+  const grLoad  = document.getElementById('gr-load');
+  const grList  = document.getElementById('gr-list');
+  const grEmpty = document.getElementById('gr-empty');
+  const grCurrent = document.getElementById('gr-current');
+  const grOld = document.getElementById('gr-old');
+  const grDiffLabel = document.getElementById('gr-diff-label');
+  const grSyncBtn = document.getElementById('gr-sync');
+  const grRollbackBtn = document.getElementById('gr-rollback');
+
+  let grCommits = [];
+  let grEffectiveKind = "live";
+  let grSelectedIdx = -1;
+
+  function setDatalistOptions(listEl, files){
+    if(!listEl) return;
+    const seen = new Set();
+    const frag = document.createDocumentFragment();
+    (files || []).forEach((item) => {
+      const value = (typeof item === 'string' ? item : item.path) || '';
+      if(!value || seen.has(value)) return;
+      seen.add(value);
+      const opt = document.createElement('option');
+      opt.value = value;
+      if(item && typeof item === 'object' && item.site){
+        opt.label = `${item.site} / ${value}`;
+      }
+      frag.appendChild(opt);
+    });
+    listEl.innerHTML = '';
+    listEl.appendChild(frag);
+  }
+
+  async function loadFileOptionsForSite(site, listEl){
+    const normalized = (site || '').trim().toLowerCase();
+    if(!normalized){
+      const data = await fetchJSON('/editor/list_all');
+      setDatalistOptions(listEl, data.files || []);
+      return;
+    }
+    const data = await fetchJSON(`/editor/list?site=${encodeURIComponent(normalized)}`);
+    setDatalistOptions(listEl, data.files || []);
+  }
+
+  let toastTimer = null;
+  function setStatus(m){ statusEl.textContent = m || ''; }
+  function showToast(message, type='success', timeout=3000){
+    if(!toastEl) return;
+    window.clearTimeout(toastTimer);
+    toastEl.textContent = message || '';
+    toastEl.className = `toast ${type || ''} show`;
+    toastTimer = window.setTimeout(() => {
+      toastEl.classList.remove('show');
+    }, timeout);
+  }
+  function setSortStatus(message, isError=false){
+    if(!sortStatus) return;
+    sortStatus.textContent = message || '';
+    sortStatus.classList.toggle('error', !!isError);
+  }
+
+  async function fetchJSON(url, opts={}) {
+    const fetchOpts = {credentials:'include', cache:'no-store', ...opts};
+    const res = await fetch(url, fetchOpts);
+    if(!res.ok){
+      const t = await res.text().catch(()=>res.statusText);
+      throw new Error(`${res.status} ${t || res.statusText}`);
+    }
+    return res.json();
+  }
+
+  function sortTypeLabel(type){
+    return type === 'folder' ? 'Ordner' : 'Datei';
+  }
+
+  function moveSortItem(sourceName, targetName){
+    if(!sourceName || !targetName || sourceName === targetName) return;
+    const source = sortItems.find(item => item.name === sourceName);
+    const target = sortItems.find(item => item.name === targetName);
+    if(!source || !target || source.locked || target.locked) return;
+    const next = sortItems.filter(item => item.name !== sourceName);
+    const targetIndex = next.findIndex(item => item.name === targetName);
+    next.splice(targetIndex, 0, source);
+    sortItems = next;
+    renderSortItems();
+  }
+
+  function nudgeSortItem(name, delta){
+    const index = sortItems.findIndex(item => item.name === name);
+    if(index < 0 || sortItems[index].locked) return;
+    const nextIndex = index + delta;
+    if(nextIndex < 0 || nextIndex >= sortItems.length || sortItems[nextIndex].locked) return;
+    const next = sortItems.slice();
+    [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+    sortItems = next;
+    renderSortItems();
+  }
+
+  function renderSortItems(){
+    sortList.innerHTML = '';
+    if(!sortItems.length){
+      sortList.innerHTML = '<div class="sort-empty">Keine sortierbaren Einträge gefunden.</div>';
+      return;
+    }
+    sortItems.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'sort-item' + (item.locked ? ' locked' : '');
+      row.draggable = !item.locked;
+      row.dataset.name = item.name;
+      row.innerHTML = `
+        <div class="sort-handle">${item.locked ? '•' : '↕'}</div>
+        <div class="sort-name">${escHtml(item.name)}</div>
+        <div class="sort-type">${sortTypeLabel(item.type)}</div>
+        <div class="sort-actions">
+          <button class="btn" type="button" data-sort-up="${escHtml(item.name)}" ${item.locked ? 'disabled' : ''}>↑</button>
+          <button class="btn" type="button" data-sort-down="${escHtml(item.name)}" ${item.locked ? 'disabled' : ''}>↓</button>
+        </div>
+      `;
+
+      row.addEventListener('dragstart', () => {
+        if(item.locked) return;
+        sortDraggedName = item.name;
+      });
+      row.addEventListener('dragend', () => {
+        sortDraggedName = null;
+        row.classList.remove('drag-over');
+      });
+      row.addEventListener('dragover', (event) => {
+        if(!sortDraggedName || item.locked) return;
+        event.preventDefault();
+        row.classList.add('drag-over');
+      });
+      row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+      row.addEventListener('drop', (event) => {
+        event.preventDefault();
+        row.classList.remove('drag-over');
+        moveSortItem(sortDraggedName, item.name);
+      });
+
+      sortList.appendChild(row);
+    });
+  }
+
+  function currentVisibleSortOrder(){
+    const names = [...sortList.querySelectorAll('.sort-item')]
+      .map(row => row.dataset.name || '')
+      .filter(Boolean);
+    if(names.length) return names;
+    return sortItems.map(item => item.name);
+  }
+
+  async function loadSortFolders(){
+    const area = (sortSite.value || getSite()).trim().toLowerCase();
+    const data = await fetchJSON(`/admin/order/folders?area=${encodeURIComponent(area)}`);
+    const current = sortFolder.value;
+    sortFolder.innerHTML = '';
+    (data.folders || ['']).forEach((folder) => {
+      const opt = document.createElement('option');
+      opt.value = folder || '';
+      opt.textContent = folder || 'Wurzel';
+      sortFolder.appendChild(opt);
+    });
+    if([...sortFolder.options].some(opt => opt.value === current)){
+      sortFolder.value = current;
+    }
+  }
+
+  async function loadSortOrder(){
+    const area = (sortSite.value || getSite()).trim().toLowerCase();
+    const folder = sortFolder.value || '';
+    setStatus('Lade Sortierung...');
+    setSortStatus('Lade Sortierung...');
+    const data = await fetchJSON(`/admin/order?area=${encodeURIComponent(area)}&folder=${encodeURIComponent(folder)}`);
+    sortItems = data.items || [];
+    renderSortItems();
+    setStatus('');
+    setSortStatus('');
+  }
+
+  async function openSortModal(){
+    sortSite.value = getSite();
+    sortModal.style.display = 'flex';
+    setSortStatus('');
+    await loadSortFolders();
+    await loadSortOrder();
+  }
+
+  async function saveSortOrder(){
+    const area = (sortSite.value || getSite()).trim().toLowerCase();
+    const folder = sortFolder.value || '';
+    sortSaveBtn.disabled = true;
+    sortSaveBtn.textContent = 'Speichere...';
+    setStatus('Speichere Sortierung...');
+    setSortStatus('Speichere Sortierung...');
+    try{
+      const saved = await fetchJSON('/admin/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          area,
+          folder,
+          order: currentVisibleSortOrder(),
+        }),
+      });
+      const savedCount = Array.isArray(saved.order) ? saved.order.length : sortItems.length;
+      setStatus('Sortierung gespeichert, baue Bereich neu...');
+      setSortStatus(`Sortierung gespeichert (${savedCount} Einträge). Baue Bereich neu...`);
+      await fetchJSON(`/admin/build_site?site=${encodeURIComponent(area)}`, { method: 'POST' });
+      setStatus('Sortierung gespeichert und Bereich neu gebaut');
+      setSortStatus('Sortierung gespeichert und Bereich neu gebaut.');
+      await loadSortOrder();
+      await loadHistory().catch(() => {});
+    }catch(e){
+      const message = e?.message || 'Sortierung konnte nicht gespeichert werden';
+      setStatus(message);
+      setSortStatus(message, true);
+      throw e;
+    }finally{
+      sortSaveBtn.disabled = false;
+      sortSaveBtn.textContent = 'Speichern';
+    }
+  }
+
+  async function doLogout(){
+    try{ await fetch('/auth/logout', { method:'POST', credentials:'include' }); } catch(e) {}
+    location.href = '/static/admin/admin.html';
+  }
+  logoutBtn.addEventListener('click', doLogout);
+  sortBtn.addEventListener('click', () => openSortModal().catch(e => alert(e.message)));
+  sortCloseBtn.addEventListener('click', () => { sortModal.style.display = 'none'; });
+  sortReloadBtn.addEventListener('click', () => loadSortOrder().catch(e => alert(e.message)));
+  sortSaveBtn.onclick = (event) => {
+    event.preventDefault();
+    if(sortSaveBtn.disabled) return;
+    saveSortOrder().catch(e => alert(e.message));
+  };
+  sortSite.addEventListener('change', async () => {
+    try{
+      await loadSortFolders();
+      await loadSortOrder();
+    }catch(e){ alert(e.message); }
+  });
+  sortFolder.addEventListener('change', () => loadSortOrder().catch(e => alert(e.message)));
+  sortList.addEventListener('click', (event) => {
+    const up = event.target.closest('[data-sort-up]');
+    const down = event.target.closest('[data-sort-down]');
+    if(up) nudgeSortItem(up.dataset.sortUp, -1);
+    if(down) nudgeSortItem(down.dataset.sortDown, 1);
+  });
+  sortModal.addEventListener('click', (event) => {
+    if(event.target === sortModal) sortModal.style.display = 'none';
+  });
+  editorBtn.addEventListener('click', ()=>{ location.href = '/static/editor/editor.html'; });
+  portalBtn.addEventListener('click', ()=>{ location.href = 'https://docs.asko24.at/'; });
+  previewModeBtn.addEventListener('click', ()=> setDiffView('preview'));
+  diffModeBtn.addEventListener('click', ()=> setDiffView('diff'));
+  changeSearchInput?.addEventListener('input', ()=> renderOpenDrafts(getFilteredOpenDrafts()));
+  changeAreaSelect?.addEventListener('change', ()=> renderOpenDrafts(getFilteredOpenDrafts()));
+  setDiffView(changeDiffPanel.dataset.view);
+
+  async function ensureAdmin(){
+    try{
+      const me = await fetchJSON('/auth/me');
+      if(me.role !== 'admin') throw 0;
+      who.textContent = `angemeldet als ${me.name || me.username} (admin)`;
+      return;
+    }catch(_){
+      const modal = qs('#adminModal'); modal.style.display='flex';
+      qs('#admLogin').onclick = async ()=>{
+        const name = (qs('#admName').value||'').trim();
+        const pass = (qs('#admPass').value||'');
+        if(!name || !pass){ alert('Name und Admin-Passwort eingeben.'); return; }
+        try{
+          await fetchJSON('/auth/login', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({username:'admin', password: pass, name})
+          });
+          modal.style.display='none';
+          const me = await fetchJSON('/auth/me');
+          who.textContent = `angemeldet als ${me.name || me.username} (${me.role})`;
+          bindHistoryUI();
+          await loadFileOptionsForSite('', histFileOptions);
+          await loadFileOptionsForSite(grSite?.value || '', grFileOptions);
+          await loadOpenDrafts();
+          await loadHistory();
+          await loadVersion();
+        }catch(e){ alert('Anmeldung fehlgeschlagen: ' + e.message); }
+      };
+      throw new Error('not-admin');
+    }
+  }
+
+  function getFilteredOpenDrafts(){
+    const q = (changeSearchInput?.value || '').trim().toLowerCase();
+    const area = (changeAreaSelect?.value || '').trim().toLowerCase();
+    return openDraftItems.filter((it) => {
+      if(area && (it.area || '').toLowerCase() !== area) return false;
+      if(!q) return true;
+      const opLabel = historyActionLabel({ action:'draft_saved', details: it }).toLowerCase();
+      const haystack = [
+        it.area,
+        it.file,
+        it.display_file,
+        it.user,
+        it.operation,
+        it.kind,
+        it.from,
+        it.to,
+        it.path,
+        opLabel,
+      ].map(v => (v || '').toString().toLowerCase()).join(' ');
+      return haystack.includes(q);
+    });
+  }
+
+  function changeIdentity(it){
+    if(!it) return '';
+    return [
+      it.change_key || '',
+      it.area || '',
+      it.file || '',
+      it.operation || '',
+      it.kind || '',
+      it.from || '',
+      it.to || '',
+      it.path || '',
+      it.display_file || '',
+    ].map(v => (v || '').toString().trim().toLowerCase()).join('|');
+  }
+
+  function removeOpenDraftItem(change){
+    const key = changeIdentity(change);
+    if(!key) return;
+    openDraftItems = openDraftItems.filter(item => changeIdentity(item) !== key);
+    renderOpenDrafts(getFilteredOpenDrafts());
+  }
+
+  function areaLabel(area){
+    const labels = {
+      schaden: 'Schaden',
+      betrieb: 'Betrieb',
+      vertrieb: 'Vertrieb',
+      allgemein: 'Allgemein',
+      buchhaltung: 'Buchhaltung',
+      novas: 'Novas',
+      datenschutz: 'Datenschutz',
+      wto: 'Warentransport Online',
+      'it-faq': 'IT-FAQ',
+      testumgebung: 'Testumgebung',
+    };
+    const key = (area || '').toString().trim().toLowerCase();
+    return labels[key] || area || '';
+  }
+
+  function pathBaseName(path){
+    const clean = (path || '').toString().replace(/\\/g, '/').replace(/\/+$/, '');
+    return clean.split('/').filter(Boolean).pop() || clean || '';
+  }
+
+  function draftChangeRows(it, opLabel){
+    const rows = [
+      `<div class="meta"><strong>${escHtml(opLabel)}</strong></div>`,
+      `<div class="meta">Bereich: <strong>${escHtml(areaLabel(it.area))}</strong></div>`,
+    ];
+    const operation = (it.operation || '').toString().toLowerCase();
+    const displayFile = it.display_file || it.file || it.path || it.to || it.from || '';
+    if(operation === 'moved'){
+      rows.push(`<div class="meta">Voriger Pfad: <span class="hist-file">${escHtml(it.from || displayFile)}</span></div>`);
+      rows.push(`<div class="meta">Neuer Pfad: <span class="hist-file">${escHtml(it.to || it.path || displayFile)}</span></div>`);
+    }else if(operation === 'renamed'){
+      rows.push(`<div class="meta">Alter Name: <span class="hist-file">${escHtml(pathBaseName(it.from || displayFile))}</span></div>`);
+      rows.push(`<div class="meta">Neuer Name: <span class="hist-file">${escHtml(pathBaseName(it.to || it.path || displayFile))}</span></div>`);
+    }else{
+      rows.push(`<div class="meta">Datei: <span class="hist-file">${escHtml(displayFile)}</span></div>`);
+    }
+    rows.push(`<div class="meta">Datum: <span class="muted">${escHtml(fmtTime(it.timestamp))}</span></div>`);
+    rows.push(`<div class="meta">eingereicht von: <strong>${escHtml(it.user || 'unbekannt')}</strong></div>`);
+    return rows.join('');
+  }
+
+  function renderOpenDrafts(items){
+    listEl.innerHTML = '';
+    if(!items?.length){ listEl.innerHTML = '<div class="empty">Keine offenen Entwürfe gefunden.</div>'; return; }
+    for(const it of items){
+      const opLabel = historyActionLabel({ action:'draft_saved', details: it });
+      const row = document.createElement('div');
+      row.className='row';
+      row.innerHTML = draftChangeRows(it, opLabel);
+      row.onclick = ()=>selectChange(it);
+      listEl.appendChild(row);
+    }
+  }
+
+    function escapeHtml(s){ return (s||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function normalizeLine(s){ return (s||'').replace(/\s+/g,' ').trim().toLowerCase(); }
+
+  function lineHtml(text, cls=''){
+    const c = cls ? `line ${cls}` : 'line';
+    return `<span class="${c}">${escapeHtml(text||'')}</span>`;
+  }
+
+  function tokenize(line){ return line ? (line.match(/(\s+|[A-Za-z0-9_-]+|[^\sA-Za-z0-9_-])/g) || []) : []; }
+  const cmpToken = t => (/^\s+$/.test(t) ? ' ' : t.toLowerCase());
+
+  function lcsMasks(A, B, cmp){
+    const n=A.length, m=B.length;
+    const dp = Array(n+1).fill(null).map(()=>Array(m+1).fill(0));
+    for(let i=1;i<=n;i++){
+      for(let j=1;j<=m;j++){
+        dp[i][j] = (cmp(A[i-1])===cmp(B[j-1])) ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+      }
+    }
+    const inA = Array(n).fill(false);
+    const inB = Array(m).fill(false);
+    let i=n, j=m;
+    while(i>0 && j>0){
+      if(cmp(A[i-1])===cmp(B[j-1])){ inA[i-1]=true; inB[j-1]=true; i--; j--; }
+      else if(dp[i-1][j] >= dp[i][j-1]) i--;
+      else j--;
+    }
+    return {inA, inB};
+  }
+
+  function renderTokenDiff(oldLine, newLine){
+    const A = tokenize(oldLine), B = tokenize(newLine);
+    const {inA, inB} = lcsMasks(A, B, cmpToken);
+
+    let left='';
+    for(let i=0;i<A.length;i++){
+      left += inA[i] ? escapeHtml(A[i]) : `<span class="del">${escapeHtml(A[i])}</span>`;
+    }
+
+    let right='';
+    for(let i=0;i<B.length;i++){
+      right += inB[i] ? escapeHtml(B[i]) : `<span class="add">${escapeHtml(B[i])}</span>`;
+    }
+
+    return {
+      left: `<span class="line line-del">${left}</span>`,
+      right: `<span class="line line-add">${right}</span>`
+    };
+  }
+
+  function lineDiffOps(L, R){
+    const n=L.length, m=R.length;
+    const dp = Array(n+1).fill(null).map(()=>Array(m+1).fill(0));
+    for(let i=1;i<=n;i++){
+      for(let j=1;j<=m;j++){
+        dp[i][j] = (normalizeLine(L[i-1])===normalizeLine(R[j-1])) ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+      }
+    }
+
+    const rev=[];
+    let i=n, j=m;
+    while(i>0 || j>0){
+      if(i>0 && j>0 && normalizeLine(L[i-1])===normalizeLine(R[j-1])){
+        rev.push({type:'equal', a:L[i-1], b:R[j-1]}); i--; j--;
+      } else if(j>0 && (i===0 || dp[i][j-1] >= dp[i-1][j])){
+        rev.push({type:'insert', b:R[j-1]}); j--;
+      } else {
+        rev.push({type:'delete', a:L[i-1]}); i--;
+      }
+    }
+    return rev.reverse();
+  }
+
+  function highlightDiffInto(leftEl, rightEl, liveText, draftText){
+    liveText=(liveText||"").replace(/\r\n?/g,"\n");
+    draftText=(draftText||"").replace(/\r\n?/g,"\n");
+    const L=liveText.split("\n"), R=draftText.split("\n");
+    const ops = lineDiffOps(L,R);
+
+    let lh='', rh='';
+    let i=0;
+    while(i<ops.length){
+      const op = ops[i];
+      if(op.type==='equal'){
+        lh += lineHtml(op.a);
+        rh += lineHtml(op.b);
+        i++;
+        continue;
+      }
+
+      const dels=[];
+      const ins=[];
+      while(i<ops.length && (ops[i].type==='delete' || ops[i].type==='insert')){
+        if(ops[i].type==='delete') dels.push(ops[i].a||'');
+        else ins.push(ops[i].b||'');
+        i++;
+      }
+
+      const k = Math.max(dels.length, ins.length);
+      for(let p=0;p<k;p++){
+        const a = dels[p] ?? '';
+        const b = ins[p] ?? '';
+        if(a && b){
+          const r = renderTokenDiff(a,b);
+          lh += r.left;
+          rh += r.right;
+        } else if(a){
+          lh += lineHtml(a, 'line-del');
+          rh += lineHtml('');
+        } else {
+          lh += lineHtml('');
+          rh += lineHtml(b, 'line-add');
+        }
+      }
+    }
+
+    leftEl.innerHTML=lh;
+    rightEl.innerHTML=rh;
+  }
+
+  function highlightDiff(liveText, draftText){
+    highlightDiffInto(liveEl, draftEl, liveText, draftText);
+  }
+
+  async function renderPreviewInto(targetEl, markdown, file, site){
+    const res = await fetch('/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        markdown: markdown || '',
+        file,
+        site
+      })
+    });
+
+    if(!res.ok){
+      const txt = await res.text().catch(() => res.statusText);
+      throw new Error(`Preview fehlgeschlagen (${res.status}): ${txt}`);
+    }
+
+    const data = await res.json();
+    ensureStylesheets(data.stylesheets);
+    ensureExtraCss(site);
+    targetEl.innerHTML = `<style>${data.css || ''}</style>${data.html || ''}`;
+  }
+
+  async function renderChangeViews(area, file, liveText, draftText){
+    highlightDiff(liveText, draftText);
+    const results = await Promise.allSettled([
+      renderPreviewInto(livePreviewEl, liveText, file, area),
+      renderPreviewInto(draftPreviewEl, draftText, file, area)
+    ]);
+    results.forEach((result, index) => {
+      if(result.status === 'fulfilled') return;
+      const target = index === 0 ? livePreviewEl : draftPreviewEl;
+      target.innerHTML = `<div class="empty">Vorschau konnte nicht geladen werden.</div>`;
+      console.error(result.reason);
+    });
+  }
+
+  function clearChangeViews(){
+    liveEl.textContent = '';
+    draftEl.textContent = '';
+    livePreviewEl.innerHTML = '';
+    draftPreviewEl.innerHTML = '';
+  }
+
+  async function loadOpenDrafts(){
+    setStatus('Lade Änderungen…');
+    try{
+      const j = await fetchJSON('/admin/changes');
+      openDraftItems = j.items || [];
+      renderOpenDrafts(getFilteredOpenDrafts());
+      setStatus('');
+    }catch(e){ setStatus('Fehler beim Laden der Liste'); }
+  }
+
+  async function selectChange(change){
+    try{
+      setStatus('Lade Diff…');
+      currentChange = change || null;
+      currentFile = change?.file || null;
+      currentArea = change?.area || null;
+
+      // UX: Rollback-Feld auto befüllen
+      if(grSite && grFile){
+        grSite.value = currentArea;
+        grFile.value = currentFile;
+        if(grKind) grKind.value = 'live';
+      }
+
+      const params = new URLSearchParams({
+        area: currentArea,
+        file: currentFile,
+      });
+      if(change?.operation) params.set('operation', change.operation);
+      if(change?.kind) params.set('kind', change.kind);
+      if(change?.from) params.set('from_path', change.from);
+      if(change?.to) params.set('to_path', change.to);
+      if(change?.path) params.set('path', change.path);
+
+      const j = await fetchJSON(`/admin/diff?${params.toString()}`);
+      selLabel.textContent = change?.display_file || j.file;
+      await renderChangeViews(currentArea, currentFile, j.live || '', j.draft || '');
+      approveBtn.disabled=false; rejectBtn.disabled=false; editBtn.disabled=false;
+      setStatus('');
+    }catch(e){ setStatus('Fehler beim Laden des Diff'); }
+  }
+
+  async function fetchChangePreview(change){
+    if(!change?.operation) return { files: [] };
+    const params = new URLSearchParams({
+      area: change.area || '',
+      file: change.file || '',
+      operation: change.operation || '',
+      kind: change.kind || 'file',
+      from_path: change.from || '',
+      to_path: change.to || '',
+      path: change.path || '',
+      source_origin: change.source_origin || '',
+    });
+    return fetchJSON(`/admin/change_preview?${params.toString()}`);
+  }
+
+  async function confirmCurrentChange(mode){
+    if(!currentChange?.operation) return true;
+    const preview = await fetchChangePreview(currentChange).catch(() => ({ files: [] }));
+    const actionWord = mode === 'approve' ? 'übernehmen' : 'ablehnen';
+    const op = currentChange.operation;
+    const kindLabel = currentChange.kind === 'folder' ? 'Ordner' : 'Datei';
+    const targetName = currentChange.display_file || currentChange.path || currentChange.to || currentChange.file || '';
+    let message = `Wollen Sie den Antrag wirklich ${actionWord}?`;
+
+    if(op === 'deleted'){
+      message = `Wollen Sie die Löschung von ${kindLabel} "${targetName}" wirklich ${actionWord}?`;
+    } else if(op === 'moved'){
+      message = `Wollen Sie die Verschiebung von ${kindLabel} "${currentChange.from || targetName}" nach "${currentChange.to || targetName}" wirklich ${actionWord}?`;
+    } else if(op === 'renamed'){
+      message = `Wollen Sie die Umbenennung von ${kindLabel} "${currentChange.from || targetName}" zu "${currentChange.to || targetName}" wirklich ${actionWord}?`;
+    } else if(op === 'folder_created' || op === 'file_created'){
+      message = `Wollen Sie das Anlegen von ${kindLabel} "${targetName}" wirklich ${actionWord}?`;
+    }
+
+    if(currentChange.kind === 'folder' && Array.isArray(preview.files) && preview.files.length){
+      message += `\n\nBetroffene Dateien:\n- ${preview.files.join('\n- ')}`;
+    }
+
+    return confirm(message);
+  }
+
+  approveBtn.onclick = async ()=>{
+    if(!currentFile) return;
+    try{
+      if(!(await confirmCurrentChange('approve'))) return;
+      setStatus('Übernehme…');
+      const fd=new FormData();
+      fd.append('area', currentArea);
+      fd.append('file', currentFile);
+      if(currentChange?.operation) fd.append('operation', currentChange.operation);
+      if(currentChange?.kind) fd.append('kind', currentChange.kind);
+      if(currentChange?.from) fd.append('from_path', currentChange.from);
+      if(currentChange?.to) fd.append('to_path', currentChange.to);
+      if(currentChange?.path) fd.append('path', currentChange.path);
+      if(currentChange?.source_origin) fd.append('source_origin', currentChange.source_origin);
+      await fetchJSON('/admin/approve', {method:'POST', body:fd});
+      removeOpenDraftItem(currentChange);
+      await loadOpenDrafts();
+      clearChangeViews(); selLabel.textContent='Keine Auswahl'; currentChange = null;
+      approveBtn.disabled=true; rejectBtn.disabled=true; editBtn.disabled=true;
+      setStatus('Übernommen');
+      showToast('Entwurf wurde übernommen.');
+      await loadHistory();
+    }catch(e){ setStatus('Fehler beim Übernehmen'); showToast('Fehler beim Übernehmen.', 'error'); }
+  };
+
+  rejectBtn.onclick = async ()=>{
+    if(!currentFile) return;
+    try{
+      if(!(await confirmCurrentChange('reject'))) return;
+      setStatus('Lehne ab…');
+      const fd=new FormData();
+      fd.append('area', currentArea);
+      fd.append('file', currentFile);
+      if(currentChange?.operation) fd.append('operation', currentChange.operation);
+      if(currentChange?.kind) fd.append('kind', currentChange.kind);
+      if(currentChange?.from) fd.append('from_path', currentChange.from);
+      if(currentChange?.to) fd.append('to_path', currentChange.to);
+      if(currentChange?.path) fd.append('path', currentChange.path);
+      if(currentChange?.source_origin) fd.append('source_origin', currentChange.source_origin);
+      await fetchJSON('/admin/reject', {method:'POST', body:fd});
+      removeOpenDraftItem(currentChange);
+      await loadOpenDrafts();
+      clearChangeViews(); selLabel.textContent='Keine Auswahl'; currentChange = null;
+      approveBtn.disabled=true; rejectBtn.disabled=true; editBtn.disabled=true;
+      setStatus('Abgelehnt');
+      showToast('Entwurf wurde abgelehnt.');
+      await loadHistory();
+    }catch(e){ setStatus('Fehler beim Ablehnen'); showToast('Fehler beim Ablehnen.', 'error'); }
+  };
+
+  editBtn.onclick = ()=>{
+    if(currentFile && currentArea)
+      window.open(
+        `/static/editor/editor.html?site=${encodeURIComponent(currentArea)}&file=${encodeURIComponent(currentFile)}`,
+        '_blank',
+        'noopener'
+      );
+  };
+
+  // --- Lokales Rollback UI ---
+  function cleanGitText(value){
+    return String(value || '')
+      .replace(/\bd-E-v-E-d\b/gi, '')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/\s+[–-]\s*$/, '')
+      .trim();
+  }
+
+  function renderGitCommits(){
+    grList.innerHTML = '';
+    grEmpty.style.display = grCommits.length ? 'none' : 'block';
+    grRollbackBtn.disabled = true;
+    grCurrent.textContent = '';
+    grOld.textContent = '';
+    grSelectedIdx = -1;
+
+    grCommits.forEach((c, i) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      const versionId = String(c.version_id || c.hash || '');
+      const author = cleanGitText(c.user || c.author);
+      const subject = cleanGitText(c.note || c.action || c.subject || 'Lokale Version');
+      const authorSubject = [author, subject].filter(Boolean).join(' - ');
+      row.innerHTML = `
+        <div class="meta"><strong>${escHtml(versionId)}</strong> <span class="muted">${fmtTime(c.timestamp || c.date)}</span></div>
+        <div class="meta">${escHtml(authorSubject)}</div>
+      `;
+      row.onclick = () => selectGitCommit(i);
+      grList.appendChild(row);
+    });
+  }
+
+  async function loadGitHistory(){
+    const area = (grSite.value || '').trim().toLowerCase();
+    const file = (grFile.value || '').trim();
+    const limit = Number(grLimit.value || 50) || 50;
+    if(!area || !file){ alert('Bereich und Datei angeben'); return; }
+
+    const data = await fetchJSON(`/admin/local_versions/history?area=${encodeURIComponent(area)}&file=${encodeURIComponent(file)}&limit=${limit}`);
+    grEffectiveKind = 'local';
+    grCommits = data.versions || data.commits || [];
+    grDiffLabel.textContent = 'Lokale Versionen';
+    renderGitCommits();
+  }
+
+  async function selectGitCommit(i){
+    grSelectedIdx = i;
+    grRollbackBtn.disabled = true;
+    grCurrent.textContent = '';
+    grOld.textContent = '';
+
+    if(i < 0){
+      grDiffLabel.textContent = 'Diff';
+      return;
+    }
+
+    const area = (grSite.value || '').trim().toLowerCase();
+    const file = (grFile.value || '').trim();
+    const selected = grCommits[i].version_id || grCommits[i].hash;
+    if(!selected){
+      grDiffLabel.textContent = 'Diff';
+      return;
+    }
+
+    grDiffLabel.textContent = `Aktuell gegen lokale Version ${selected}`;
+
+    const d = await fetchJSON(
+      `/admin/local_versions/diff?area=${encodeURIComponent(area)}&file=${encodeURIComponent(file)}&version_id=${encodeURIComponent(selected)}`
+    );
+
+    highlightDiffInto(grCurrent, grOld, d.current_text || '', d.old_text || '');
+    grRollbackBtn.disabled = false;
+  }
+
+  grLoad.addEventListener('click', () => loadGitHistory().catch(e => alert(e.message)));
+  grSite.addEventListener('change', () => {
+    grFile.value = '';
+    loadFileOptionsForSite(grSite.value, grFileOptions).catch(console.error);
+  });
+
+  grSyncBtn?.addEventListener('click', () => alert('Inhalts-Sync nach Git ist deaktiviert.'));
+
+  grRollbackBtn.addEventListener('click', async () => {
+    if(grSelectedIdx < 0) return;
+
+    const area = (grSite.value || '').trim().toLowerCase();
+    const file = (grFile.value || '').trim();
+    const target = grCommits[grSelectedIdx].version_id || grCommits[grSelectedIdx].hash;
+
+    if(!confirm(`Rollback ${area}:${file} auf lokale Version ${target}?`)) return;
+
+    const me = await fetchJSON('/auth/me');
+    const user = (me.name || me.username || 'admin');
+
+    const res = await fetch(`/admin/local_versions/rollback`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ area, file, version_id: target, user })
+    });
+
+    if(!res.ok){
+      const txt = await res.text().catch(()=> '');
+      alert(txt || `HTTP ${res.status}`);
+      return;
+    }
+    alert('Lokaler Rollback durchgeführt.');
+    await fetch(`/admin/build_site?site=${encodeURIComponent(area)}`, { method:'POST', credentials:'include' }).catch(() => {});
+    await loadGitHistory();
+  });
+
+  // Voll-Historie
+  function fmtTime(iso){
+    try{
+      const d = new Date(iso);
+      if(isNaN(d)) return iso || '';
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }catch(_){ return iso || ''; }
+  }
+  function historyActionLabel(e){
+    const details = e?.details || {};
+    if(e?.action === 'draft_saved'){
+      if(details.operation === 'renamed') return details.kind === 'folder' ? 'Ordner umbenannt' : 'Datei umbenannt';
+      if(details.operation === 'moved') return details.kind === 'folder' ? 'Ordner verschoben' : 'Datei verschoben';
+      if(details.operation === 'folder_created') return 'Ordner angelegt';
+      if(details.operation === 'file_created') return 'Datei angelegt';
+      if(details.operation === 'deleted') return details.kind === 'folder' ? 'Ordner gelöscht' : 'Datei gelöscht';
+      return 'Entwurf gespeichert';
+    }
+    if(e?.action === 'approved') return 'Freigegeben';
+    if(e?.action === 'rejected') return 'Abgelehnt';
+    if(e?.action === 'git_rollback') return 'Git-Rollback';
+    if(e?.action === 'local_rollback') return 'Lokaler Rollback';
+    return e?.action || '';
+  }
+  function escHtml(value){
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;' }[ch]));
+  }
+  function historyExtraRows(e){
+    const details = e?.details || {};
+    const rows = [];
+    const operation = historyActionLabel(e);
+    const detailOperation = (details.operation || '').toString().toLowerCase();
+    if(operation) rows.push(`<div class="k">Bedeutung</div><div class="v">${escHtml(operation)}</div>`);
+    if(details.kind) rows.push(`<div class="k">Typ</div><div class="v">${escHtml(details.kind)}</div>`);
+    if(detailOperation === 'moved'){
+      if(details.from) rows.push(`<div class="k">Voriger Pfad</div><div class="v">${escHtml(details.from)}</div>`);
+      if(details.to) rows.push(`<div class="k">Neuer Pfad</div><div class="v">${escHtml(details.to)}</div>`);
+    }else if(detailOperation === 'renamed'){
+      if(details.from) rows.push(`<div class="k">Alter Name</div><div class="v">${escHtml(pathBaseName(details.from))}</div>`);
+      if(details.to) rows.push(`<div class="k">Neuer Name</div><div class="v">${escHtml(pathBaseName(details.to))}</div>`);
+    }else{
+      if(details.from) rows.push(`<div class="k">Von</div><div class="v">${escHtml(details.from)}</div>`);
+      if(details.to) rows.push(`<div class="k">Nach</div><div class="v">${escHtml(details.to)}</div>`);
+    }
+    if(details.path && !details.to) rows.push(`<div class="k">Pfad</div><div class="v">${escHtml(details.path)}</div>`);
+    if(details.area) rows.push(`<div class="k">Bereich</div><div class="v">${escHtml(details.area)}</div>`);
+    if(details.source_origin) rows.push(`<div class="k">Ausgang</div><div class="v">${escHtml(details.source_origin)}</div>`);
+    return rows.join('');
+  }
+  function entrySummary(e){
+    const badgeCls=`hist-action ${e.action||''}`;
+    const details = e?.details || {};
+    const fileLabel = details.from || e.file || details.path || '';
+    const area = areaLabel(details.area || e.area);
+    const areaPrefix = area ? `${area}: ` : '';
+    return `
+      <span class="${badgeCls}">${historyActionLabel(e)}</span>
+      <span class="hist-file">${escHtml(areaPrefix + fileLabel)}</span>
+      <span class="hist-user">von ${e.user||'unbekannt'}</span>
+      <span class="hist-time">${fmtTime(e.timestamp)}</span>
+    `;
+  }
+  function renderHistory(items){
+    const host=qs('#hist-results');
+    if(!items?.length){ host.innerHTML='<div class="hist-empty">Keine Einträge gefunden.</div>'; return; }
+    const frag=document.createDocumentFragment();
+    items.forEach(e=>{
+      const det=document.createElement('details'); det.className='hist-item';
+      const sum=document.createElement('summary'); sum.innerHTML=entrySummary(e);
+      det.appendChild(sum);
+      const body=document.createElement('div'); body.className='hist-body';
+      body.innerHTML=`
+        <div class="hist-kv">
+          <div class="k">Aktion</div><div class="v">${historyActionLabel(e)}</div>
+          <div class="k">Datei</div><div class="v">${e.file||''}</div>
+          <div class="k">Benutzer</div><div class="v">${e.user||'unbekannt'}</div>
+          <div class="k">Zeit</div><div class="v">${fmtTime(e.timestamp)}</div>
+          ${historyExtraRows(e)}
+        </div>`;
+      if(e.details){
+        const pre=document.createElement('pre');
+        pre.style.background='#020617';
+        pre.style.color='#e5e7eb';
+        pre.style.borderRadius='8px';
+        pre.style.padding='.6rem .7rem';
+        pre.style.overflow='auto';
+        pre.style.fontSize='.85rem';
+        pre.textContent = JSON.stringify(e.details, null, 2);
+        body.appendChild(pre);
+      }
+      det.appendChild(body); frag.appendChild(det);
+    });
+    host.innerHTML=''; host.appendChild(frag);
+  }
+
+  async function loadHistory(){
+    const action = qs('#hist-action').value.trim();
+    const area   = qs('#hist-area').value.trim();
+    const file   = qs('#hist-file').value.trim();
+    const user   = qs('#hist-user').value.trim();
+    const limit  = Number(qs('#hist-limit').value||200) || 200;
+
+    const params = new URLSearchParams();
+    if(action) params.set('action', action);
+    if(area)   params.set('area', area);
+    if(file)   params.set('file', file);
+    if(user)   params.set('user', user);
+    params.set('limit', String(limit));
+
+    const data = await fetchJSON(`/admin/history?${params.toString()}`);
+    renderHistory(data.items || []);
+  }
+
+  function bindHistoryUI(){
+    if(historyUiBound) return;
+    historyUiBound = true;
+    let historySearchTimer = null;
+    const scheduleHistoryLoad = () => {
+      clearTimeout(historySearchTimer);
+      historySearchTimer = setTimeout(() => loadHistory().catch(console.error), 250);
+    };
+    qs('#hist-reload').addEventListener('click', (e)=>{
+      e.preventDefault();
+      loadHistory().catch(err=>alert(err.message));
+    });
+    qs('#hist-action').addEventListener('change', ()=>loadHistory().catch(console.error));
+    qs('#hist-area').addEventListener('change', async ()=>{
+      qs('#hist-file').value = '';
+      await loadFileOptionsForSite(qs('#hist-area').value, histFileOptions);
+      await loadHistory();
+    });
+    ['#hist-file','#hist-user','#hist-limit'].forEach(sel=>{
+      qs(sel).addEventListener('keydown', (ev)=>{ if(ev.key==='Enter') loadHistory().catch(console.error); });
+      qs(sel).addEventListener('input', scheduleHistoryLoad);
+    });
+  }
+
+  // ---- Version ----
+  async function loadVersion(){
+    try{
+      const data = await fetchJSON('/admin/version');
+      const v = data.version || data.current_version || '–';
+      const d = data.version_date || data.build_date || '';
+      qs('#v-current').textContent = v;
+      qs('#v-date').textContent = d ? `(${d})` : '';
+    }catch(e){ console.error('VERSION FAIL', e); }
+  }
+
+  const vLog = qs('#v-log');
+  function logLine(s) {
+    vLog.textContent += (s + "\n");
+    vLog.scrollTop = vLog.scrollHeight;
+  }
+
+  function logPdfUrls(urls){
+    if(!Array.isArray(urls) || !urls.length){
+      logLine("Keine PDF-Pfade zurückgegeben.");
+      return;
+    }
+    logLine("PDF-Pfade:");
+    urls.forEach((url) => {
+      const absUrl = new URL(url, window.location.origin).toString();
+      logLine(absUrl);
+    });
+  }
+
+  function notifyMkDocsPublished(site){
+    const normalizedSite = (site || 'all').trim().toLowerCase();
+    const signal = {
+      site: normalizedSite,
+      ts: Date.now()
+    };
+    try{
+      localStorage.setItem('asko:publish-refresh', JSON.stringify(signal));
+    }catch(e){
+      console.warn('Publish-Refresh-Signal konnte nicht gespeichert werden', e);
+    }
+    showToast('Veröffentlicht. Offene MkDocs-Tabs werden aktualisiert.');
+  }
+
+  async function postJson(url, body) {
+    const res = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
+    const txt = await res.text().catch(() => "");
+    let data = {};
+    try { data = txt ? JSON.parse(txt) : {}; } catch { data = { raw: txt }; }
+    if (!res.ok) {
+      const d = (data && data.detail) ? JSON.stringify(data.detail) : txt;
+      throw new Error(d || `HTTP ${res.status}`);
+    }
+    return data;
+  }
+
+  // Persist Bereich-Auswahl
+  if(siteSel){
+    siteSel.value = localStorage.getItem('admin:site') || siteSel.value;
+    siteSel.addEventListener('change', ()=> localStorage.setItem('admin:site', getSite()));
+  }
+
+  document.getElementById("btn-publish-site").addEventListener("click", async () => {
+    try {
+      const site = getSite();
+      const newV = (document.getElementById("v-new").value || "").trim();
+      logLine(`== Publish Bereich gestartet (${site}) ==`);
+      const payload = newV ? { version: newV } : {};
+      const data = await postJson(`/admin/publish?site=${encodeURIComponent(site)}`, payload);
+      logLine(JSON.stringify(data, null, 2));
+      logLine("== Fertig ==");
+      if(data && data.build_ok && data.deploy_ok){
+        notifyMkDocsPublished(site);
+      }
+      await loadVersion();
+    } catch (e) {
+      logLine("FEHLER: " + e.message);
+      showToast('Veröffentlichung fehlgeschlagen.', 'error');
+    }
+  });
+
+  document.getElementById("btn-publish-all").addEventListener("click", async () => {
+    try {
+      const newV = (document.getElementById("v-new").value || "").trim();
+      logLine("== Publish Alle gestartet ==");
+      const payload = newV ? { version: newV } : {};
+      const data = await postJson(`/admin/publish?site=all`, payload);
+      logLine(JSON.stringify(data, null, 2));
+      logLine("== Fertig ==");
+      if(data && data.build_ok && data.deploy_ok){
+        notifyMkDocsPublished('all');
+      }
+      await loadVersion();
+    } catch (e) {
+      logLine("FEHLER: " + e.message);
+      showToast('Veröffentlichung fehlgeschlagen.', 'error');
+    }
+  });
+
+  async function runPdfExport(site){
+    const data = await postJson(`/admin/pdf?site=${encodeURIComponent(site)}`, {});
+    logLine(JSON.stringify(data, null, 2));
+    logPdfUrls(data.pdf_urls || []);
+    return data;
+  }
+
+  document.getElementById("btn-pdf-site").addEventListener("click", async () => {
+    try {
+      const site = getSite();
+      logLine("== PDF Export Bereich gestartet (" + site + ") ==");
+      const data = await runPdfExport(site);
+      const firstUrl = (data.pdf_urls || [])[0];
+      if(firstUrl){
+        const absUrl = new URL(firstUrl, window.location.origin).toString();
+        logLine("Öffne PDF im neuen Tab: " + absUrl);
+        const popup = window.open(absUrl, "_blank", "noopener");
+        if (!popup) {
+          logLine("Hinweis: Automatisches Öffnen wurde blockiert. Pfad oben manuell kopieren.");
+        }
+      }
+      logLine("== Fertig ==");
+    } catch (e) {
+      logLine("FEHLER: " + e.message);
+    }
+  });
+
+  document.getElementById("btn-pdf-all").addEventListener("click", async () => {
+    try {
+      logLine("== PDF Export Alle gestartet ==");
+      await runPdfExport("all");
+      logLine("Wenn das automatische Öffnen blockiert wird, können die obigen PDF-Pfade direkt im Browser geöffnet werden.");
+      logLine("== Fertig ==");
+    } catch (e) {
+      logLine("FEHLER: " + e.message);
+    }
+  });
+  // ---- Init ----
+  window.addEventListener('load', async ()=>{
+    try{
+      await ensureAdmin();
+      bindHistoryUI();
+      await loadFileOptionsForSite('', histFileOptions);
+      await loadFileOptionsForSite(grSite?.value || '', grFileOptions);
+      await loadOpenDrafts();
+      await loadHistory();
+      await loadVersion();
+    }catch(e){
+      // ensureAdmin zeigt Modal; nach Login lädt es selbst
+    }
+  });
+})();
+</script>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,166 @@
+/* ============================
+   Preview + CheatSheet MkDocs Fix
+   Wir scopen ALLES strikt auf:
+   - #preview .md-typeset
+   - #livePreview .md-typeset
+   - #draftPreview .md-typeset
+   - #cheatPane .md-typeset
+   damit es NICHT in UI reinfunkt.
+   ============================ */
+
+/* Überschriften: exakt wie custom.css – getrennt je Level */
+#preview .md-typeset h1,
+#livePreview .md-typeset h1,
+#draftPreview .md-typeset h1,
+#cheatPane .md-typeset h1 {
+  font-size: 1.50rem;
+  font-weight: 600;
+  color: black;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+#preview .md-typeset h2,
+#livePreview .md-typeset h2,
+#draftPreview .md-typeset h2,
+#cheatPane .md-typeset h2 {
+  font-size: 1.30rem;
+  font-weight: 600;
+  color: mediumseagreen;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+#preview .md-typeset h3,
+#livePreview .md-typeset h3,
+#draftPreview .md-typeset h3,
+#cheatPane .md-typeset h3 {
+  font-size: 1.10rem;
+  font-weight: 600;
+  color: lightseagreen;
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+}
+
+
+/* Headerlink / Permalink: MkDocs Material zeigt das Symbol i.d.R. nur bei Hover
+   Bei dir kommt es “dauerhaft blau” -> wir verstecken es standardmäßig. */
+#preview .md-typeset .headerlink,
+#livePreview .md-typeset .headerlink,
+#draftPreview .md-typeset .headerlink,
+#preview .md-typeset .md-content__button,
+#livePreview .md-typeset .md-content__button,
+#draftPreview .md-typeset .md-content__button,
+#cheatPane .md-typeset .headerlink {
+  display: none !important;
+}
+
+/* Falls Material statt .headerlink andere Varianten rendert (manchmal aria-label etc.) */
+#preview .md-typeset a[aria-label="Permalink"],
+#livePreview .md-typeset a[aria-label="Permalink"],
+#draftPreview .md-typeset a[aria-label="Permalink"],
+#preview .md-typeset a[aria-label="Permanent link"],
+#livePreview .md-typeset a[aria-label="Permanent link"],
+#draftPreview .md-typeset a[aria-label="Permanent link"],
+#preview .md-typeset h1 > a[href^="#"],
+#preview .md-typeset h2 > a[href^="#"],
+#preview .md-typeset h3 > a[href^="#"],
+#preview .md-typeset h4 > a[href^="#"],
+#preview .md-typeset h5 > a[href^="#"],
+#preview .md-typeset h6 > a[href^="#"],
+#livePreview .md-typeset h1 > a[href^="#"],
+#livePreview .md-typeset h2 > a[href^="#"],
+#livePreview .md-typeset h3 > a[href^="#"],
+#livePreview .md-typeset h4 > a[href^="#"],
+#livePreview .md-typeset h5 > a[href^="#"],
+#livePreview .md-typeset h6 > a[href^="#"],
+#draftPreview .md-typeset h1 > a[href^="#"],
+#draftPreview .md-typeset h2 > a[href^="#"],
+#draftPreview .md-typeset h3 > a[href^="#"],
+#draftPreview .md-typeset h4 > a[href^="#"],
+#draftPreview .md-typeset h5 > a[href^="#"],
+#draftPreview .md-typeset h6 > a[href^="#"],
+#cheatPane .md-typeset a[aria-label="Permalink"] {
+  display: none !important;
+}
+
+/* Tabellen: Material zeigt Linien subtil, dein Wunsch: klare Rahmenlinien */
+#preview .md-typeset table,
+#livePreview .md-typeset table,
+#draftPreview .md-typeset table,
+#cheatPane .md-typeset table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#preview .md-typeset th,
+#preview .md-typeset td,
+#livePreview .md-typeset th,
+#livePreview .md-typeset td,
+#draftPreview .md-typeset th,
+#draftPreview .md-typeset td,
+#cheatPane .md-typeset th,
+#cheatPane .md-typeset td {
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  padding: .45rem .55rem;
+  vertical-align: top;
+}
+
+/* Admonitions: Farben “garantieren”, falls Site-CSS/Material nicht greift
+   Material setzt i.d.R. Background + border-left je Typ. */
+#preview .md-typeset .admonition,
+#livePreview .md-typeset .admonition,
+#draftPreview .md-typeset .admonition,
+#cheatPane .md-typeset .admonition {
+  border-left: 0.25rem solid rgba(0,0,0,.2);
+  border-radius: .1rem;
+  padding: .6rem .8rem;
+  margin: 1em 0;
+  background: rgba(0,0,0,.03);
+}
+
+#preview .md-typeset .admonition-title,
+#livePreview .md-typeset .admonition-title,
+#draftPreview .md-typeset .admonition-title,
+#cheatPane .md-typeset .admonition-title {
+  font-weight: 700;
+  margin: 0 0 .3rem 0;
+}
+
+/* Typ-spezifische Farben (orientiert an Material Defaults) */
+#preview .md-typeset .admonition.note,
+#livePreview .md-typeset .admonition.note,
+#draftPreview .md-typeset .admonition.note,
+#cheatPane .md-typeset .admonition.note { border-left-color: #3b82f6; }
+
+#preview .md-typeset .admonition.info,
+#livePreview .md-typeset .admonition.info,
+#draftPreview .md-typeset .admonition.info,
+#cheatPane .md-typeset .admonition.info { border-left-color: #06b6d4; }
+
+#preview .md-typeset .admonition.warning,
+#livePreview .md-typeset .admonition.warning,
+#draftPreview .md-typeset .admonition.warning,
+#cheatPane .md-typeset .admonition.warning { border-left-color: #f59e0b; }
+
+#preview .md-typeset .admonition.danger,
+#livePreview .md-typeset .admonition.danger,
+#draftPreview .md-typeset .admonition.danger,
+#cheatPane .md-typeset .admonition.danger { border-left-color: #ef4444; }
+
+/* Optional: Bilder im Preview nie overflowen lassen */
+#preview .md-typeset img,
+#livePreview .md-typeset img,
+#draftPreview .md-typeset img,
+#cheatPane .md-typeset img {
+  max-width: 100%;
+  height: auto;
+}
+
+#preview img {
+  max-width: 100%;
+}
+#livePreview img,
+#draftPreview img {
+  max-width: 100%;
+}

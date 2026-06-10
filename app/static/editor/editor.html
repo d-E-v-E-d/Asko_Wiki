@@ -1,0 +1,2255 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/static/editor/preview-fix.css">
+    <title>Markdown-Editor</title>
+    <style>
+        :root { --bg:#f6f7fb; --card:#fff; --border:#dfe3ea; --brand:#0b72b9; --muted:#6b7280; --cheat-h: 34vh; }
+        html, body{height:100%}
+        body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);overflow:hidden;}
+
+        .topbar{display:flex;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:10}
+        .topbar-left,
+        .topbar-right{display:flex;align-items:center;gap:10px;min-width:0}
+        .topbar-left{flex:1 1 auto;flex-wrap:wrap}
+        .topbar-right{flex:0 0 auto;margin-left:auto;padding-left:14px;border-left:1px solid #e5e7eb}
+        .topbar input[type=text]{min-width:320px;padding:6px 10px;border:1px solid var(--border);border-radius:10px;font-size:13px}
+        .topbar label{display:flex;align-items:center;gap:6px;font-size:13px;color:#374151}
+        .btn{padding:6px 10px;border:1px solid var(--border);border-radius:10px;background:#f2f5f9;cursor:pointer;font-size:12px}
+        .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+        .btn.admin{background:#7c3aed;border-color:#7c3aed;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(124,58,237,.18)}
+        .btn.admin:hover{background:#6d28d9;border-color:#6d28d9}
+        .btn.portal{background:#0f766e;border-color:#0f766e;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(15,118,110,.18)}
+        .btn.portal:hover{background:#115e59;border-color:#115e59}
+        .btn.logout{background:#fee2e2;border-color:#fecaca;color:#991b1b}
+        .btn.logout:hover{background:#fecaca}
+        .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .menu-group{position:relative}
+        .menu-panel{
+            position:absolute;
+            top:calc(100% + 6px);
+            left:0;
+            min-width:190px;
+            background:#fff;
+            border:1px solid var(--border);
+            border-radius:12px;
+            box-shadow:0 12px 30px rgba(0,0,0,.10);
+            padding:6px;
+            display:none;
+            z-index:25;
+        }
+        .menu-group.open .menu-panel{display:block}
+        .menu-item{
+            width:100%;
+            border:0;
+            background:transparent;
+            text-align:left;
+            padding:8px 10px;
+            border-radius:8px;
+            font-size:12px;
+            cursor:pointer;
+            color:#1f2937;
+        }
+        .menu-item:hover{background:#f3f6fb}
+        .menu-item.danger{color:#991b1b}
+        .menu-sep{height:1px;background:#e5e7eb;margin:6px 2px}
+        .status{color:#666;font-size:12px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .who{color:#374151;font-size:12px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+        .layout{
+            display:grid;
+            grid-template-rows:minmax(0, 1fr) minmax(0, var(--cheat-h));
+            height:calc(100vh - 56px);
+            min-height:0;
+        }
+        .layout.cheat-collapsed{grid-template-rows:minmax(0, 1fr) 0}
+        .pane{display:flex;flex-direction:column;height:100%;min-height:0}
+
+        /* FIX: nur der Pane-Header (direktes Kind) soll so aussehen – NICHT Markdown-h2 */
+        .pane > h2{margin:8px 14px 6px;font-size:13px;color:#555}
+
+        .editor, .preview{flex:1;margin:0 8px 8px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:auto}
+        .editor{overflow:hidden}
+
+        textarea{width:100%;border:0;outline:none;resize:none;font:13px/1.55 ui-monospace,Consolas,Menlo,monospace;padding:12px;background:transparent;box-sizing:border-box;overflow:auto;display:block}
+        .preview-inner{padding:16px 18px;font-size:14px;line-height:1.6}
+        .chip{font-size:11px;color:#777;padding:2px 8px;border:1px solid var(--border);border-radius:999px;background:#fff}
+        .drop-hint{font-size:11px;color:var(--muted);margin:6px 14px}
+        .hidden{display:none}
+
+        /* Datei-Picker */
+        .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:20;padding:14px;box-sizing:border-box}
+        .modal.open{display:flex}
+        .modal .card{background:#fff;border-radius:12px;width:min(720px, calc(100vw - 28px));min-width:0;max-height:calc(100dvh - 28px);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.08);display:flex;flex-direction:column;overflow:hidden}
+        #chapterLinkModal .card{width:min(860px, calc(100vw - 28px))}
+        .modal header{padding:10px 12px;border-bottom:1px solid var(--border);font-weight:600;font-size:13px}
+        .modal .section{padding:10px 12px;border-bottom:1px solid #edf2f7;flex:0 0 auto}
+        .modal .section:last-child{border-bottom:0}
+        .modal .search{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;box-sizing:border-box}
+        .modal .list{overflow:auto;min-height:0}
+        .modal .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;border-bottom:1px dashed #eee;cursor:pointer;font-size:13px}
+        .modal .row > div:first-child{min-width:0;overflow-wrap:anywhere}
+        .modal .row:hover{background:#f7f9fc}
+        .modal .row.active{background:#eaf4fb}
+        .modal .actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+        .modal .muted{font-size:12px;color:#64748b}
+        .folder-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;border-bottom:1px dashed #eee;cursor:pointer;font-size:13px}
+        .folder-row > div:first-child{min-width:0;overflow-wrap:anywhere}
+        .folder-row:hover{background:#f7f9fc}
+        .folder-row.active{background:#eaf4fb}
+        .tag{font-size:11px;color:#555;padding:2px 8px;border:1px solid var(--border);border-radius:999px;background:#fff;flex:0 0 auto}
+
+        /* Login-Modal für Editor (Gast) */
+        .login-modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:40}
+        .login-modal.open{display:flex}
+        .login-dialog{background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:16px;min-width:320px;max-width:90vw;box-shadow:0 12px 30px rgba(0,0,0,.15)}
+        .login-dialog h3{margin:0 0 8px 0;font-size:15px}
+        .login-dialog p{margin:0 0 10px 0;font-size:13px;color:#4b5563}
+        .login-dialog label{display:block;font-size:12px;color:#374151;margin-top:8px}
+        .login-dialog input{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px}
+        .login-dialog .row{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+
+        @media (max-width: 640px), (max-height: 720px){
+            .modal{align-items:flex-start;padding:8px}
+            .modal .card,
+            #chapterLinkModal .card{width:100%;max-height:calc(100dvh - 16px);border-radius:10px}
+            .modal header{padding:9px 10px}
+            .modal .section{padding:9px 10px}
+            .modal .actions{justify-content:stretch}
+            .modal .actions .btn{flex:1 1 150px}
+            .modal .row,
+            .folder-row{align-items:flex-start;padding:8px 10px}
+            #folderList,
+            #chapterLinkList{max-height:28dvh !important}
+            #moveSourceFolderList,
+            #moveFolderList,
+            #chapterLinkFileList,
+            #fileList{max-height:24dvh !important}
+        }
+
+        @media (max-width: 480px){
+            .modal .actions .btn{flex-basis:100%}
+            .login-dialog{min-width:0;width:calc(100vw - 24px);box-sizing:border-box}
+            .login-dialog input{box-sizing:border-box}
+        }
+
+        /* --- Cheat-Sheet Bottom Panel --- */
+        .wrap{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            gap:0;
+            min-height:0;
+        }
+
+        .pane.editor-pane{ grid-column: 1 / 2; grid-row: 1 / 2; }
+        .pane.preview-pane{ grid-column: 2 / 3; grid-row: 1 / 2; }
+
+        .cheat-pane{
+            background:#fff;
+            margin:0 8px 8px 8px;
+            border:1px solid var(--border);
+            border-radius:12px;
+            overflow:hidden;
+            display:flex;
+            flex-direction:column;
+            min-height:0;
+        }
+        .layout.cheat-collapsed .cheat-pane{ display:none; }
+
+        .cheat-pane header{
+            position:sticky;
+            top:0;
+            background:#fff;
+            border-bottom:1px solid var(--border);
+            padding:8px 12px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:8px;
+            z-index:5;
+        }
+
+        .cheat-pane header .title{
+            font-weight:600;
+            font-size:13px;
+            color:#374151;
+        }
+
+        .cheat-pane .cheat-body{
+            overflow:auto;
+            padding:8px;
+        }
+
+        .cheat .list{display:flex;flex-direction:column;gap:6px}
+        .c-row{
+            display:grid;
+            grid-template-columns: 132px minmax(210px, .95fr) minmax(260px, 1.2fr) 122px;
+            align-items:start;
+            gap:8px;
+            padding:6px 8px;
+            border:1px dashed #e5e7eb;
+            border-radius:10px;
+        }
+        .c-label{font-size:12px;color:#374151}
+        .c-example{font-size:12px;max-width:none;min-width:0;overflow:hidden}
+        .c-insert .btn{
+            width:100%;
+            font-size:12px;
+            font-weight:600;
+            padding:7px 12px;
+            background:#fff;
+            border-color:#93c5fd;
+            color:#1d4ed8;
+            box-shadow:0 4px 12px rgba(59,130,246,.10);
+        }
+        .c-insert .btn:hover{
+            background:#eff6ff;
+            border-color:#60a5fa;
+            color:#1e40af;
+        }
+
+        .c-syntax{ min-width:0; }
+        .c-syntax code{
+            display:block;
+            white-space:normal;
+            overflow-wrap:anywhere;
+            word-break:break-word;
+        }
+
+        .c-insert{
+            display:flex;
+            justify-content:flex-start;
+            align-items:flex-start;
+        }
+
+        #cheatPane .md-typeset{font-size:12px}
+        #cheatPane .md-typeset h1,
+        #cheatPane .md-typeset h2,
+        #cheatPane .md-typeset h3{margin:.2rem 0;font-size:1rem}
+        #cheatPane .md-typeset p,
+        #cheatPane .md-typeset li{margin:.2rem 0}
+        #cheatPane .md-typeset .task-list-item{display:flex;align-items:flex-start;gap:.45rem;list-style:none;margin-left:0}
+        #cheatPane .md-typeset .task-list-item input[type="checkbox"]{margin:.15rem 0 0;flex:0 0 auto;position:static}
+
+        textarea{ height:100%; min-height:0; }
+        .editor, .preview{ flex:1; min-height:0; }
+        .cheat{background:#fff;border:0;border-radius:12px;padding:0;margin:0}
+
+        /* Optional: damit Material-typische Typo auch im Editor nicht “zu stark” von deinem Container beeinflusst wird */
+        .preview-inner .md-typeset { font-size: 14px; }
+    </style>
+</head>
+
+<!-- FIX: Material Palette/Theme Variablen aktivieren (Defaults) -->
+<body data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+<div class="topbar">
+  <div class="topbar-left">
+    <label> Bereich:&nbsp;
+        <select id="siteSel">
+            <option value="schaden">Schaden</option>
+            <option value="betrieb">Betrieb</option>
+            <option value="vertrieb">Vertrieb</option>
+            <option value="allgemein">Allgemein</option>
+            <option value="buchhaltung">Buchhaltung</option>
+            <option value="novas">Novas</option>
+            <option value="datenschutz">Datenschutz</option>
+            <option value="wto">Warentransport Online</option>
+            <option value="it-faq">IT-FAQ</option>
+            <option value="testumgebung">Testumgebung</option>
+        </select>
+    </label>
+
+    <label> Datei:&nbsp;
+        <input id="file" type="text" placeholder="einleitung/zweck.md" />
+    </label>
+    <span id="source" class="chip">–</span>
+
+    <div class="toolbar">
+        <button class="btn" id="pickBtn">Andere Datei bearbeiten</button>
+        <div class="menu-group" id="fileMenuGroup">
+            <button class="btn" id="fileMenuBtn" type="button">Dateiverwaltung</button>
+            <div class="menu-panel" id="fileMenuPanel">
+                <button class="menu-item" id="createFileOpenBtn" type="button">Datei anlegen</button>
+                <button class="menu-item" id="moveFileOpenBtn" type="button">Datei verschieben</button>
+                <button class="menu-item" id="renameFileOpenBtn" type="button">Datei umbenennen</button>
+                <div class="menu-sep"></div>
+                <button class="menu-item danger" id="deleteBtn" type="button">Datei löschen</button>
+            </div>
+        </div>
+        <div class="menu-group" id="folderMenuGroup">
+            <button class="btn" id="folderMenuBtn" type="button">Ordnerverwaltung</button>
+            <div class="menu-panel" id="folderMenuPanel">
+                <button class="menu-item" id="createFolderOpenBtn" type="button">Ordner anlegen</button>
+                <button class="menu-item" id="moveFolderOpenBtn" type="button">Ordner verschieben</button>
+                <button class="menu-item" id="renameFolderOpenBtn" type="button">Ordner umbenennen</button>
+                <div class="menu-sep"></div>
+                <button class="menu-item danger" id="deleteFolderOpenBtn" type="button">Ordner löschen</button>
+            </div>
+        </div>
+        <button class="btn" id="imgBtn">Datei einfügen</button>
+        <input class="hidden" id="imgInput" type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" />
+        <button class="btn primary" id="saveBtn">Speichern</button>
+
+        <button class="btn" id="toggleCheatBtn" title="Formatvorlagen ein-/ausblenden">Formatvorlagen ein-/ausblenden</button>
+        <button class="btn" id="undoBtn" title="letzten Schritt rückgängig">&larr;</button>
+        <button class="btn" id="redoBtn" title="einen Schritt vor">&rarr;</button>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span id="status" class="status"></span>
+    <span id="who" class="who"></span>
+    <button id="logoutBtn" class="btn logout" title="Benutzer wechseln">Benutzer wechseln</button>
+    <button id="adminBtn" class="btn admin">Zum Admin-Tool</button>
+    <button id="portalBtn" class="btn portal" title="Zurück zum Portal">Zum Portal</button>
+  </div>
+</div>
+<div class="layout" id="layout">
+<div class="wrap" id="wrap">
+    <div class="pane editor-pane">
+        <h2>Markdown</h2>
+        <div class="editor">
+            <textarea id="md" placeholder="# Überschrift&#10;Text …"></textarea>
+        </div>
+        <div class="drop-hint">
+            Bilder und Dokumente per <strong>Drag&Drop</strong> einfügen – Bilder funktionieren auch per <strong>Strg+V</strong>.
+        </div>
+    </div>
+
+    <div class="pane preview-pane">
+        <h2>Vorschau</h2>
+        <div class="preview">
+            <div id="preview" class="preview-inner"></div>
+        </div>
+    </div>
+
+    </div>
+
+    <div class="cheat-pane" id="cheatPane">
+        <header>
+            <div class="title">Formatierung wählen</div>
+            <button class="btn" id="collapseCheatBtn" title="Formatierung wählen zuklappen">Zuklappen</button>
+        </header>
+
+        <div class="cheat-body">
+            <div class="cheat">
+                <div class="list">
+
+                    <div class="c-row">
+                        <div class="c-label">Überschrift H1</div>
+                        <div class="c-syntax"><code># Text</code></div>
+                        <div class="c-example"><div class="md-typeset"><h1>Überschrift</h1></div></div>
+                        <div class="c-insert"><button class="btn" data-action="h1">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Überschrift H2</div>
+                        <div class="c-syntax"><code>## Text</code></div>
+                        <div class="c-example"><div class="md-typeset"><h2>Abschnitt</h2></div></div>
+                        <div class="c-insert"><button class="btn" data-action="h2">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Überschrift H3</div>
+                        <div class="c-syntax"><code>### Text</code></div>
+                        <div class="c-example"><div class="md-typeset"><h3>Unter-Abschnitt</h3></div></div>
+                        <div class="c-insert"><button class="btn" data-action="h3">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Fett</div>
+                        <div class="c-syntax"><code>**Text**</code></div>
+                        <div class="c-example"><div class="md-typeset"><p><strong>fetter Text</strong></p></div></div>
+                        <div class="c-insert"><button class="btn" data-action="bold">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Kursiv</div>
+                        <div class="c-syntax"><code>_Text_</code></div>
+                        <div class="c-example"><div class="md-typeset"><p><em>kursiver Text</em></p></div></div>
+                        <div class="c-insert"><button class="btn" data-action="italic">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Einrückung</div>
+                        <div class="c-syntax"><code>␣␣␣␣Text</code></div>
+                        <div class="c-example"><div class="md-typeset"><blockquote><p>Eingerückter Text</p></blockquote></div></div>
+                        <div class="c-insert"><button class="btn" data-action="indent">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Neue Zeile</div>
+                        <div class="c-syntax"><code>&lt;br&gt;</code></div>
+                        <div class="c-example"><div class="md-typeset"><p>Zeile 1<br>Zeile 2</p></div></div>
+                        <div class="c-insert"><button class="btn" data-action="br">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Liste</div>
+                        <div class="c-syntax"><code>- Punkt</code></div>
+                        <div class="c-example"><div class="md-typeset"><ul><li>Punkt 1</li><li>Punkt 2</li></ul></div></div>
+                        <div class="c-insert"><button class="btn" data-action="ul">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Nummeriert</div>
+                        <div class="c-syntax"><code>1. Punkt</code></div>
+                        <div class="c-example"><div class="md-typeset"><ol><li>Erster Punkt</li><li>Zweiter Punkt</li></ol></div></div>
+                        <div class="c-insert"><button class="btn" data-action="ol">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Aufgabenliste</div>
+                        <div class="c-syntax"><code>- [ ] Aufgabe</code></div>
+                        <div class="c-example">
+                            <div class="md-typeset">
+                                <ul class="task-list">
+                                    <li class="task-list-item"><input type="checkbox" disabled> Aufgabe offen</li>
+                                    <li class="task-list-item"><input type="checkbox" disabled checked> Aufgabe erledigt</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="c-insert"><button class="btn" data-action="todo">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Zitat</div>
+                        <div class="c-syntax"><code>&gt; Text</code></div>
+                        <div class="c-example"><div class="md-typeset"><blockquote><p>Dies ist ein Zitat</p></blockquote></div></div>
+                        <div class="c-insert"><button class="btn" data-action="quote">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Hinweis</div>
+                        <div class="c-syntax"><code>!!! note<br>&nbsp;&nbsp;&nbsp;&nbsp;Dies ist ein Hinweis.</code></div>
+                        <div class="c-example">
+                            <div class="md-typeset">
+                                <div class="admonition note">
+                                    <p class="admonition-title">Hinweis</p>
+                                    <p>Dies ist ein Hinweis.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-insert"><button class="btn" data-action="note">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Info</div>
+                        <div class="c-syntax"><code>!!! info<br>&nbsp;&nbsp;&nbsp;&nbsp;Zusätzliche Information.</code></div>
+                        <div class="c-example">
+                            <div class="md-typeset">
+                                <div class="admonition info">
+                                    <p class="admonition-title">Info</p>
+                                    <p>Zusätzliche Information.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-insert"><button class="btn" data-action="info">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Warnung</div>
+                        <div class="c-syntax"><code>!!! warning<br>&nbsp;&nbsp;&nbsp;&nbsp;Kritischer Hinweis.</code></div>
+                        <div class="c-example">
+                            <div class="md-typeset">
+                                <div class="admonition warning">
+                                    <p class="admonition-title">Achtung</p>
+                                    <p>Kritischer Hinweis.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-insert"><button class="btn" data-action="warning">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Gefahr</div>
+                        <div class="c-syntax"><code>!!! danger<br>&nbsp;&nbsp;&nbsp;&nbsp;Sehr kritischer Hinweis.</code></div>
+                        <div class="c-example">
+                            <div class="md-typeset">
+                                <div class="admonition danger">
+                                    <p class="admonition-title">Gefahr</p>
+                                    <p>Sehr kritischer Hinweis.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-insert"><button class="btn" data-action="danger">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Kapitel-Link</div>
+                        <div class="c-syntax"><code>[wie hier beschrieben](#rauchen "Rauchen")</code></div>
+                        <div class="c-example"><div class="md-typeset"><p>Wie im Kapitel <a href="#rauchen">Rauchen</a> erwähnt.</p></div></div>
+                        <div class="c-insert"><button class="btn" data-action="chapter-link">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">SharePoint-Link</div>
+                        <div class="c-syntax"><code>[Mitarbeiteransprechliste](https://...sharepoint.com/...)</code></div>
+                        <div class="c-example"><div class="md-typeset"><p><a href="https://www.sharepoint.com/" target="_blank" rel="noopener">Mitarbeiteransprechliste</a></p></div></div>
+                        <div class="c-insert"><button class="btn" data-action="sharepoint-link">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Trenner</div>
+                        <div class="c-syntax"><code>---</code></div>
+                        <div class="c-example"><div class="md-typeset"><hr></div></div>
+                        <div class="c-insert"><button class="btn" data-action="hr">Anwenden</button></div>
+                    </div>
+
+                    <div class="c-row">
+                        <div class="c-label">Tabelle</div>
+                        <div class="c-syntax"><code>| A | B |</code></div>
+                        <div class="c-example">
+                            <div class="md-typeset">
+                                <div class="md-typeset__table">
+                                    <table>
+                                        <thead><tr><th>Spalte A</th><th>Spalte B</th></tr></thead>
+                                        <tbody><tr><td>Wert 1</td><td>Wert 2</td></tr></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-insert"><button class="btn" data-action="table">Anwenden</button></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="card">
+        <header>Andere Datei bearbeiten</header>
+        <div class="section">
+            <input id="fileSearch" class="search" type="text" placeholder="Datei suchen..." />
+        </div>
+        <div id="fileList" class="list"></div>
+    </div>
+</div>
+
+<div id="createModal" class="modal" role="dialog" aria-modal="true">
+    <div class="card">
+        <header id="createModalTitle">Datei oder Ordner anlegen</header>
+        <div class="section">
+            <div class="muted">Ordner auswählen</div>
+            <input id="folderSearch" class="search" type="text" placeholder="Ordner suchen..." />
+        </div>
+        <div id="folderList" class="list" style="max-height:260px;"></div>
+        <div class="section">
+            <div class="muted">Neuen Namen eingeben</div>
+            <input id="createName" class="search" type="text" placeholder="z.B. Neuer-Ordner oder Neue-Datei" />
+        </div>
+        <div class="section actions">
+            <button id="createFileBtn" class="btn">Datei anlegen</button>
+            <button id="createFolderBtn" class="btn">Ordner anlegen</button>
+            <button id="deleteFolderBtn" class="btn logout">Ordner löschen</button>
+        </div>
+    </div>
+</div>
+
+<div id="moveModal" class="modal" role="dialog" aria-modal="true">
+    <div class="card">
+        <header id="moveModalTitle">Datei oder Ordner verschieben</header>
+        <div class="section" id="moveSourceSection">
+            <div class="muted">Quellordner auswählen</div>
+            <input id="moveSourceFolderSearch" class="search" type="text" placeholder="Quellordner suchen..." />
+        </div>
+        <div id="moveSourceFolderList" class="list" style="max-height:180px;"></div>
+        <div class="section" id="moveTargetSection">
+            <div class="muted">Zielordner auswählen</div>
+            <input id="moveFolderSearch" class="search" type="text" placeholder="Ordner suchen..." />
+        </div>
+        <div id="moveFolderList" class="list" style="max-height:180px;"></div>
+        <div class="section" id="moveNameSection">
+            <div class="muted" id="moveNameLabel">Neuen Namen eingeben</div>
+            <input id="moveName" class="search" type="text" placeholder="Neuen Namen eingeben" />
+        </div>
+        <div class="section actions">
+            <button id="moveConfirmBtn" class="btn">Ausführen</button>
+        </div>
+    </div>
+</div>
+
+<div id="chapterLinkModal" class="modal" role="dialog" aria-modal="true">
+    <div class="card">
+        <header>Kapitel-Link erstellen</header>
+        <div class="section">
+            <div class="muted">Sichtbarer Text</div>
+            <input id="chapterLinkText" class="search" type="text" placeholder="z.B. wie hier beschrieben" />
+        </div>
+        <div class="section">
+            <div class="muted">Ziel-Datei auswählen</div>
+            <input id="chapterLinkFileSearch" class="search" type="text" placeholder="Bereich oder Datei suchen..." />
+        </div>
+        <div id="chapterLinkFileList" class="list" style="max-height:180px;"></div>
+        <div class="section">
+            <div class="muted">Ziel-Kapitel auswählen</div>
+            <input id="chapterLinkSearch" class="search" type="text" placeholder="Kapitel suchen..." />
+        </div>
+        <div id="chapterLinkList" class="list" style="max-height:260px;"></div>
+        <div class="section actions">
+            <button id="chapterLinkConfirmBtn" class="btn primary">Link einfügen</button>
+        </div>
+    </div>
+</div>
+
+<div id="sharePointLinkModal" class="modal" role="dialog" aria-modal="true">
+    <div class="card">
+        <header>SharePoint-Link einfügen</header>
+        <div class="section">
+            <div class="muted">Sichtbarer Text</div>
+            <input id="sharePointLinkText" class="search" type="text" placeholder="z.B. Mitarbeiteransprechliste" />
+        </div>
+        <div class="section">
+            <div class="muted">SharePoint-Link</div>
+            <input id="sharePointLinkUrl" class="search" type="url" placeholder="https://...sharepoint.com/..." />
+        </div>
+        <div class="section actions">
+            <button id="sharePointLinkCancelBtn" class="btn" type="button">Abbrechen</button>
+            <button id="sharePointLinkConfirmBtn" class="btn primary" type="button">Link einfügen</button>
+        </div>
+    </div>
+</div>
+
+<div id="editorLoginModal" class="login-modal">
+    <div class="login-dialog">
+        <h3>Bearbeiten starten</h3>
+        <p>Bitte gib deinen Namen ein (erscheint im Änderungsprotokoll). Kein Passwort erforderlich.</p>
+        <label>Dein Name</label>
+        <input id="editorName" placeholder="z.B. Max Mustermann" />
+        <div class="row">
+            <button id="editorLoginBtn" class="btn primary">Weiter</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const qs = sel => document.querySelector(sel);
+    const mdEl = qs('#md');
+    const fileEl = qs('#file');
+    const statusEl = qs('#status');
+    const sourceEl = qs('#source');
+    const saveBtn = qs('#saveBtn');
+    const imgBtn = qs('#imgBtn');
+    const imgInput = qs('#imgInput');
+    const previewEl = qs('#preview');
+    const adminBtn = qs('#adminBtn');
+    const portalBtn = qs('#portalBtn');
+    const pickBtn = qs('#pickBtn');
+    const fileMenuGroup = qs('#fileMenuGroup');
+    const folderMenuGroup = qs('#folderMenuGroup');
+    const fileMenuBtn = qs('#fileMenuBtn');
+    const folderMenuBtn = qs('#folderMenuBtn');
+    const createFileOpenBtn = qs('#createFileOpenBtn');
+    const createFolderOpenBtn = qs('#createFolderOpenBtn');
+    const deleteFolderOpenBtn = qs('#deleteFolderOpenBtn');
+    const moveFileOpenBtn = qs('#moveFileOpenBtn');
+    const moveFolderOpenBtn = qs('#moveFolderOpenBtn');
+    const renameFileOpenBtn = qs('#renameFileOpenBtn');
+    const renameFolderOpenBtn = qs('#renameFolderOpenBtn');
+    const deleteBtn = qs('#deleteBtn');
+    const modal = qs('#modal');
+    const fileList = qs('#fileList');
+    const fileSearch = qs('#fileSearch');
+    const whoEl = qs('#who');
+    const logoutBtn = qs('#logoutBtn');
+    const createModal = qs('#createModal');
+    const createModalTitle = qs('#createModalTitle');
+    const folderList = qs('#folderList');
+    const folderSearch = qs('#folderSearch');
+    const createNameInput = qs('#createName');
+    const createFileBtn = qs('#createFileBtn');
+    const createFolderBtn = qs('#createFolderBtn');
+    const deleteFolderBtn = qs('#deleteFolderBtn');
+    const moveModal = qs('#moveModal');
+    const moveModalTitle = qs('#moveModalTitle');
+    const moveSourceSection = qs('#moveSourceSection');
+    const moveTargetSection = qs('#moveTargetSection');
+    const moveNameSection = qs('#moveNameSection');
+    const moveNameLabel = qs('#moveNameLabel');
+    const moveSourceFolderList = qs('#moveSourceFolderList');
+    const moveSourceFolderSearch = qs('#moveSourceFolderSearch');
+    const moveFolderList = qs('#moveFolderList');
+    const moveFolderSearch = qs('#moveFolderSearch');
+    const moveNameInput = qs('#moveName');
+    const moveConfirmBtn = qs('#moveConfirmBtn');
+    const chapterLinkModal = qs('#chapterLinkModal');
+    const chapterLinkTextInput = qs('#chapterLinkText');
+    const chapterLinkFileSearchInput = qs('#chapterLinkFileSearch');
+    const chapterLinkFileList = qs('#chapterLinkFileList');
+    const chapterLinkSearchInput = qs('#chapterLinkSearch');
+    const chapterLinkList = qs('#chapterLinkList');
+    const chapterLinkConfirmBtn = qs('#chapterLinkConfirmBtn');
+    const sharePointLinkModal = qs('#sharePointLinkModal');
+    const sharePointLinkTextInput = qs('#sharePointLinkText');
+    const sharePointLinkUrlInput = qs('#sharePointLinkUrl');
+    const sharePointLinkCancelBtn = qs('#sharePointLinkCancelBtn');
+    const sharePointLinkConfirmBtn = qs('#sharePointLinkConfirmBtn');
+
+    const loginModal = qs('#editorLoginModal');
+    const editorNameInput = qs('#editorName');
+    const editorLoginBtn = qs('#editorLoginBtn');
+
+    const layoutEl = qs('#layout');
+    const toggleCheatBtn = qs('#toggleCheatBtn');
+    const collapseCheatBtn = qs('#collapseCheatBtn');
+    const undoBtn = qs('#undoBtn');
+    const redoBtn = qs('#redoBtn');
+
+    const siteSel = qs('#siteSel');
+    let lastFileItems = [];
+    let folderItems = [];
+    let selectedFolder = '';
+    let createModalKind = 'file';
+    let selectedMoveSourceFolder = '';
+    let selectedMoveFolder = '';
+    let moveAction = { mode: 'move', kind: 'file' };
+    let chapterLinkItems = [];
+    let selectedChapterLink = null;
+    let chapterLinkSelection = null;
+    let sharePointLinkSelection = null;
+    let chapterLinkFiles = [];
+    let selectedChapterLinkFile = null;
+    const chapterLinkFileCache = new Map();
+    const HISTORY_LIMIT = 10;
+    let editorHistory = [];
+    let editorHistoryIndex = -1;
+    let ignoreHistoryRecording = false;
+    let cleanEditorContent = '';
+
+    // --- Deeplink Support: ?site=<bereich>&file=<pfad.md> ---
+    function getParam(name){
+      try { return new URLSearchParams(window.location.search).get(name); }
+      catch(e){ return null; }
+    }
+
+    function applyDeeplinkSelection(){
+      const incomingSite = (getParam("site") || "").trim().toLowerCase();
+      const incomingFile = (getParam("file") || "").trim();
+
+      if(incomingSite){
+        siteSel.value = incomingSite;
+        localStorage.setItem("editor:site", incomingSite);
+      }
+
+      if(incomingFile){
+        fileEl.value = incomingFile;
+        // lastFile pro site setzen, damit picker/wechsel konsistent bleibt
+        localStorage.setItem("editor:lastFile:" + (incomingSite || getSite()), ensureMdFilename(incomingFile));
+      }
+    }
+
+    function getSite(){ return (siteSel.value || 'schaden').trim().toLowerCase(); }
+
+    function markEditorClean(){
+        cleanEditorContent = mdEl.value || '';
+    }
+
+    function hasUnsavedChanges(){
+        return (mdEl.value || '') !== cleanEditorContent;
+    }
+
+    function confirmUnsavedChanges(){
+        if(!hasUnsavedChanges()) return true;
+        return window.confirm('Es gibt ungespeicherte Änderungen. Wenn Sie die Seite verlassen oder eine andere Datei laden, gehen diese Änderungen verloren. Wirklich fortfahren?');
+    }
+
+    function navigateWithUnsavedCheck(url){
+        if(!confirmUnsavedChanges()) return;
+        location.href = url;
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+        if(!hasUnsavedChanges()) return;
+        e.preventDefault();
+        e.returnValue = '';
+    });
+
+    let statusClearTimer = null;
+    function showStatus(msg, ok=true, clearAfterMs=null){
+        if(statusClearTimer){
+            clearTimeout(statusClearTimer);
+            statusClearTimer = null;
+        }
+        statusEl.textContent = msg;
+        statusEl.style.color = ok ? '#2b6' : '#b33';
+        const timeoutMs = clearAfterMs == null ? (ok ? 3000 : 0) : clearAfterMs;
+        if(timeoutMs > 0){
+            statusClearTimer = setTimeout(() => {
+                if(statusEl.textContent === msg) statusEl.textContent = '';
+                statusClearTimer = null;
+            }, timeoutMs);
+        }
+    }
+
+    const debounce = (fn, ms=250) => {
+        let t;
+        return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+    };
+
+    function getEditorSnapshot(){
+        return {
+            value: mdEl.value,
+            start: mdEl.selectionStart ?? 0,
+            end: mdEl.selectionEnd ?? 0,
+        };
+    }
+
+    function updateHistoryButtons(){
+        undoBtn.disabled = editorHistoryIndex <= 0;
+        redoBtn.disabled = editorHistoryIndex < 0 || editorHistoryIndex >= editorHistory.length - 1;
+    }
+
+    function applyEditorSnapshot(snapshot){
+        if(!snapshot) return;
+        ignoreHistoryRecording = true;
+        mdEl.value = snapshot.value || '';
+        mdEl.focus();
+        mdEl.selectionStart = Math.min(snapshot.start ?? 0, mdEl.value.length);
+        mdEl.selectionEnd = Math.min(snapshot.end ?? (snapshot.start ?? 0), mdEl.value.length);
+        ignoreHistoryRecording = false;
+        const f = ensureMdFilename(fileEl.value);
+        if(f) localStorage.setItem('editor:content:' + getSite() + ':' + f, mdEl.value);
+        renderPreviewDebounced();
+        updateHistoryButtons();
+    }
+
+    function recordHistorySnapshot(force=false){
+        if(ignoreHistoryRecording) return;
+        const snapshot = getEditorSnapshot();
+        const current = editorHistory[editorHistoryIndex];
+        if(!force && current &&
+            current.value === snapshot.value &&
+            current.start === snapshot.start &&
+            current.end === snapshot.end){
+            return;
+        }
+
+        if(editorHistoryIndex < editorHistory.length - 1){
+            editorHistory = editorHistory.slice(0, editorHistoryIndex + 1);
+        }
+
+        editorHistory.push(snapshot);
+        if(editorHistory.length > HISTORY_LIMIT){
+            editorHistory.shift();
+        }
+        editorHistoryIndex = editorHistory.length - 1;
+        updateHistoryButtons();
+    }
+
+    const recordHistorySnapshotDebounced = debounce(() => recordHistorySnapshot(false), 250);
+
+    function resetEditorHistory(){
+        editorHistory = [getEditorSnapshot()];
+        editorHistoryIndex = 0;
+        updateHistoryButtons();
+    }
+
+    function doUndo(){
+        if(editorHistoryIndex <= 0) return;
+        editorHistoryIndex -= 1;
+        applyEditorSnapshot(editorHistory[editorHistoryIndex]);
+    }
+
+    function doRedo(){
+        if(editorHistoryIndex >= editorHistory.length - 1) return;
+        editorHistoryIndex += 1;
+        applyEditorSnapshot(editorHistory[editorHistoryIndex]);
+    }
+
+    updateHistoryButtons();
+
+    function ensureMdFilename(v){
+        v = (v || '').trim();
+        if(!v.toLowerCase().endsWith('.md')) v += '.md';
+        return v.replaceAll('\\','/');
+    }
+
+    function ensureStylesheets(urls){
+        if(!Array.isArray(urls)) return;
+        const head = document.head || document.getElementsByTagName('head')[0];
+
+        urls.forEach((href) => {
+            if(!href) return;
+            const exists = [...head.querySelectorAll('link[rel="stylesheet"]')].some(l => l.getAttribute('href') === href);
+            if(exists) return;
+
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            head.appendChild(link);
+        });
+    }
+
+    // FIX: extra_css aus mkdocs.yml (bei dir: assets/css/*.css) zusätzlich laden
+    function ensureExtraCss(site){
+        const head = document.head || document.getElementsByTagName('head')[0];
+        const extra = [
+            `/site/${site}/assets/css/custom.css`,
+            `/site/${site}/assets/css/pdf-print.css`,
+            `/site/${site}/assets/css/site-switcher.css`,
+            // falls Material/MkDocs ein "extra.css" unter stylesheets ablegt:
+            `/site/${site}/assets/stylesheets/extra.css`
+        ];
+
+        extra.forEach(href => {
+            const exists = [...head.querySelectorAll('link[rel="stylesheet"]')].some(l => l.getAttribute('href') === href);
+            if(exists) return;
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            head.appendChild(link);
+        });
+    }
+
+    function insertAtCursor(textarea, text){
+        const s = textarea.selectionStart ?? textarea.value.length;
+        const e = textarea.selectionEnd ?? textarea.value.length;
+        textarea.value = textarea.value.slice(0,s) + text + textarea.value.slice(e);
+        textarea.selectionStart = textarea.selectionEnd = s + text.length;
+        textarea.focus();
+        if(textarea === mdEl){
+            const f = ensureMdFilename(fileEl.value);
+            if(f) localStorage.setItem('editor:content:' + getSite() + ':' + f, mdEl.value);
+            recordHistorySnapshot(true);
+        }
+    }
+
+    async function fetchJSON(url, opts={}){
+        const res = await fetch(url, { credentials: 'include', ...opts });
+        if(!res.ok){
+            const txt = await res.text().catch(()=>res.statusText);
+            throw new Error(`HTTP ${res.status}: ${txt}`);
+        }
+        return res.json();
+    }
+
+    async function ensureEditorAuth(){
+        try{
+            const me = await fetchJSON('/auth/me');
+            if(me.role === 'editor' || me.role === 'admin'){
+                whoEl.textContent = `angemeldet als ${me.name || me.username} (${me.role})`;
+                return;
+            }
+        }catch(e){}
+
+        loginModal.classList.add('open');
+        editorNameInput.focus();
+
+        await new Promise((resolve) => {
+            async function doGuestLogin(){
+                const name = (editorNameInput.value || '').trim();
+                if(!name){
+                    alert('Bitte Name eingeben');
+                    editorNameInput.focus();
+                    return;
+                }
+                try{
+                    await fetchJSON('/auth/guest', {
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({ name })
+                    });
+                    loginModal.classList.remove('open');
+                    const me = await fetchJSON('/auth/me');
+                    whoEl.textContent = `angemeldet als ${me.name || me.username} (${me.role})`;
+                    editorLoginBtn.onclick = null;
+                    editorNameInput.removeEventListener('keydown', onEnter);
+                    resolve(true);
+                }catch(err){
+                    alert('Gast-Login fehlgeschlagen: ' + err.message);
+                }
+            }
+
+            function onEnter(e){
+                if(e.key === 'Enter'){
+                    e.preventDefault();
+                    doGuestLogin();
+                }
+            }
+
+            editorLoginBtn.onclick = doGuestLogin;
+            editorNameInput.addEventListener('keydown', onEnter);
+        });
+    }
+
+    async function doLogout(){
+        try{ await fetchJSON('/auth/logout', { method:'POST' }); }
+        catch(e){}
+        finally{ location.reload(); }
+    }
+
+    function indentBlock(text, prefix) {
+        const lines = (text || "").split("\n");
+        return lines.map(l => prefix + l).join("\n");
+    }
+
+    function insertAdmonition(type, title) {
+        const ta = mdEl;
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+
+        const before = ta.value.slice(0, start);
+        const selected = ta.value.slice(start, end);
+        const after = ta.value.slice(end);
+
+        const hadSelection = selected.length > 0;
+
+        const bodyText = (selected && selected.trim().length > 0)
+            ? selected
+            : (type === "note" ? "Dies ist ein Hinweis."
+                : type === "info" ? "Zusätzliche Information."
+                    : type === "warning" ? "Kritischer Hinweis."
+                        : "Sehr kritischer Hinweis.");
+
+        const header = title ? `!!! ${type} "${title}"` : `!!! ${type}`;
+        const bodyIndented = indentBlock(bodyText, "    ");
+        const block = header + "\n" + bodyIndented;
+
+        const needsLeadingNl = before.length > 0 && !before.endsWith("\n\n");
+        const needsTrailingNl = after.length > 0 && !after.startsWith("\n\n");
+
+        const insertText =
+            (needsLeadingNl ? "\n\n" : "") +
+            block +
+            (needsTrailingNl ? "\n\n" : "\n");
+
+        const newValue = before + insertText + after;
+
+        const insertedStart = before.length + (needsLeadingNl ? 2 : 0);
+        const headerStart = insertedStart;
+        const bodyStart = headerStart + header.length + 1;
+        const bodyEnd = bodyStart + bodyIndented.length;
+
+        ta.value = newValue;
+        ta.focus();
+
+        if (hadSelection) {
+            ta.selectionStart = bodyStart;
+            ta.selectionEnd = bodyEnd;
+        } else {
+            ta.selectionStart = ta.selectionEnd = Math.min(bodyStart + 4, ta.value.length);
+        }
+
+        renderPreviewDebounced();
+        const f = ensureMdFilename(fileEl.value);
+        if (f) localStorage.setItem("editor:content:" + getSite() + ":" + f, ta.value);
+        recordHistorySnapshot(true);
+    }
+
+    async function renderPreview() {
+        try {
+            const res = await fetch('/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ markdown: mdEl.value, file: ensureMdFilename(fileEl.value), site: getSite() }),
+                credentials: 'include'
+            });
+
+            if(!res.ok){
+                const txt = await res.text();
+                showStatus(`Vorschau-Fehler (${res.status})`, false);
+                console.error('PREVIEW FAIL', res.status, txt);
+                return;
+            }
+
+            const data = await res.json();
+            ensureStylesheets(data.stylesheets);
+            ensureExtraCss(getSite()); // FIX: extra_css nachladen
+            previewEl.innerHTML = `<style>${data.css||''}</style>${data.html||''}`;
+        } catch (e) {
+            showStatus('Vorschau-Fehler (Netzwerk)', false);
+            console.error(e);
+        }
+    }
+    const renderPreviewDebounced = debounce(renderPreview, 200);
+
+    async function loadCurrent() {
+        const f = ensureMdFilename(fileEl.value);
+        if(!f){ showStatus('Bitte Dateiname eingeben', false); return; }
+        try {
+            const res = await fetch(`/editor/load?site=${encodeURIComponent(getSite())}&file=${encodeURIComponent(f)}`, { credentials: 'include' });
+            if(!res.ok){
+                const txt = await res.text();
+                showStatus(`Laden fehlgeschlagen (${res.status})`, false);
+                console.error('LOAD FAIL', res.status, txt);
+                return;
+            }
+            const data = await res.json();
+            sourceEl.textContent = data.source==='draft' ? 'Entwurf' : (data.source==='live' ? 'Live' : 'Neu');
+            mdEl.value = data.content || '';
+            localStorage.setItem('editor:lastFile:' + getSite(), f);
+            localStorage.setItem('editor:content:' + getSite() + ':' + f, mdEl.value);
+            resetEditorHistory();
+            markEditorClean();
+            showStatus('Geladen');
+            renderPreview();
+        } catch (e) {
+            showStatus('Laden fehlgeschlagen (Netzwerk)', false);
+            console.error(e);
+        }
+    }
+
+    async function saveDraft() {
+        const f = ensureMdFilename(fileEl.value);
+        if(!f){ showStatus('Bitte Dateiname eingeben', false); return; }
+        try {
+            const fd = new FormData();
+            fd.append('site', getSite());
+            fd.append('file', f);
+            fd.append('markdown', mdEl.value);
+            fd.append('comment', 'Editor Save');
+            const res = await fetch('/editor/save', { method:'POST', body: fd, credentials: 'include' });
+            if(!res.ok){
+                const txt = await res.text();
+                showStatus(`Speichern fehlgeschlagen (${res.status})`, false);
+                console.error('SAVE FAIL', res.status, txt);
+                return;
+            }
+            const data = await res.json();
+            if(data.ok){
+                showStatus('Draft gespeichert', true, 3000);
+                sourceEl.textContent='Entwurf';
+                localStorage.setItem('editor:content:' + getSite() + ':' + f, mdEl.value);
+                markEditorClean();
+            } else {
+                showStatus('Speichern fehlgeschlagen', false);
+            }
+        } catch (e) {
+            showStatus('Speichern fehlgeschlagen (Netzwerk)', false);
+            console.error(e);
+        }
+    }
+
+    function renderFileRows(items){
+        fileList.innerHTML='';
+        (items||[]).forEach(item => {
+            const row = document.createElement('div');
+            row.className='row';
+            row.innerHTML = `<div>${item.path}</div><div class="tag">${item.source==='draft'?'Entwurf':'Live'}</div>`;
+            row.onclick = () => {
+                if(!confirmUnsavedChanges()) return;
+                fileEl.value = item.path;
+                modal.classList.remove('open');
+                loadCurrent();
+            };
+            fileList.appendChild(row);
+        });
+        if(!fileList.children.length){
+            fileList.innerHTML = '<div class="row"><em>Keine Treffer</em></div>';
+        }
+    }
+
+    function filterFileRows(){
+        const q = (fileSearch.value || '').trim().toLowerCase();
+        if(!q) return renderFileRows(lastFileItems);
+        renderFileRows(lastFileItems.filter(item => (item.path || '').toLowerCase().includes(q)));
+    }
+
+    function getFilteredFolders(){
+        const q = (folderSearch.value || '').trim().toLowerCase();
+        if(!q) return folderItems;
+        return folderItems.filter(folder => (folder || 'Wurzel').toLowerCase().includes(q));
+    }
+
+    function renderFolderRows(items){
+        folderList.innerHTML = '';
+        (items || []).forEach(folder => {
+            const row = document.createElement('div');
+            row.className = 'folder-row' + (folder === selectedFolder ? ' active' : '');
+            row.innerHTML = `<div>${folder || 'Wurzel'}</div><div class="tag">Ordner</div>`;
+            row.onclick = () => {
+                selectedFolder = folder;
+                renderFolderRows(getFilteredFolders());
+            };
+            folderList.appendChild(row);
+        });
+        if(!folderList.children.length){
+            folderList.innerHTML = '<div class="row"><em>Keine Ordner gefunden</em></div>';
+        }
+    }
+
+    function getFilteredMoveFolders(){
+        const q = (moveFolderSearch.value || '').trim().toLowerCase();
+        if(!q) return folderItems;
+        return folderItems.filter(folder => (folder || 'Wurzel').toLowerCase().includes(q));
+    }
+
+    function getFilteredMoveSourceFolders(){
+        const q = (moveSourceFolderSearch.value || '').trim().toLowerCase();
+        if(!q) return folderItems.filter(folder => folder);
+        return folderItems.filter(folder => folder && folder.toLowerCase().includes(q));
+    }
+
+    function getMarkdownHeadings(markdown){
+        const lines = (markdown || '').split(/\r?\n/);
+        const headings = [];
+        let inFence = false;
+
+        for(const line of lines){
+            if(/^```/.test(line.trim())){
+                inFence = !inFence;
+                continue;
+            }
+            if(inFence) continue;
+
+            const match = /^(#{1,6})\s+(.+?)\s*$/.exec(line);
+            if(!match) continue;
+
+            const title = match[2]
+                .replace(/\s+\{#.+\}\s*$/, '')
+                .replace(/\s*#+\s*$/, '')
+                .trim();
+            if(!title) continue;
+
+            headings.push({
+                level: match[1].length,
+                title,
+                anchor: slugifyHeading(title) || 'kapitelname',
+            });
+        }
+
+        return headings;
+    }
+
+    function getFilteredChapterLinks(){
+        const q = (chapterLinkSearchInput.value || '').trim().toLowerCase();
+        if(!q) return chapterLinkItems;
+        return chapterLinkItems.filter(item =>
+            (item.title || '').toLowerCase().includes(q) ||
+            (item.anchor || '').toLowerCase().includes(q)
+        );
+    }
+
+    function getFilteredChapterLinkFiles(){
+        const q = (chapterLinkFileSearchInput.value || '').trim().toLowerCase();
+        if(!q) return chapterLinkFiles;
+        return chapterLinkFiles.filter(item => {
+            const path = (item.path || '').toLowerCase();
+            const site = (item.site || '').toLowerCase();
+            const label = (item.label || '').toLowerCase();
+            return path.includes(q) || site.includes(q) || label.includes(q);
+        });
+    }
+
+    function renderChapterLinkFileRows(items){
+        chapterLinkFileList.innerHTML = '';
+        (items || []).forEach(item => {
+            const row = document.createElement('div');
+            const isActive = selectedChapterLinkFile && selectedChapterLinkFile.site === item.site && selectedChapterLinkFile.path === item.path;
+            row.className = 'row' + (isActive ? ' active' : '');
+            row.innerHTML = `<div>${item.site} / ${item.path}</div><div class="tag">${item.source==='draft'?'Entwurf':'Live'}</div>`;
+            row.onclick = async () => {
+                selectedChapterLinkFile = item;
+                renderChapterLinkFileRows(getFilteredChapterLinkFiles());
+                await loadChapterLinkHeadingsForFile(item);
+            };
+            chapterLinkFileList.appendChild(row);
+        });
+
+        if(!chapterLinkFileList.children.length){
+            chapterLinkFileList.innerHTML = '<div class="row"><em>Keine Dateien gefunden</em></div>';
+        }
+    }
+
+    function renderChapterLinkRows(items){
+        chapterLinkList.innerHTML = '';
+        (items || []).forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'row' + ((selectedChapterLink && selectedChapterLink.anchor === item.anchor && selectedChapterLink.title === item.title) ? ' active' : '');
+            row.innerHTML = `<div>${'&nbsp;&nbsp;'.repeat(Math.max(0, item.level - 1))}${item.title}</div><div class="tag">#${item.anchor}</div>`;
+            row.onclick = () => {
+                selectedChapterLink = item;
+                renderChapterLinkRows(getFilteredChapterLinks());
+            };
+            row.ondblclick = () => {
+                selectedChapterLink = item;
+                insertChapterLink();
+            };
+            chapterLinkList.appendChild(row);
+        });
+
+        if(!chapterLinkList.children.length){
+            chapterLinkList.innerHTML = '<div class="row"><em>Keine Kapitel gefunden</em></div>';
+        }
+    }
+
+    async function loadChapterLinkHeadingsForFile(fileItem){
+        const site = (fileItem && fileItem.site ? fileItem.site : getSite()).trim().toLowerCase();
+        const file = ensureMdFilename(fileItem && fileItem.path ? fileItem.path : fileItem || '');
+        if(!file){
+            chapterLinkItems = [];
+            selectedChapterLink = null;
+            renderChapterLinkRows([]);
+            return;
+        }
+
+        const cacheKey = `${site}::${file}`;
+        if(chapterLinkFileCache.has(cacheKey)){
+            chapterLinkItems = chapterLinkFileCache.get(cacheKey) || [];
+            selectedChapterLink = chapterLinkItems[0] || null;
+            renderChapterLinkRows(getFilteredChapterLinks());
+            return;
+        }
+
+        chapterLinkList.innerHTML = '<div class="row"><em>lade…</em></div>';
+        const res = await fetch(`/editor/load?site=${encodeURIComponent(site)}&file=${encodeURIComponent(file)}`, { credentials: 'include' });
+        if(!res.ok){
+            chapterLinkItems = [];
+            selectedChapterLink = null;
+            renderChapterLinkRows([]);
+            throw new Error('Kapitel konnten nicht geladen werden');
+        }
+        const data = await res.json();
+        chapterLinkItems = getMarkdownHeadings(data.content || '');
+        chapterLinkFileCache.set(cacheKey, chapterLinkItems);
+        selectedChapterLink = chapterLinkItems[0] || null;
+        renderChapterLinkRows(getFilteredChapterLinks());
+    }
+
+    function toRelativeMarkdownLink(fromFile, toFile, anchor){
+        const fromParts = ensureMdFilename(fromFile).split('/');
+        fromParts.pop();
+        const toParts = ensureMdFilename(toFile).split('/');
+
+        while(fromParts.length && toParts.length && fromParts[0] === toParts[0]){
+            fromParts.shift();
+            toParts.shift();
+        }
+
+        const up = fromParts.map(() => '..');
+        const relParts = up.concat(toParts);
+        const relPath = (relParts.join('/') || ensureMdFilename(toFile)).replace(/\\/g, '/');
+        return `${relPath}#${anchor}`;
+    }
+
+    function toSiteHref(site, file, anchor){
+        const normalizedSite = (site || '').trim().toLowerCase();
+        const normalizedFile = ensureMdFilename(file || '');
+        const parts = normalizedFile.split('/');
+        const last = parts[parts.length - 1] || 'index.md';
+
+        if(last.toLowerCase() === 'index.md'){
+            parts.pop();
+        } else {
+            parts[parts.length - 1] = last.replace(/\.md$/i, '');
+        }
+
+        const path = parts.filter(Boolean).map(encodeURIComponent).join('/');
+        const base = path ? `/${normalizedSite}/${path}/` : `/${normalizedSite}/`;
+        return `${base}#${anchor}`;
+    }
+
+    async function ensureChapterLinkFilesLoaded(){
+        if(chapterLinkFiles.length){
+            return;
+        }
+        const res = await fetch('/editor/list_all', { credentials:'include' });
+        if(!res.ok){
+            throw new Error('Dateiliste konnte nicht geladen werden');
+        }
+        const data = await res.json();
+        chapterLinkFiles = (data.files || []).slice().sort((a, b) => {
+            const left = `${a.site || ''}/${a.path || ''}`;
+            const right = `${b.site || ''}/${b.path || ''}`;
+            return left.localeCompare(right);
+        });
+    }
+
+    async function openChapterLinkModal(){
+        const sel = getSelection();
+        const selectedText = (sel.text || '').trim();
+        chapterLinkSelection = { start: sel.start, end: sel.end };
+        const currentFile = ensureMdFilename(fileEl.value);
+        const currentSite = getSite();
+
+        chapterLinkTextInput.value = selectedText || 'wie hier beschrieben';
+        await ensureChapterLinkFilesLoaded();
+        selectedChapterLinkFile = chapterLinkFiles.find(item => item.site === currentSite && item.path === currentFile)
+            || { site: currentSite, path: currentFile, source: sourceEl.textContent === 'Entwurf' ? 'draft' : 'live', label: `${currentSite} / ${currentFile}` };
+        chapterLinkFileSearchInput.value = '';
+        chapterLinkSearchInput.value = '';
+        renderChapterLinkFileRows(getFilteredChapterLinkFiles());
+        loadChapterLinkHeadingsForFile(selectedChapterLinkFile).catch((e) => {
+            showStatus(e.message || 'Kapitel konnten nicht geladen werden', false);
+        });
+        chapterLinkModal.classList.add('open');
+        chapterLinkFileSearchInput.focus();
+        chapterLinkFileSearchInput.select();
+    }
+
+    function insertChapterLink(){
+        const linkText = (chapterLinkTextInput.value || '').trim();
+        if(!linkText){
+            showStatus('Bitte sichtbaren Text eingeben', false);
+            chapterLinkTextInput.focus();
+            return;
+        }
+        if(!selectedChapterLink){
+            showStatus('Bitte Ziel-Kapitel auswählen', false);
+            chapterLinkSearchInput.focus();
+            return;
+        }
+
+        const tooltip = (selectedChapterLink.title || '').replace(/"/g, '&quot;');
+        if(chapterLinkSelection){
+            mdEl.selectionStart = chapterLinkSelection.start;
+            mdEl.selectionEnd = chapterLinkSelection.end;
+        }
+        const currentSite = getSite();
+        const currentFile = ensureMdFilename(fileEl.value);
+        const targetSite = selectedChapterLinkFile && selectedChapterLinkFile.site ? selectedChapterLinkFile.site : currentSite;
+        const targetFile = ensureMdFilename(selectedChapterLinkFile && selectedChapterLinkFile.path ? selectedChapterLinkFile.path : currentFile);
+        const href = targetSite === currentSite && targetFile === currentFile
+            ? `#${selectedChapterLink.anchor}`
+            : targetSite === currentSite
+                ? toRelativeMarkdownLink(currentFile, targetFile, selectedChapterLink.anchor)
+                : toSiteHref(targetSite, targetFile, selectedChapterLink.anchor);
+        replaceSelection(`[${linkText}](${href} "${tooltip}")`);
+        chapterLinkModal.classList.remove('open');
+        chapterLinkSelection = null;
+        mdEl.focus();
+        renderPreviewDebounced();
+    }
+
+    function isSharePointDocumentUrl(value){
+        try{
+            const url = new URL((value || '').trim());
+            if(url.protocol !== 'https:') return false;
+            const host = url.hostname.toLowerCase();
+            return host === 'sharepoint.com'
+                || host.endsWith('.sharepoint.com')
+                || host === 'sharepoint-df.com'
+                || host.endsWith('.sharepoint-df.com')
+                || host === 'office.com'
+                || host.endsWith('.office.com')
+                || host === 'officeapps.live.com'
+                || host.endsWith('.officeapps.live.com');
+        }catch(_){
+            return false;
+        }
+    }
+
+    function escapeMarkdownLinkText(text){
+        return (text || '').replace(/\\/g, '\\\\').replace(/]/g, '\\]');
+    }
+
+    function normalizeMarkdownUrl(url){
+        return (url || '').trim().replace(/\s/g, '%20');
+    }
+
+    function openSharePointLinkModal(){
+        const sel = getSelection();
+        const selectedText = (sel.text || '').trim();
+        sharePointLinkSelection = { start: sel.start, end: sel.end };
+        sharePointLinkTextInput.value = selectedText || 'SharePoint-Dokument';
+        sharePointLinkUrlInput.value = '';
+        sharePointLinkModal.classList.add('open');
+        sharePointLinkUrlInput.focus();
+    }
+
+    function insertSharePointLink(){
+        const linkText = (sharePointLinkTextInput.value || '').trim();
+        const url = normalizeMarkdownUrl(sharePointLinkUrlInput.value || '');
+        if(!linkText){
+            showStatus('Bitte sichtbaren Text eingeben', false);
+            sharePointLinkTextInput.focus();
+            return;
+        }
+        if(!isSharePointDocumentUrl(url)){
+            showStatus('Bitte einen gültigen SharePoint-Link mit https eingeben', false);
+            sharePointLinkUrlInput.focus();
+            return;
+        }
+        if(sharePointLinkSelection){
+            mdEl.selectionStart = sharePointLinkSelection.start;
+            mdEl.selectionEnd = sharePointLinkSelection.end;
+        }
+        replaceSelection(`[${escapeMarkdownLinkText(linkText)}](${url})`);
+        sharePointLinkModal.classList.remove('open');
+        sharePointLinkSelection = null;
+        mdEl.focus();
+        showStatus('SharePoint-Link eingefügt', true, 3000);
+        renderPreviewDebounced();
+    }
+
+    function renderMoveSourceFolderRows(items){
+        moveSourceFolderList.innerHTML = '';
+        (items || []).forEach(folder => {
+            const row = document.createElement('div');
+            row.className = 'folder-row' + (folder === selectedMoveSourceFolder ? ' active' : '');
+            row.innerHTML = `<div>${folder}</div><div class="tag">Quelle</div>`;
+            row.onclick = () => {
+                selectedMoveSourceFolder = folder;
+                renderMoveSourceFolderRows(getFilteredMoveSourceFolders());
+            };
+            moveSourceFolderList.appendChild(row);
+        });
+        if(!moveSourceFolderList.children.length){
+            moveSourceFolderList.innerHTML = '<div class="row"><em>Keine Ordner gefunden</em></div>';
+        }
+    }
+
+    function renderMoveFolderRows(items){
+        moveFolderList.innerHTML = '';
+        (items || []).forEach(folder => {
+            const row = document.createElement('div');
+            row.className = 'folder-row' + (folder === selectedMoveFolder ? ' active' : '');
+            row.innerHTML = `<div>${folder || 'Wurzel'}</div><div class="tag">Ordner</div>`;
+            row.onclick = () => {
+                selectedMoveFolder = folder;
+                renderMoveFolderRows(getFilteredMoveFolders());
+            };
+            moveFolderList.appendChild(row);
+        });
+        if(!moveFolderList.children.length){
+            moveFolderList.innerHTML = '<div class="row"><em>Keine Ordner gefunden</em></div>';
+        }
+    }
+
+    async function loadFolders(){
+        const res = await fetch(`/editor/folders?site=${encodeURIComponent(getSite())}`, { credentials:'include' });
+        if(!res.ok){
+            throw new Error(await res.text().catch(()=>'Ordnerliste fehlgeschlagen'));
+        }
+        const data = await res.json();
+        folderItems = data.folders || [''];
+        if(!folderItems.includes(selectedFolder)) selectedFolder = '';
+        renderFolderRows(getFilteredFolders());
+        if(!folderItems.includes(selectedMoveSourceFolder)) selectedMoveSourceFolder = '';
+        renderMoveSourceFolderRows(getFilteredMoveSourceFolders());
+        if(!folderItems.includes(selectedMoveFolder)) selectedMoveFolder = '';
+        renderMoveFolderRows(getFilteredMoveFolders());
+    }
+
+    function closeManagementMenus(){
+        fileMenuGroup.classList.remove('open');
+        folderMenuGroup.classList.remove('open');
+    }
+
+    function toggleManagementMenu(kind){
+        const target = kind === 'file' ? fileMenuGroup : folderMenuGroup;
+        const other = kind === 'file' ? folderMenuGroup : fileMenuGroup;
+        const willOpen = !target.classList.contains('open');
+        other.classList.remove('open');
+        target.classList.toggle('open', willOpen);
+    }
+
+    async function openCreateModal(kind = 'file'){
+        createModalKind = kind === 'folder' ? 'folder' : 'file';
+        selectedFolder = '';
+        folderSearch.value = '';
+        createNameInput.value = '';
+        createModalTitle.textContent = createModalKind === 'folder' ? 'Ordner anlegen oder löschen' : 'Datei anlegen';
+        createNameInput.placeholder = createModalKind === 'folder' ? 'z.B. Neuer-Ordner' : 'z.B. Neue-Datei';
+        createFileBtn.style.display = createModalKind === 'file' ? '' : 'none';
+        createFolderBtn.style.display = createModalKind === 'folder' ? '' : 'none';
+        deleteFolderBtn.style.display = createModalKind === 'folder' ? '' : 'none';
+        createModal.classList.add('open');
+        folderList.innerHTML = '<div class="row"><em>lade…</em></div>';
+        await loadFolders();
+    }
+
+    async function createItem(kind){
+        const name = (createNameInput.value || '').trim();
+        if(!name){
+            showStatus('Bitte Namen eingeben', false);
+            createNameInput.focus();
+            return;
+        }
+        if(!confirmUnsavedChanges()) return;
+        const fd = new FormData();
+        fd.append('site', getSite());
+        fd.append('parent', selectedFolder || '');
+        fd.append('kind', kind);
+        fd.append('name', name);
+        const res = await fetch('/editor/create', { method:'POST', body: fd, credentials:'include' });
+        const txt = await res.text().catch(()=> '');
+        let data = {};
+        try { data = txt ? JSON.parse(txt) : {}; } catch { data = { raw: txt }; }
+        if(!res.ok){
+            throw new Error(data.detail || data.raw || `HTTP ${res.status}`);
+        }
+        createModal.classList.remove('open');
+        createNameInput.value = '';
+        fileEl.value = data.file || fileEl.value;
+        await loadCurrent();
+        showStatus(kind === 'folder' ? 'Ordner angelegt' : 'Datei angelegt');
+    }
+
+    async function deleteCurrentFile(){
+        const f = ensureMdFilename(fileEl.value);
+        if(!f){
+            showStatus('Bitte Datei wählen', false);
+            return;
+        }
+        if(!confirm(`Aktuelle Draft-Datei wirklich löschen?\n\n${f}`)) return;
+        const fd = new FormData();
+        fd.append('site', getSite());
+        fd.append('target', f);
+        fd.append('kind', 'file');
+        const res = await fetch('/editor/delete', { method:'POST', body: fd, credentials:'include' });
+        const txt = await res.text().catch(()=> '');
+        let data = {};
+        try { data = txt ? JSON.parse(txt) : {}; } catch { data = { raw: txt }; }
+        if(!res.ok){
+            throw new Error(data.detail || data.raw || `HTTP ${res.status}`);
+        }
+        mdEl.value = '';
+        sourceEl.textContent = 'Neu';
+        resetEditorHistory();
+        showStatus(data.source_origin === 'live' ? 'Lösch-Antrag für Datei erstellt' : 'Datei gelöscht');
+        renderPreview();
+    }
+
+    async function deleteSelectedFolder(){
+        if(!selectedFolder){
+            showStatus('Bitte zuerst einen Ordner wählen', false);
+            return;
+        }
+        const previewRes = await fetch(`/editor/delete_preview?site=${encodeURIComponent(getSite())}&kind=folder&target=${encodeURIComponent(selectedFolder)}`, { credentials:'include' });
+        const previewTxt = await previewRes.text().catch(()=> '');
+        let preview = {};
+        try { preview = previewTxt ? JSON.parse(previewTxt) : {}; } catch { preview = { raw: previewTxt }; }
+        if(!previewRes.ok){
+            throw new Error(preview.detail || preview.raw || `HTTP ${previewRes.status}`);
+        }
+
+        const files = Array.isArray(preview.files) ? preview.files : [];
+        const fileList = files.length
+            ? `\n\nEnthaltene Dateien:\n- ${files.join('\n- ')}`
+            : '\n\nDer Ordner ist leer.';
+        if(!confirm(`Ausgewählten Draft-Ordner wirklich löschen?\n\n${selectedFolder}${fileList}\n\nBei Bestätigung werden alle enthaltenen Dateien ebenfalls gelöscht.`)) return;
+        const fd = new FormData();
+        fd.append('site', getSite());
+        fd.append('target', selectedFolder);
+        fd.append('kind', 'folder');
+        const res = await fetch('/editor/delete', { method:'POST', body: fd, credentials:'include' });
+        const txt = await res.text().catch(()=> '');
+        let data = {};
+        try { data = txt ? JSON.parse(txt) : {}; } catch { data = { raw: txt }; }
+        if(!res.ok){
+            throw new Error(data.detail || data.raw || `HTTP ${res.status}`);
+        }
+        await loadFolders();
+        showStatus(data.source_origin === 'live' ? 'Lösch-Antrag für Ordner erstellt' : 'Ordner gelöscht');
+    }
+
+    async function moveItem(kind){
+        if(kind === 'file' && !confirmUnsavedChanges()) return;
+        const fd = new FormData();
+        let source = '';
+
+        if(kind === 'file'){
+            source = ensureMdFilename(fileEl.value);
+            if(!source){
+                showStatus('Bitte Datei wählen', false);
+                return;
+            }
+        }else{
+            source = selectedMoveSourceFolder || '';
+            if(!source){
+                showStatus('Bitte zuerst den Quellordner wählen', false);
+                return;
+            }
+        }
+
+        fd.append('site', getSite());
+        fd.append('source', source);
+        fd.append('target_parent', selectedMoveFolder || '');
+        fd.append('kind', kind);
+        fd.append('new_name', (moveNameInput.value || '').trim());
+
+        const res = await fetch('/editor/move', { method:'POST', body: fd, credentials:'include' });
+        const txt = await res.text().catch(()=> '');
+        let data = {};
+        try { data = txt ? JSON.parse(txt) : {}; } catch { data = { raw: txt }; }
+        if(!res.ok){
+            throw new Error(data.detail || data.raw || `HTTP ${res.status}`);
+        }
+
+        moveModal.classList.remove('open');
+        moveNameInput.value = '';
+        if(data.file){
+            fileEl.value = data.file;
+            await loadCurrent();
+        }
+        await loadFolders();
+        showStatus(kind === 'folder' ? 'Ordner verschoben' : 'Datei verschoben');
+    }
+
+    async function renameItem(kind){
+        if(kind === 'file' && !confirmUnsavedChanges()) return;
+        const fd = new FormData();
+        const newName = (moveNameInput.value || '').trim();
+        let source = '';
+        let targetParent = '';
+
+        if(!newName){
+            showStatus('Bitte neuen Namen eingeben', false);
+            moveNameInput.focus();
+            return;
+        }
+
+        if(kind === 'file'){
+            source = ensureMdFilename(fileEl.value);
+            if(!source){
+                showStatus('Bitte Datei wählen', false);
+                return;
+            }
+            const parts = source.split('/');
+            parts.pop();
+            targetParent = parts.join('/');
+        }else{
+            source = selectedMoveSourceFolder || '';
+            if(!source){
+                showStatus('Bitte zuerst den Quellordner wählen', false);
+                return;
+            }
+            const parts = source.split('/');
+            parts.pop();
+            targetParent = parts.join('/');
+        }
+
+        fd.append('site', getSite());
+        fd.append('source', source);
+        fd.append('target_parent', targetParent);
+        fd.append('kind', kind);
+        fd.append('new_name', newName);
+
+        const res = await fetch('/editor/move', { method:'POST', body: fd, credentials:'include' });
+        const txt = await res.text().catch(()=> '');
+        let data = {};
+        try { data = txt ? JSON.parse(txt) : {}; } catch { data = { raw: txt }; }
+        if(!res.ok){
+            throw new Error(data.detail || data.raw || `HTTP ${res.status}`);
+        }
+
+        moveModal.classList.remove('open');
+        moveNameInput.value = '';
+        if(data.file){
+            fileEl.value = data.file;
+            await loadCurrent();
+        }
+        await loadFolders();
+        showStatus(kind === 'folder' ? 'Ordner umbenannt' : 'Datei umbenannt');
+    }
+
+    function openMoveModal(mode, kind){
+        moveAction = { mode, kind };
+        selectedMoveSourceFolder = '';
+        selectedMoveFolder = '';
+        moveSourceFolderSearch.value = '';
+        moveFolderSearch.value = '';
+        moveNameInput.value = '';
+
+        const isFolder = kind === 'folder';
+        const isRename = mode === 'rename';
+
+        moveModalTitle.textContent =
+            mode === 'rename'
+                ? (isFolder ? 'Ordner umbenennen' : 'Datei umbenennen')
+                : (isFolder ? 'Ordner verschieben' : 'Datei verschieben');
+
+        moveSourceSection.style.display = isFolder ? '' : 'none';
+        moveSourceFolderList.style.display = isFolder ? '' : 'none';
+        moveTargetSection.style.display = isRename ? 'none' : '';
+        moveFolderList.style.display = isRename ? 'none' : '';
+        moveNameSection.style.display = isRename ? '' : 'none';
+        moveNameLabel.textContent = isFolder ? 'Neuen Ordnernamen eingeben' : 'Neuen Dateinamen eingeben';
+        moveNameInput.placeholder = isFolder ? 'z.B. Neuer-Ordnername' : 'z.B. neue-datei.md';
+        moveConfirmBtn.textContent =
+            mode === 'rename'
+                ? (isFolder ? 'Ordner umbenennen' : 'Datei umbenennen')
+                : (isFolder ? 'Ordner verschieben' : 'Datei verschieben');
+
+        moveModal.classList.add('open');
+        moveSourceFolderList.innerHTML = '<div class="row"><em>lade…</em></div>';
+        moveFolderList.innerHTML = '<div class="row"><em>lade…</em></div>';
+    }
+
+    // Datei-Picker
+    pickBtn.addEventListener('click', async () => {
+        try{
+            fileList.innerHTML = '<div class="row"><em>lade…</em></div>';
+            modal.classList.add('open');
+            const res = await fetch(`/editor/list?site=${encodeURIComponent(getSite())}`, { credentials:'include' });
+            if(!res.ok){
+                showStatus('Dateiliste fehlgeschlagen', false);
+                fileList.innerHTML = '<div class="row">Fehler</div>';
+                return;
+            }
+            const data = await res.json();
+            lastFileItems = data.files || [];
+            fileSearch.value = '';
+            renderFileRows(lastFileItems);
+        }catch(e){
+            showStatus('Dateiliste fehlgeschlagen', false);
+            console.error(e);
+        }
+    });
+    fileSearch.addEventListener('input', filterFileRows);
+    modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.classList.remove('open'); });
+
+    fileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleManagementMenu('file');
+    });
+    folderMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleManagementMenu('folder');
+    });
+    createFileOpenBtn.addEventListener('click', async () => {
+        closeManagementMenus();
+        try{
+            await openCreateModal('file');
+        }catch(e){
+            createModal.classList.remove('open');
+            showStatus('Ordnerliste fehlgeschlagen', false);
+            console.error(e);
+        }
+    });
+    createFolderOpenBtn.addEventListener('click', async () => {
+        closeManagementMenus();
+        try{
+            await openCreateModal('folder');
+        }catch(e){
+            createModal.classList.remove('open');
+            showStatus('Ordnerliste fehlgeschlagen', false);
+            console.error(e);
+        }
+    });
+    folderSearch.addEventListener('input', () => renderFolderRows(getFilteredFolders()));
+    createFileBtn.addEventListener('click', async () => {
+        try { await createItem('file'); } catch(e){ showStatus(e.message || 'Anlegen fehlgeschlagen', false); console.error(e); }
+    });
+    createFolderBtn.addEventListener('click', async () => {
+        try { await createItem('folder'); } catch(e){ showStatus(e.message || 'Anlegen fehlgeschlagen', false); console.error(e); }
+    });
+    deleteFolderBtn.addEventListener('click', async () => {
+        try { await deleteSelectedFolder(); } catch(e){ showStatus(e.message || 'Löschen fehlgeschlagen', false); console.error(e); }
+    });
+    deleteFolderOpenBtn.addEventListener('click', async () => {
+        closeManagementMenus();
+        try{
+            await openCreateModal('folder');
+        }catch(e){
+            createModal.classList.remove('open');
+            showStatus('Ordnerliste fehlgeschlagen', false);
+            console.error(e);
+        }
+    });
+    createModal.addEventListener('click', (e)=>{ if(e.target===createModal) createModal.classList.remove('open'); });
+    moveFileOpenBtn.addEventListener('click', async () => {
+        closeManagementMenus();
+        try{
+            openMoveModal('move', 'file');
+            await loadFolders();
+        }catch(e){
+            moveModal.classList.remove('open');
+            showStatus('Ordnerliste fehlgeschlagen', false);
+            console.error(e);
+        }
+    });
+    moveFolderOpenBtn.addEventListener('click', async () => {
+        closeManagementMenus();
+        try{
+            openMoveModal('move', 'folder');
+            await loadFolders();
+        }catch(e){
+            moveModal.classList.remove('open');
+            showStatus('Ordnerliste fehlgeschlagen', false);
+            console.error(e);
+        }
+    });
+    renameFileOpenBtn.addEventListener('click', async () => {
+        closeManagementMenus();
+        try{
+            openMoveModal('rename', 'file');
+            await loadFolders();
+        }catch(e){
+            moveModal.classList.remove('open');
+            showStatus('Ordnerliste fehlgeschlagen', false);
+            console.error(e);
+        }
+    });
+    renameFolderOpenBtn.addEventListener('click', async () => {
+        closeManagementMenus();
+        try{
+            openMoveModal('rename', 'folder');
+            await loadFolders();
+        }catch(e){
+            moveModal.classList.remove('open');
+            showStatus('Ordnerliste fehlgeschlagen', false);
+            console.error(e);
+        }
+    });
+    moveSourceFolderSearch.addEventListener('input', () => renderMoveSourceFolderRows(getFilteredMoveSourceFolders()));
+    moveFolderSearch.addEventListener('input', () => renderMoveFolderRows(getFilteredMoveFolders()));
+    moveConfirmBtn.addEventListener('click', async () => {
+        try {
+            if(moveAction.mode === 'rename'){
+                await renameItem(moveAction.kind);
+            } else {
+                await moveItem(moveAction.kind);
+            }
+        } catch(e){
+            showStatus(e.message || (moveAction.mode === 'rename' ? 'Umbenennen fehlgeschlagen' : 'Verschieben fehlgeschlagen'), false);
+            console.error(e);
+        }
+    });
+    moveModal.addEventListener('click', (e)=>{ if(e.target===moveModal) moveModal.classList.remove('open'); });
+    chapterLinkFileSearchInput.addEventListener('input', () => {
+        renderChapterLinkFileRows(getFilteredChapterLinkFiles());
+    });
+    chapterLinkSearchInput.addEventListener('input', () => {
+        const filtered = getFilteredChapterLinks();
+        if(filtered.length && !filtered.some(item => selectedChapterLink && item.anchor === selectedChapterLink.anchor && item.title === selectedChapterLink.title)){
+            selectedChapterLink = filtered[0];
+        }
+        renderChapterLinkRows(filtered);
+    });
+    chapterLinkConfirmBtn.addEventListener('click', insertChapterLink);
+    chapterLinkModal.addEventListener('click', (e)=>{ if(e.target===chapterLinkModal) chapterLinkModal.classList.remove('open'); });
+    sharePointLinkCancelBtn.addEventListener('click', () => {
+        sharePointLinkModal.classList.remove('open');
+        sharePointLinkSelection = null;
+    });
+    sharePointLinkConfirmBtn.addEventListener('click', insertSharePointLink);
+    sharePointLinkModal.addEventListener('click', (e) => {
+        if(e.target === sharePointLinkModal){
+            sharePointLinkModal.classList.remove('open');
+            sharePointLinkSelection = null;
+        }
+    });
+    [sharePointLinkTextInput, sharePointLinkUrlInput].forEach(input => {
+        input.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter'){
+                e.preventDefault();
+                insertSharePointLink();
+            }
+        });
+    });
+    chapterLinkTextInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){
+            e.preventDefault();
+            insertChapterLink();
+        }
+    });
+    chapterLinkFileSearchInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){
+            e.preventDefault();
+            const first = getFilteredChapterLinkFiles()[0];
+            if(first){
+                selectedChapterLinkFile = first;
+                renderChapterLinkFileRows(getFilteredChapterLinkFiles());
+                loadChapterLinkHeadingsForFile(first).catch((err) => {
+                    showStatus(err.message || 'Kapitel konnten nicht geladen werden', false);
+                });
+            }
+        }
+    });
+    chapterLinkSearchInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){
+            e.preventDefault();
+            insertChapterLink();
+        }
+    });
+    deleteBtn.addEventListener('click', async () => {
+        closeManagementMenus();
+        try { await deleteCurrentFile(); } catch(e){ showStatus(e.message || 'Löschen fehlgeschlagen', false); console.error(e); }
+    });
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.menu-group')){
+            closeManagementMenus();
+        }
+    });
+
+    // Bild-Upload
+    async function uploadAndInsertImage(file){
+        try{
+            const fd = new FormData();
+            fd.append('site', getSite());
+            fd.append('file', ensureMdFilename(fileEl.value || 'index.md'));
+            fd.append('upload', file);
+            const res = await fetch('/editor/upload_file', { method:'POST', body: fd, credentials:'include' });
+            if(!res.ok){
+                const txt = await res.text();
+                showStatus(`Upload fehlgeschlagen (${res.status})`, false);
+                console.error('UPLOAD FAIL', res.status, txt);
+                return;
+            }
+            const data = await res.json();
+            if(data.ok && data.path){
+                const label = data.original_name || file.name || data.filename || 'Datei';
+                const isImage = data.kind === 'image' || String(file.type || '').startsWith('image/') || /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name || '');
+                insertAtCursor(mdEl, isImage ? `![${label}](${data.path})` : `[${label}](${data.path})`);
+                renderPreview();
+                showStatus(isImage ? 'Bild eingefügt' : 'Datei eingefügt');
+            }
+        }catch(e){
+            showStatus('Upload fehlgeschlagen', false);
+            console.error(e);
+        }
+    }
+
+    imgBtn.addEventListener('click', () => imgInput.click());
+    imgInput.addEventListener('change', async (e) => {
+        if(e.target.files && e.target.files[0]) await uploadAndInsertImage(e.target.files[0]);
+        e.target.value = '';
+    });
+    window.addEventListener('paste', async (e) => {
+        const item = [...e.clipboardData.items].find(i => i.type.startsWith('image/'));
+        if(item){
+            const f = item.getAsFile();
+            if(f) await uploadAndInsertImage(f);
+        }
+    });
+    mdEl.addEventListener('dragover', e => { e.preventDefault(); });
+    mdEl.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const files = [...e.dataTransfer.files];
+        for(const f of files){ await uploadAndInsertImage(f); }
+    });
+
+    mdEl.addEventListener('input', () => {
+        renderPreviewDebounced();
+        const f = ensureMdFilename(fileEl.value);
+        if(f) localStorage.setItem('editor:content:' + getSite() + ':' + f, mdEl.value);
+        recordHistorySnapshotDebounced();
+    });
+
+    saveBtn.addEventListener('click', saveDraft);
+    adminBtn.addEventListener('click', () => { navigateWithUnsavedCheck('/static/admin/admin.html'); });
+    portalBtn.addEventListener('click', () => { navigateWithUnsavedCheck('https://docs.asko24.at/'); });
+    logoutBtn.addEventListener('click', () => {
+        if(!confirmUnsavedChanges()) return;
+        doLogout();
+    });
+
+    function setCheatCollapsed(collapsed){
+        if(collapsed){
+            layoutEl.classList.add('cheat-collapsed');
+            localStorage.setItem('editor:cheatCollapsed','1');
+        }else{
+            layoutEl.classList.remove('cheat-collapsed');
+            localStorage.setItem('editor:cheatCollapsed','0');
+        }
+    }
+
+    toggleCheatBtn.addEventListener('click', () => {
+        const collapsed = layoutEl.classList.contains('cheat-collapsed');
+        setCheatCollapsed(!collapsed);
+    });
+    collapseCheatBtn.addEventListener('click', () => setCheatCollapsed(true));
+
+    undoBtn.addEventListener('click', () => { doUndo(); renderPreviewDebounced(); });
+    redoBtn.addEventListener('click', () => { doRedo(); renderPreviewDebounced(); });
+
+    function replaceSelection(text){
+        const start = mdEl.selectionStart ?? mdEl.value.length;
+        const end   = mdEl.selectionEnd ?? mdEl.value.length;
+        mdEl.setRangeText(text, start, end, 'end');
+        mdEl.focus();
+        const f = ensureMdFilename(fileEl.value);
+        if(f) localStorage.setItem('editor:content:' + getSite() + ':' + f, mdEl.value);
+        recordHistorySnapshot(true);
+    }
+
+    siteSel.value = localStorage.getItem('editor:site') || 'schaden';
+    let activeSiteValue = siteSel.value;
+    siteSel.addEventListener('change', async () => {
+        if(!confirmUnsavedChanges()){
+            siteSel.value = activeSiteValue;
+            return;
+        }
+        localStorage.setItem('editor:site', getSite());
+        activeSiteValue = getSite();
+        sourceEl.textContent = '–';
+        showStatus('Bereich gewechselt');
+        ensureExtraCss(getSite()); // beim Wechsel ebenfalls laden
+        const lastKey = 'editor:lastFile:' + getSite();
+        fileEl.value = localStorage.getItem(lastKey) || 'index.md';
+        await loadCurrent();
+    });
+
+    function getSelection(){
+        const start = mdEl.selectionStart ?? 0;
+        const end = mdEl.selectionEnd ?? 0;
+        return { start, end, text: mdEl.value.slice(start, end), has: end > start };
+    }
+
+    function wrapSelection(left, right, placeholder='Text'){
+        const sel = getSelection();
+        const inner = sel.has ? sel.text : placeholder;
+        const out = `${left}${inner}${right}`;
+        const start = sel.start;
+        replaceSelection(out);
+        if(!sel.has){
+            mdEl.selectionStart = start + left.length;
+            mdEl.selectionEnd = start + left.length + placeholder.length;
+        }
+    }
+
+    function prefixLines(prefix, placeholder='Text'){
+        const sel = getSelection();
+        const text = sel.has ? sel.text : placeholder;
+        const lines = text.split(/\r?\n/).map(l => prefix + l);
+        const out = lines.join('\n');
+        const start = sel.start;
+        replaceSelection(out);
+        if(!sel.has){
+            mdEl.selectionStart = start + prefix.length;
+            mdEl.selectionEnd = start + prefix.length + placeholder.length;
+        }
+    }
+
+    function heading(level){
+        const hashes = '#'.repeat(level) + ' ';
+        prefixLines(hashes, level === 1 ? 'Überschrift' : 'Abschnitt');
+    }
+
+    function makeOL(){
+        const sel = getSelection();
+        const text = sel.has ? sel.text : 'Punkt';
+        const lines = text.split(/\r?\n/);
+        const out = lines.map((l, i) => `${i+1}. ${l}`).join('\n');
+        const start = sel.start;
+        replaceSelection(out);
+        if(!sel.has){
+            mdEl.selectionStart = start + '1. '.length;
+            mdEl.selectionEnd = start + '1. '.length + 'Punkt'.length;
+        }
+    }
+
+    function makeLink(){
+        const sel = getSelection();
+        const text = sel.has ? sel.text : 'Linktext';
+        const url = 'https://';
+        const out = `[${text}](${url})`;
+        const start = sel.start;
+        replaceSelection(out);
+        mdEl.selectionStart = start + 1 + text.length + 2;
+        mdEl.selectionEnd = mdEl.selectionStart + url.length;
+    }
+
+    function slugifyHeading(text){
+        return (text || '')
+            .trim()
+            .toLowerCase()
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/ß/g, 'ss')
+            .replace(/[^a-z0-9\\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
+    }
+
+    function makeChapterLink(){
+        openChapterLinkModal().catch((e) => {
+            showStatus(e.message || 'Kapitel-Link konnte nicht vorbereitet werden', false);
+            console.error(e);
+        });
+    }
+
+    function makeSharePointLink(){
+        openSharePointLinkModal();
+    }
+
+    const actions = {
+        h1: () => heading(1),
+        h2: () => heading(2),
+        h3: () => heading(3),
+        bold: () => wrapSelection('**','**','fetter Text'),
+        italic: () => wrapSelection('_','_','kursiver Text'),
+        quote: () => prefixLines('> ','Zitat'),
+        ul: () => prefixLines('- ','Punkt'),
+        ol: () => makeOL(),
+        todo: () => prefixLines('- [ ] ','Aufgabe'),
+        info: () => insertAdmonition('info', 'Info'),
+        warning: () => insertAdmonition('warning', 'Achtung'),
+        danger: () => insertAdmonition('danger', 'Gefahr'),
+        note: () => insertAdmonition('note', 'Hinweis'),
+        link: () => makeLink(),
+        'chapter-link': () => makeChapterLink(),
+        'sharepoint-link': () => makeSharePointLink(),
+        hr: () => replaceSelection('\n---\n'),
+        table: () => replaceSelection('| Spalte A | Spalte B |\n|---|---|\n| Wert 1 | Wert 2 |\n'),
+        indent: () => {
+            const ta = mdEl;
+            const s = ta.selectionStart;
+            const e = ta.selectionEnd;
+            const v = ta.value;
+
+            if (s !== e) {
+                const sel = v.slice(s, e).split("\n").map(l => "    " + l).join("\n");
+                ta.value = v.slice(0, s) + sel + v.slice(e);
+                ta.selectionStart = s;
+                ta.selectionEnd = s + sel.length;
+            } else {
+                ta.value = v.slice(0, s) + "    " + v.slice(e);
+                ta.selectionStart = ta.selectionEnd = s + 4;
+            }
+            ta.focus();
+        },
+        br: () => {
+            const ta = mdEl;
+            const s = ta.selectionStart;
+            const e = ta.selectionEnd;
+            const v = ta.value;
+
+            ta.value = v.slice(0, s) + "<br>" + v.slice(e);
+            ta.selectionStart = ta.selectionEnd = s + 4;
+            ta.focus();
+        },
+    };
+
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if(!btn) return;
+        const act = btn.dataset.action;
+        if(actions[act]){
+            actions[act]();
+            renderPreviewDebounced();
+        }
+    });
+
+    window.addEventListener('load', () => {
+      (async () => {
+        applyDeeplinkSelection();
+        activeSiteValue = getSite();
+        await ensureEditorAuth();
+
+        const collapsed = localStorage.getItem('editor:cheatCollapsed') === '1';
+        setCheatCollapsed(collapsed);
+
+        ensureExtraCss(getSite()); // lädt CSS passend zum (ggf. deeplink) site
+
+        // lastFile nur setzen, wenn Deeplink kein file gesetzt hat
+        if(!fileEl.value){
+          const last = localStorage.getItem('editor:lastFile:' + getSite()) || 'index.md';
+          fileEl.value = last;
+        }
+
+        const cached = localStorage.getItem('editor:content:' + getSite() + ':' + ensureMdFilename(fileEl.value));
+        if(cached){
+          mdEl.value = cached;
+          renderPreview();
+        }
+
+        await loadCurrent();
+      })();
+    });
+</script>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+
+{% block extrahead %}
+  {{ super() }}
+
+  <!-- Marker, damit wir sehen, dass Overrides geladen sind -->
+  <meta name="aw-overrides-loaded" content="yes" />
+
+  <!-- MKDocs-Dateipfad für Editor / Footer-Meta -->
+  {% if page and page.file and page.file.src_path %}
+    <meta name="mkdocs-src-path" content="{{ page.file.src_path }}">
+  {% endif %}
+
+  <!-- Backend Basis-URL (aus mkdocs.yml -> extra.backend_base) -->
+  {% if config.extra and config.extra.backend_base %}
+    <meta name="mkdocs-backend-base" content="{{ config.extra.backend_base }}">
+  {% endif %}
+{% endblock %}
+
+{% block header %}
+  {{ super() }}
+
+  <!-- Schlichte Button-Leiste (wird per JS sichtbar gemacht, falls nötig) -->
+  <div class="aw-actions" data-aw="actions" hidden>
+    <a class="aw-btn" id="aw-edit">Bearbeiten</a>
+    <a class="aw-btn aw-admin" id="aw-admin">Admin</a>
+  </div>
+  <style>
+    /* Oberer blaue Balken (Header) anpassen */
+    .md-header {
+      background-color: darkgray;        /* z.B. sehr dunkles Blau statt Standard */
+    }
+  </style>
+
+{% endblock %}
+
+{% block content %}
+<script>
+  // NOOP: wird nicht benötigt, bleibt leer
+</script>
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+<body data-version="{{ config.extra.version | default('') }}" data-version-date="{{ config.extra.version_date | default('') }}">
+{{ super() }}
+</body>
+{% endblock %}
+
+

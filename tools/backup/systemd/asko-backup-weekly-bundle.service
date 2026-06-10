@@ -1,0 +1,12 @@
+[Unit]
+Description=Asko Weekly Git Bundle Backup
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/asko-backup/backup.env
+ExecStart=/usr/local/bin/asko-weekly-git-bundle.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

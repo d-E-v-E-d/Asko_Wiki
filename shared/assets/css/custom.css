@@ -1,0 +1,294 @@
+/* =========================
+   Buttons "Bearbeiten" / "Admin"
+   ========================= */
+
+.aw-actions {
+  position: absolute;
+  top: 0.4rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 20;
+}
+
+.aw-btn {
+  font: 500 0.78rem/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #0f172a !important;
+  background: #e6f7f4;                 /* sehr helles ASKO-Grün */
+  border: 1px solid #a7e6da;           /* dezente Teal-Border */
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  text-decoration: none !important;
+  box-shadow: none;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+/* Dropdown-Wrapper im aw-btn Look */
+.aw-switcher{
+  display:inline-flex;
+  align-items:center;
+  height:auto;
+  padding:0;                 /* Select übernimmt Padding */
+}
+
+/* Select sieht aus wie aw-btn */
+.aw-switcher__select{
+  font: 400 0.78rem/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color: green !important;
+  background: #eff3fb;
+  border: 1px solid #c7d2fe;
+  border-radius: 5px;
+  padding: 0.35rem 1.6rem 0.35rem 0.6rem; /* rechts Platz für Pfeil */
+  text-decoration: none !important;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  /* native Dropdown-Optik neutralisieren */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Pfeil */
+  background-image:
+          linear-gradient(45deg, transparent 50%, green 50%),
+          linear-gradient(135deg, green 50%, transparent 50%);
+  background-position:
+          calc(100% - 14px) 50%,
+          calc(100% - 9px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.aw-switcher__select:hover{
+  background:#e0ecff;
+  border-color: lightgreen;
+}
+
+
+.aw-btn:hover {
+  background: #d1f0ea;                 /* etwas kräftiger */
+  border-color: #16b9a6;
+  transform: translateY(-1px);
+}
+
+/* ===== Admin Button (ruhiges Rot, nicht zu aggressiv) ===== */
+
+.aw-btn.aw-admin {
+  background: #fff1f2;
+  color: #9f1239 !important;
+  border: 1px solid #fecdd3;
+}
+
+.aw-btn.aw-admin:hover {
+  background: #ffe4e6;
+  border-color: #fda4af;
+}
+
+/* =========================
+   Überschriften & Nummerierung
+   ========================= */
+
+/* H1: "so lassen" → wir überschreiben nichts Wesentliches */
+.md-typeset h1 {
+  font-size: 1.50rem;
+  color: black;
+  font-weight: 600;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+/* H2: kleiner als H1, dunkleres Blau */
+.md-typeset h2 {
+  font-size: 1.30rem;
+  color: mediumseagreen;              /* dunkles grün */
+  font-weight: 600;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+/* H3: kleiner als H2, aber > Fließtext, helleres Blau */
+.md-typeset h3 {
+  font-size: 1.1rem;
+  color: lightseagreen;              /* helleres grün */
+  font-weight: 600;
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+}
+
+/* Nummern-Präfix für H1 / H2 (wird per JS als data-num gesetzt) */
+.aw-num::before {
+  content: attr(data-num) " ";
+  color: #6b7280;
+  margin-right: .25em;
+  font-weight: 600;
+}
+
+/* kleine Versionsanzeige im Footer */
+.aw-version-footer {
+  text-align: center;
+  font-size: 0.4rem;
+  color: #6b7280;
+  padding: 4px 18px 10px;
+}
+
+.aw-version-footer span {
+  margin-left: 0.4rem;
+}
+
+/* Footer-Hintergrund und Textfarbe anpassen */
+.md-footer {
+  background-color: black;   /* dunkles Blau statt schwarz */
+  color: #e5e7eb;
+}
+
+.md-footer a {
+  color: #93c5fd;
+}
+
+.md-footer a:hover {
+  color: #bfdbfe;
+}
+
+/* Nummerierung in der linken Navigation */
+.md-nav__link .aw-nav-num {
+  color: #6b7280;        /* dezentes Grau */
+  font-size: 0.8em;
+  margin-right: 0.2em;
+  font-weight: 500;
+}
+
+/* Logo-Größe im Header anpassen */
+.md-header-nav__button.md-logo img {
+  height: 28px;      /* etwas kleiner / größer nach Geschmack */
+  width: auto;
+}
+
+/* Titel näher ans Logo rücken, falls nötig */
+.md-header-nav__title {
+  font-size: 0.9rem;
+}
+
+/* Navigation allgemein angenehmer */
+.md-sidebar--primary .md-nav {
+  font-size: 0.92rem;
+}
+
+/* Mehr Luft pro Eintrag */
+.md-sidebar--primary .md-nav__link {
+  padding-top: .28rem;
+  padding-bottom: .28rem;
+  border-radius: 6px;
+}
+
+/* Hover dezenter */
+.md-sidebar--primary .md-nav__link:hover {
+  background: rgba(2, 132, 199, 0.08);
+}
+
+/* Aktive Seite klarer */
+.md-sidebar--primary .md-nav__link[aria-current="page"] {
+  font-weight: 600;
+}
+
+/* Einrückung pro Ebene */
+.md-sidebar--primary .md-nav__list .md-nav__list {
+  margin-left: .6rem;        /* Einrückung */
+  padding-left: .6rem;
+  border-left: 1px solid rgba(100, 116, 139, 0.25); /* dezente Linie */
+}
+
+/* Sublevel etwas kleiner */
+.md-sidebar--primary .md-nav__list .md-nav__list .md-nav__link {
+  font-size: 0.90em;
+  opacity: 0.95;
+}
+
+/* Pfeil/Toggle optisch etwas klarer (nur falls vorhanden) */
+.md-sidebar--primary .md-nav__toggle {
+  opacity: .75;
+}
+.md-sidebar--primary .md-nav__toggle:hover {
+  opacity: 1;
+}
+
+/* Ab 4. Ebene ausblenden */
+.md-sidebar--primary .md-nav__list .md-nav__list .md-nav__list .md-nav__list {
+  display: none;
+}
+
+/* Parent (Ebene 1) hervorheben, wenn darunter etwas aktiv ist */
+.md-nav--primary .md-nav__item--active > .md-nav__link,
+.md-nav--primary .md-nav__item--active > label.md-nav__link {
+  font-weight: 700;
+}
+
+/* Optional: leichte Hintergrundmarkierung */
+.md-nav--primary .md-nav__item--active > .md-nav__link,
+.md-nav--primary .md-nav__item--active > label.md-nav__link {
+  background: rgba(0,0,0,0.06);
+  border-radius: 0.2rem;
+  padding-left: 0.4rem;
+}
+
+/* Standard-Blocksatz für gesamten Content */
+.md-typeset p,
+.md-typeset li,
+.md-typeset td,
+.md-typeset th {
+  text-align: justify;
+}
+
+/* saubere Worttrennung, sonst sieht Blocksatz schlecht aus */
+.md-typeset {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+/* für Code, Tabellen, Listen etc. nicht erzwingen */
+.md-typeset code,
+.md-typeset pre,
+.md-typeset kbd,
+.md-typeset samp {
+  text-align: left;
+}
+
+/* Admonition-Title: Platz für Icon schaffen (verhindert Überlappung) */
+.md-typeset .admonition-title,
+.md-typeset summary {
+  padding-left: 2.2rem !important; /* Icon sitzt links */
+  position: relative;
+}
+
+/* Icon-Position konsistent (Material nutzt ::before) */
+.md-typeset .admonition-title::before,
+.md-typeset summary::before {
+  left: 0.8rem !important;
+}
+
+/* Header-Layout: links Brand, mittig Suche, rechts Aktionen */
+.md-header__inner{
+  display: grid !important;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+/* Suche mittig */
+.md-search{
+  justify-self: center !important;
+  width: min(640px, 55vw);
+}
+
+/* damit die Search-Input gut aussieht */
+.md-search__form{
+  width: 100%;
+}
+
+/* rechtes Icon-Cluster bleibt rechts */
+.md-header__option,
+.md-header__button{
+  justify-self: end;
+}
+
+

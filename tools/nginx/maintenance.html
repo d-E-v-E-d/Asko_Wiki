@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wartung</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(11,114,185,.16), transparent 34%),
+        linear-gradient(160deg, #f7fafc, #eef4fa 58%, #e9eef5);
+      color: #1f2937;
+    }
+    .card {
+      width: min(92vw, 560px);
+      padding: 32px 28px;
+      border: 1px solid rgba(148,163,184,.35);
+      border-radius: 18px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 18px 48px rgba(15,23,42,.10);
+    }
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 38px);
+      line-height: 1.1;
+    }
+    p {
+      margin: 0;
+      line-height: 1.6;
+      color: #475569;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="eyebrow">Wartung</div>
+    <h1>Die Arbeitsanweisung wird gerade aktualisiert.</h1>
+    <p>Wir führen derzeit einen kurzen technischen Test durch. Bitte versuche es in wenigen Minuten erneut.</p>
+  </main>
+</body>
+</html>

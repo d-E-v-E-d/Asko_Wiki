@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+
+  <meta name="aw-overrides-loaded" content="yes" />
+
+  {% if page and page.file and page.file.src_path %}
+    <meta name="mkdocs-src-path" content="{{ page.file.src_path }}">
+  {% endif %}
+
+  {% if config.extra and config.extra.backend_base %}
+    <meta name="mkdocs-backend-base" content="{{ config.extra.backend_base }}">
+  {% endif %}
+{% endblock %}
+
+{% block header %}
+  {{ super() }}
+
+  <div class="aw-actions" data-aw="actions" hidden>
+    <a class="aw-btn" id="aw-edit">Bearbeiten</a>
+    <a class="aw-btn aw-admin" id="aw-admin">Admin</a>
+  </div>
+  <style>
+    .md-header {
+      background-color: darkgray;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const selectors = [
+      'a[href*="/exports/"]',
+      'a[href$=".print.html"]',
+      'a[href*="print_page"]',
+      'a[href="print/"]',
+      'a[href$="print/"]',
+      'a[href$="/print/"]',
+      'a[href*="/print/"]',
+      '.md-content__button',
+    ];
+
+    document.querySelectorAll(selectors.join(",")).forEach((node) => {
+      const navItem = node.closest(".md-nav__item, .md-tabs__item, li");
+      if (navItem && navItem.querySelector("a") === node) {
+        navItem.remove();
+        return;
+      }
+      node.remove();
+    });
+  });
+</script>
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+<body data-version="{{ config.extra.version | default('') }}" data-version-date="{{ config.extra.version_date | default('') }}">
+{{ super() }}
+</body>
+{% endblock %}

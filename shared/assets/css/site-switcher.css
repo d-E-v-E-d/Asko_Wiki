@@ -1,0 +1,52 @@
+/* Dropdown Switcher im Header */
+.asko-site-switcher{
+    margin-left: .6rem;
+    display:flex;
+    align-items:center;
+}
+
+/* Kompakt, passt zu Material-Header */
+.asko-site-switcher__select{
+    height: 30px;
+    max-width: 210px;
+    padding: 0 .7rem 0 .55rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: .78rem;
+    line-height: 1;
+
+    color: #ffffff;
+    background: rgba(0,0,0,.14);
+    border: 1px solid rgba(255,255,255,.35);
+
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* kleines Pfeil-Icon (CSS-only) */
+    background-image:
+            linear-gradient(45deg, transparent 50%, rgba(255,255,255,.85) 50%),
+            linear-gradient(135deg, rgba(255,255,255,.85) 50%, transparent 50%);
+    background-position:
+            calc(100% - 14px) 12px,
+            calc(100% - 9px) 12px;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+.asko-site-switcher__select:hover{
+    background-color: rgba(0,0,0,.20);
+    border-color: rgba(255,255,255,.55);
+}
+
+.asko-site-switcher__select:focus{
+    border-color: rgba(255,255,255,.75);
+}
+
+/* kleine Screens: noch kompakter */
+@media (max-width: 720px){
+    .asko-site-switcher__select{
+        max-width: 170px;
+    }
+}

@@ -1,0 +1,140 @@
+/* ==================================================
+   pdf-print.css – STABIL & EINFACH
+   MkDocs Material + mkdocs-pdf-export-plugin
+   ================================================== */
+
+@media print {
+
+    /* ---------- PAGE SETUP ---------- */
+    @page {
+        size: A4 portrait;
+        margin: 20mm 18mm 18mm 18mm;
+
+        /* keine Kopfzeile */
+        @top-left { content: none; }
+        @top-center { content: none; }
+        @top-right { content: none; }
+
+        /* Footer */
+        @bottom-right {
+            content: "Seite " counter(page) " / " counter(pages);
+            font-size: 9pt;
+            color: #555;
+        }
+
+        @bottom-left {
+            content: "Arbeitsanweisung – Version " string(version);
+            font-size: 9pt;
+            color: #555;
+        }
+    }
+
+    /* ---------- VERSION (optional) ---------- */
+    body {
+        string-set: version attr(data-version);
+    }
+
+    /* ---------- MATERIAL CHROME AUS ---------- */
+    .md-header,
+    .md-footer,
+    .md-tabs,
+    .md-sidebar,
+    nav.md-nav,
+    .md-nav,
+    .md-search,
+    .md-overlay {
+        display: none !important;
+    }
+
+    /* Breadcrumb / Path */
+    .md-path,
+    .md-path__list,
+    .md-path__item,
+    .md-path__link {
+        display: none !important;
+    }
+
+    /* Page-Header / Topic / Hero (Icon + Titel oben) */
+    .md-content__inner > header,
+    .md-page-title,
+    .md-page-title__inner,
+    .md-page-title__title,
+    .md-page-title__label,
+    .md-page-title__icon,
+    .md-typeset .md-topic,
+    .md-typeset .md-topic__label,
+    .md-typeset .md-topic__title,
+    .md-typeset .md-topic__icon,
+    .md-typeset .md-hero,
+    .md-typeset .md-hero__inner {
+        display: none !important;
+    }
+
+    /* Tool-Icons im Content */
+    .md-content__button,
+    .md-content__inner .md-icon,
+    .md-content__inner .md-tag,
+    .md-content__inner .md-badge,
+    .md-content__inner .md-ellipsis {
+        display: none !important;
+    }
+
+    /* Admin / Editor / Tooling */
+    .aw-actions,
+    .aw-btn,
+    #aw-edit,
+    #aw-admin,
+    [data-aw],
+    [id^="aw-"],
+    a[href*="/admin"],
+    a[href*="/editor"],
+    a[href*="/_tool"],
+    a[href*="/preview"] {
+        display: none !important;
+    }
+
+    /* ---------- LAYOUT FIX ---------- */
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .md-main,
+    .md-main__inner,
+    .md-content,
+    .md-content__inner,
+    .md-typeset {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .md-typeset {
+        font-size: 11pt;
+        line-height: 1.4;
+    }
+
+    /* Keine URL-Anhänge */
+    a[href]::after {
+        content: "" !important;
+    }
+
+    /* ---------- PAGE BREAKS (sanft) ---------- */
+    h1, h2, h3 {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    p, ul, ol, table, pre, blockquote {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    img, svg {
+        max-width: 100% !important;
+        height: auto !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+}
