@@ -1,4 +1,4 @@
-﻿<!-- ASKO Wiki Länderportal: Österreich -->
+<!-- ASKO Wiki Länderportal: Österreich -->
 <div class="asko-page">
   <header class="asko-portal-header">
     <div class="asko-portal-header-inner">
@@ -46,29 +46,125 @@
     --asko-teal:#16b9a6;
     --asko-teal-dark:#0ea58f;
     --asko-ink:#0f172a;
-    --asko-muted:#475569;
-    --asko-border:rgba(255,255,255,.38);
+    --asko-border:rgba(255,255,255,.35);
   }
-  body.asko-portal .md-header{background:linear-gradient(90deg,var(--asko-teal),var(--asko-teal-dark))!important;}
-  body.asko-portal .md-tabs{background:var(--asko-teal-dark)!important;}
-  body.asko-portal .md-content__inner{margin:0;max-width:none;}
+
+  body.asko-portal .md-header{
+    background:linear-gradient(90deg,var(--asko-teal),var(--asko-teal-dark))!important;
+  }
+  body.asko-portal .md-tabs{
+    background:linear-gradient(90deg,var(--asko-teal),var(--asko-teal-dark))!important;
+  }
+  body.asko-portal .md-sidebar--primary,
+  body.asko-portal .md-sidebar--secondary{
+    display:none!important;
+  }
+  body.asko-portal .md-main__inner{
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+  @media (min-width:76.25em){
+    body.asko-portal .md-main__inner{max-width:1100px;}
+  }
+  body.asko-portal .md-content__inner>header{display:none!important;}
+  body.asko-portal .md-content__inner{margin:0;}
   body.asko-portal .md-content__inner:before{display:none;}
-  body.asko-portal .md-sidebar{display:none!important;}
-  body.asko-portal .md-main__inner{margin:0;max-width:none;}
-  body.asko-portal .md-content{margin:0;}
-  body.asko-portal .asko-page{min-height:calc(100vh - 64px);background:linear-gradient(180deg,#f8fafc 0%,#eef8f6 100%);}
-  body.asko-portal .asko-portal-header{padding:42px 24px 22px;}
-  body.asko-portal .asko-portal-header-inner{width:min(1120px,100%);margin:0 auto;display:flex;gap:22px;align-items:center;}
-  body.asko-portal .asko-logo{width:86px;height:auto;display:block;}
-  body.asko-portal .asko-portal-title{margin:0;color:var(--asko-ink);font-size:clamp(1.8rem,3vw,3rem);letter-spacing:0;}
-  body.asko-portal .asko-portal-greeting{margin-top:8px;color:var(--asko-muted);font-size:1rem;line-height:1.5;}
-  body.asko-portal .asko-landing{padding:18px 24px 58px;}
-  body.asko-portal .asko-tiles__inner{width:min(1120px,100%);margin:0 auto;}
-  body.asko-portal .asko-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
-  body.asko-portal .asko-tile{min-height:112px;padding:18px 20px;border-radius:8px;border:1px solid rgba(14,165,143,.28);background:rgba(255,255,255,.78);box-shadow:0 10px 28px rgba(15,23,42,.08);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--asko-ink);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,background .15s ease;}
-  body.asko-portal .asko-tile:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(15,23,42,.12);border-color:rgba(14,165,143,.58);background:#fff;}
-  body.asko-portal .asko-tile--testumgebung{background:rgba(220,38,38,.10);border-color:rgba(220,38,38,.32);}
-  body.asko-portal .asko-tile--testumgebung:hover{background:rgba(220,38,38,.16);border-color:rgba(220,38,38,.55);}
-  body.asko-portal .asko-tile__label{font-weight:700;font-size:1.05rem;line-height:1.25;overflow-wrap:anywhere;}
-  @media (max-width:700px){body.asko-portal .asko-portal-header-inner{align-items:flex-start}.asko-logo{width:72px}.asko-grid{grid-template-columns:1fr}}
+
+  body.asko-portal .asko-portal-header{
+    background:#fff;
+    padding:26px 18px 18px;
+  }
+  body.asko-portal .asko-portal-header-inner{
+    max-width:1100px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:14px;
+  }
+  body.asko-portal .asko-logo{
+    height:42px;
+    width:auto;
+    display:block;
+  }
+  body.asko-portal .asko-portal-titlewrap{
+    display:flex;
+    flex-direction:column;
+    text-align:center;
+    gap:6px;
+  }
+  body.asko-portal .asko-portal-title{
+    margin:0;
+    font-size:36px;
+    font-weight:900;
+    color:var(--asko-ink);
+    letter-spacing:0;
+  }
+  body.asko-portal .asko-portal-greeting{
+    max-width:720px;
+    margin-top:6px;
+    color:#475569;
+    font-size:16px;
+    line-height:1.5;
+  }
+
+  body.asko-portal .asko-landing{
+    background:linear-gradient(180deg,var(--asko-teal) 0%,var(--asko-teal-dark) 100%);
+    padding:26px 0 46px;
+  }
+  body.asko-portal .asko-tiles__inner{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 18px;
+  }
+  body.asko-portal .asko-grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:18px;
+  }
+  body.asko-portal .asko-tile{
+    min-height:92px;
+    padding:18px;
+    border:2px solid var(--asko-border);
+    background:rgba(0,0,0,.06);
+    color:#fff;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    transition:transform .12s ease,background .12s ease,border-color .12s ease;
+  }
+  body.asko-portal .asko-tile:hover{
+    transform:translateY(-2px);
+    background:rgba(0,0,0,.10);
+    border-color:rgba(255,255,255,.6);
+  }
+  body.asko-portal .asko-tile--testumgebung{
+    background:#fee2e2;
+    border-color:#f87171;
+    color:#7f1d1d;
+  }
+  body.asko-portal .asko-tile--testumgebung:hover{
+    background:#fecaca;
+    border-color:#ef4444;
+  }
+  body.asko-portal .asko-tile__label{
+    font-weight:900;
+    font-size:16px;
+    letter-spacing:0;
+    line-height:1.2;
+    overflow-wrap:anywhere;
+  }
+  body.asko-portal .md-footer{display:none!important;}
+  body.asko-portal .md-container{padding-bottom:0!important;}
+
+  @media (max-width:980px){
+    body.asko-portal .asko-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:520px){
+    body.asko-portal .asko-portal-header-inner{flex-direction:column;text-align:center;}
+    body.asko-portal .asko-grid{grid-template-columns:1fr;}
+  }
 </style>

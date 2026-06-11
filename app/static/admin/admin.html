@@ -1,10 +1,10 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/static/editor/preview-fix.css">
-  <title>Admin Ã„nderungsprÃ¼fung</title>
+  <title>Admin Änderungsprüfung</title>
   <style>
     :root{--bg:#f6f7fb;--card:#fff;--border:#dfe3ea;--brand:#0b72b9;--muted:#6b7280}
     *{box-sizing:border-box}
@@ -136,7 +136,7 @@
 <body>
   <div class="top">
     <div class="top-left">
-      <div class="title">Ã„nderungsprÃ¼fung</div>
+      <div class="title">Änderungsprüfung</div>
       <div id="status" class="top-status"></div>
       <div class="top-grow"></div>
     </div>
@@ -150,7 +150,7 @@
 
   <div class="wrap">
     <div class="panel">
-      <h2> Ã„nderungslog (offene EntwÃ¼rfe)</h2>
+      <h2> Änderungslog (offene Entwürfe)</h2>
       <div style="padding:0 12px 10px 12px;display:flex;gap:.5rem;align-items:center;">
         <select id="change-country" style="padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;min-width:10rem;"></select>
         <select id="change-area" style="padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;min-width:12rem;">
@@ -166,7 +166,7 @@
           <option value="it-faq">IT-FAQ</option>
           <option value="testumgebung">Testumgebung</option>
         </select>
-        <input id="change-search" type="text" placeholder="Ã„nderungen suchen..." style="width:100%;padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;" />
+        <input id="change-search" type="text" placeholder="Änderungen suchen..." style="width:100%;padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;" />
       </div>
       <div id="list" class="list"></div>
     </div>
@@ -179,10 +179,10 @@
             <button id="previewModeBtn" class="btn view-toggle active" type="button">Vorschau</button>
             <button id="diffModeBtn" class="btn view-toggle" type="button">Text-Diff</button>
           </div>
-          <button id="approveBtn" class="btn primary" disabled>Ãœbernehmen</button>
+          <button id="approveBtn" class="btn primary" disabled>Übernehmen</button>
           <button id="rejectBtn" class="btn danger" disabled>Ablehnen</button>
           <button id="editBtn" class="btn warn" disabled>Bearbeiten</button>
-          <button id="sortBtn" class="btn success" title="Reihenfolge von Dateien und Ordnern Ã¤ndern">Sortierung Ã¤ndern</button>
+          <button id="sortBtn" class="btn success" title="Reihenfolge von Dateien und Ordnern ändern">Sortierung ändern</button>
         </div>
       </div>
       <div class="diffwrap">
@@ -202,12 +202,12 @@
 
   <section id="version-card" class="card">
     <header class="card-header">
-      <h2>Version & VerÃ¶ffentlichung</h2>
+      <h2>Version & Veröffentlichung</h2>
     </header>
 
     <div style="margin-top:.5rem; font-size:.82rem;">
       <div style="margin-bottom:.5rem;">
-        Aktuelle Version: <span id="v-current">â€“</span>
+        Aktuelle Version: <span id="v-current">–</span>
         <span id="v-date" style="color:#6b7280;margin-left:.5rem;"></span>
       </div>
 
@@ -237,8 +237,8 @@
           Neue Version
           <input type="text" id="v-new" placeholder="z.B. 1.4.3" style="padding:.35rem .45rem;border:1px solid #cbd5e1;border-radius:8px;min-width:9rem;font-size:.82rem;" />
         </label>
-        <button id="btn-publish-site" class="btn primary">VerÃ¶ffentlichen Bereich</button>
-        <button id="btn-publish-all" class="btn primary">VerÃ¶ffentlichen Alle</button>
+        <button id="btn-publish-site" class="btn primary">Veröffentlichen Bereich</button>
+        <button id="btn-publish-all" class="btn primary">Veröffentlichen Alle</button>
 
         <button id="btn-pdf-site" class="btn primary">PDF Bereich</button>
         <button id="btn-pdf-all" class="btn primary">PDF Alle</button>
@@ -279,7 +279,7 @@
           </select>
         </label>
         <label>Datei
-          <input type="text" id="hist-file" list="hist-file-options" placeholder="Datei suchen oder auswÃ¤hlen" />
+          <input type="text" id="hist-file" list="hist-file-options" placeholder="Datei suchen oder auswählen" />
           <datalist id="hist-file-options"></datalist>
         </label>
         <label>Benutzer
@@ -321,7 +321,7 @@
           </select>
         </label>
         <label>Dateiname
-          <input id="gr-file" list="gr-file-options" placeholder="Datei suchen oder auswÃ¤hlen" />
+          <input id="gr-file" list="gr-file-options" placeholder="Datei suchen oder auswählen" />
           <datalist id="gr-file-options"></datalist>
         </label>
         <label>Limit
@@ -342,7 +342,7 @@
           <div class="label" id="gr-diff-label">Diff</div>
           <div class="toolbar">
             <button id="gr-sync" class="btn" style="display:none" disabled>Git-Sync deaktiviert</button>
-            <button id="gr-rollback" class="btn danger" disabled>Rollback auf ausgewÃ¤hlte Version</button>
+            <button id="gr-rollback" class="btn danger" disabled>Rollback auf ausgewählte Version</button>
           </div>
         </div>
         <div class="diffwrap">
@@ -351,7 +351,7 @@
             <pre id="gr-current" class="block"></pre>
           </div>
           <div class="col">
-            <div class="head"><div class="label">AusgewÃ¤hlte Version</div></div>
+            <div class="head"><div class="label">Ausgewählte Version</div></div>
             <pre id="gr-old" class="block"></pre>
           </div>
         </div>
@@ -362,7 +362,7 @@
   <div id="adminModal" class="modal" style="display:none">
     <div class="dialog">
       <h3>Admin-Anmeldung</h3>
-      <p class="muted">Bitte gib deinen Namen ein (fÃ¼r das Protokoll) und das Admin-Passwort.</p>
+      <p class="muted">Bitte gib deinen Namen ein (für das Protokoll) und das Admin-Passwort.</p>
       <label>Dein Name</label>
       <input id="admName" placeholder="z.B. Maria Muster" />
       <label>Admin-Passwort</label>
@@ -375,7 +375,7 @@
 
   <div id="sortModal" class="modal" style="display:none">
     <div class="dialog sort-dialog">
-      <h3>Sortierung Ã¤ndern</h3>
+      <h3>Sortierung ändern</h3>
       <p class="muted">Die Reihenfolge wird direkt in der .pages-Datei gespeichert. index.md bleibt immer oben.</p>
       <div class="sort-controls">
         <label>Land
@@ -403,7 +403,7 @@
       <div id="sortList" class="sort-list"></div>
       <div id="sortStatus" class="sort-status" aria-live="polite"></div>
       <div class="row">
-        <button id="sortCloseBtn" class="btn" type="button">SchlieÃŸen</button>
+        <button id="sortCloseBtn" class="btn" type="button">Schließen</button>
         <button id="sortSaveBtn" class="btn primary" type="button">Speichern</button>
       </div>
     </div>
@@ -673,7 +673,7 @@
   function renderSortItems(){
     sortList.innerHTML = '';
     if(!sortItems.length){
-      sortList.innerHTML = '<div class="sort-empty">Keine sortierbaren EintrÃ¤ge gefunden.</div>';
+      sortList.innerHTML = '<div class="sort-empty">Keine sortierbaren Einträge gefunden.</div>';
       return;
     }
     sortItems.forEach((item) => {
@@ -682,12 +682,12 @@
       row.draggable = !item.locked;
       row.dataset.name = item.name;
       row.innerHTML = `
-        <div class="sort-handle">${item.locked ? 'â€¢' : 'â†•'}</div>
+        <div class="sort-handle">${item.locked ? '•' : '↕'}</div>
         <div class="sort-name">${escHtml(item.name)}</div>
         <div class="sort-type">${sortTypeLabel(item.type)}</div>
         <div class="sort-actions">
-          <button class="btn" type="button" data-sort-up="${escHtml(item.name)}" ${item.locked ? 'disabled' : ''}>â†‘</button>
-          <button class="btn" type="button" data-sort-down="${escHtml(item.name)}" ${item.locked ? 'disabled' : ''}>â†“</button>
+          <button class="btn" type="button" data-sort-up="${escHtml(item.name)}" ${item.locked ? 'disabled' : ''}>↑</button>
+          <button class="btn" type="button" data-sort-down="${escHtml(item.name)}" ${item.locked ? 'disabled' : ''}>↓</button>
         </div>
       `;
 
@@ -778,7 +778,7 @@
       });
       const savedCount = Array.isArray(saved.order) ? saved.order.length : sortItems.length;
       setStatus('Sortierung gespeichert, baue Bereich neu...');
-      setSortStatus(`Sortierung gespeichert (${savedCount} EintrÃ¤ge). Baue Bereich neu...`);
+      setSortStatus(`Sortierung gespeichert (${savedCount} Einträge). Baue Bereich neu...`);
       await fetchJSON(`/admin/build_site?site=${encodeURIComponent(area)}`, { method: 'POST' });
       setStatus('Sortierung gespeichert und Bereich neu gebaut');
       setSortStatus('Sortierung gespeichert und Bereich neu gebaut.');
@@ -945,7 +945,7 @@
 
   function renderOpenDrafts(items){
     listEl.innerHTML = '';
-    if(!items?.length){ listEl.innerHTML = '<div class="empty">Keine offenen EntwÃ¼rfe gefunden.</div>'; return; }
+    if(!items?.length){ listEl.innerHTML = '<div class="empty">Keine offenen Entwürfe gefunden.</div>'; return; }
     for(const it of items){
       const opLabel = historyActionLabel({ action:'draft_saved', details: it });
       const row = document.createElement('div');
@@ -1125,7 +1125,7 @@
   }
 
   async function loadOpenDrafts(){
-    setStatus('Lade Ã„nderungenâ€¦');
+    setStatus('Lade Änderungen…');
     try{
       const j = await fetchJSON('/admin/changes');
       openDraftItems = j.items || [];
@@ -1136,12 +1136,12 @@
 
   async function selectChange(change){
     try{
-      setStatus('Lade Diffâ€¦');
+      setStatus('Lade Diff…');
       currentChange = change || null;
       currentFile = change?.file || null;
       currentArea = change?.area || null;
 
-      // UX: Rollback-Feld auto befÃ¼llen
+      // UX: Rollback-Feld auto befüllen
       if(grSite && grFile){
         grSite.value = currentArea;
         grFile.value = currentFile;
@@ -1184,14 +1184,14 @@
   async function confirmCurrentChange(mode){
     if(!currentChange?.operation) return true;
     const preview = await fetchChangePreview(currentChange).catch(() => ({ files: [] }));
-    const actionWord = mode === 'approve' ? 'Ã¼bernehmen' : 'ablehnen';
+    const actionWord = mode === 'approve' ? 'übernehmen' : 'ablehnen';
     const op = currentChange.operation;
     const kindLabel = currentChange.kind === 'folder' ? 'Ordner' : 'Datei';
     const targetName = currentChange.display_file || currentChange.path || currentChange.to || currentChange.file || '';
     let message = `Wollen Sie den Antrag wirklich ${actionWord}?`;
 
     if(op === 'deleted'){
-      message = `Wollen Sie die LÃ¶schung von ${kindLabel} "${targetName}" wirklich ${actionWord}?`;
+      message = `Wollen Sie die Löschung von ${kindLabel} "${targetName}" wirklich ${actionWord}?`;
     } else if(op === 'moved'){
       message = `Wollen Sie die Verschiebung von ${kindLabel} "${currentChange.from || targetName}" nach "${currentChange.to || targetName}" wirklich ${actionWord}?`;
     } else if(op === 'renamed'){
@@ -1211,7 +1211,7 @@
     if(!currentFile) return;
     try{
       if(!(await confirmCurrentChange('approve'))) return;
-      setStatus('Ãœbernehmeâ€¦');
+      setStatus('Übernehme…');
       const fd=new FormData();
       fd.append('area', currentArea);
       fd.append('file', currentFile);
@@ -1226,17 +1226,17 @@
       await loadOpenDrafts();
       clearChangeViews(); selLabel.textContent='Keine Auswahl'; currentChange = null;
       approveBtn.disabled=true; rejectBtn.disabled=true; editBtn.disabled=true;
-      setStatus('Ãœbernommen');
-      showToast('Entwurf wurde Ã¼bernommen.');
+      setStatus('Übernommen');
+      showToast('Entwurf wurde übernommen.');
       await loadHistory();
-    }catch(e){ setStatus('Fehler beim Ãœbernehmen'); showToast('Fehler beim Ãœbernehmen.', 'error'); }
+    }catch(e){ setStatus('Fehler beim Übernehmen'); showToast('Fehler beim Übernehmen.', 'error'); }
   };
 
   rejectBtn.onclick = async ()=>{
     if(!currentFile) return;
     try{
       if(!(await confirmCurrentChange('reject'))) return;
-      setStatus('Lehne abâ€¦');
+      setStatus('Lehne ab…');
       const fd=new FormData();
       fd.append('area', currentArea);
       fd.append('file', currentFile);
@@ -1271,7 +1271,7 @@
     return String(value || '')
       .replace(/\bd-E-v-E-d\b/gi, '')
       .replace(/\s{2,}/g, ' ')
-      .replace(/\s+[â€“-]\s*$/, '')
+      .replace(/\s+[–-]\s*$/, '')
       .trim();
   }
 
@@ -1375,7 +1375,7 @@
       alert(txt || `HTTP ${res.status}`);
       return;
     }
-    alert('Lokaler Rollback durchgefÃ¼hrt.');
+    alert('Lokaler Rollback durchgeführt.');
     await fetch(`/admin/build_site?site=${encodeURIComponent(area)}`, { method:'POST', credentials:'include' }).catch(() => {});
     await loadGitHistory();
   });
@@ -1396,7 +1396,7 @@
       if(details.operation === 'moved') return details.kind === 'folder' ? 'Ordner verschoben' : 'Datei verschoben';
       if(details.operation === 'folder_created') return 'Ordner angelegt';
       if(details.operation === 'file_created') return 'Datei angelegt';
-      if(details.operation === 'deleted') return details.kind === 'folder' ? 'Ordner gelÃ¶scht' : 'Datei gelÃ¶scht';
+      if(details.operation === 'deleted') return details.kind === 'folder' ? 'Ordner gelöscht' : 'Datei gelöscht';
       return 'Entwurf gespeichert';
     }
     if(e?.action === 'approved') return 'Freigegeben';
@@ -1445,7 +1445,7 @@
   }
   function renderHistory(items){
     const host=qs('#hist-results');
-    if(!items?.length){ host.innerHTML='<div class="hist-empty">Keine EintrÃ¤ge gefunden.</div>'; return; }
+    if(!items?.length){ host.innerHTML='<div class="hist-empty">Keine Einträge gefunden.</div>'; return; }
     const frag=document.createDocumentFragment();
     items.forEach(e=>{
       const det=document.createElement('details'); det.className='hist-item';
@@ -1524,7 +1524,7 @@
   async function loadVersion(){
     try{
       const data = await fetchJSON('/admin/version');
-      const v = data.version || data.current_version || 'â€“';
+      const v = data.version || data.current_version || '–';
       const d = data.version_date || data.build_date || '';
       qs('#v-current').textContent = v;
       qs('#v-date').textContent = d ? `(${d})` : '';
@@ -1539,7 +1539,7 @@
 
   function logPdfUrls(urls){
     if(!Array.isArray(urls) || !urls.length){
-      logLine("Keine PDF-Pfade zurÃ¼ckgegeben.");
+      logLine("Keine PDF-Pfade zurückgegeben.");
       return;
     }
     logLine("PDF-Pfade:");
@@ -1560,7 +1560,7 @@
     }catch(e){
       console.warn('Publish-Refresh-Signal konnte nicht gespeichert werden', e);
     }
-    showToast('VerÃ¶ffentlicht. Offene MkDocs-Tabs werden aktualisiert.');
+    showToast('Veröffentlicht. Offene MkDocs-Tabs werden aktualisiert.');
   }
 
   async function postJson(url, body) {
@@ -1603,7 +1603,7 @@
       await loadVersion();
     } catch (e) {
       logLine("FEHLER: " + e.message);
-      showToast('VerÃ¶ffentlichung fehlgeschlagen.', 'error');
+      showToast('Veröffentlichung fehlgeschlagen.', 'error');
     }
   });
 
@@ -1621,7 +1621,7 @@
       await loadVersion();
     } catch (e) {
       logLine("FEHLER: " + e.message);
-      showToast('VerÃ¶ffentlichung fehlgeschlagen.', 'error');
+      showToast('Veröffentlichung fehlgeschlagen.', 'error');
     }
   });
 
@@ -1640,10 +1640,10 @@
       const firstUrl = (data.pdf_urls || [])[0];
       if(firstUrl){
         const absUrl = new URL(firstUrl, window.location.origin).toString();
-        logLine("Ã–ffne PDF im neuen Tab: " + absUrl);
+        logLine("Öffne PDF im neuen Tab: " + absUrl);
         const popup = window.open(absUrl, "_blank", "noopener");
         if (!popup) {
-          logLine("Hinweis: Automatisches Ã–ffnen wurde blockiert. Pfad oben manuell kopieren.");
+          logLine("Hinweis: Automatisches Öffnen wurde blockiert. Pfad oben manuell kopieren.");
         }
       }
       logLine("== Fertig ==");
@@ -1656,7 +1656,7 @@
     try {
       logLine("== PDF Export Alle gestartet ==");
       await runPdfExport("all");
-      logLine("Wenn das automatische Ã–ffnen blockiert wird, kÃ¶nnen die obigen PDF-Pfade direkt im Browser geÃ¶ffnet werden.");
+      logLine("Wenn das automatische Öffnen blockiert wird, können die obigen PDF-Pfade direkt im Browser geöffnet werden.");
       logLine("== Fertig ==");
     } catch (e) {
       logLine("FEHLER: " + e.message);
@@ -1673,25 +1673,10 @@
       await loadHistory();
       await loadVersion();
     }catch(e){
-      // ensureAdmin zeigt Modal; nach Login lÃ¤dt es selbst
+      // ensureAdmin zeigt Modal; nach Login lädt es selbst
     }
   });
 })();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
