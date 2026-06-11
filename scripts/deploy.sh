@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
 
 APP_DIR="/srv/arbeitsanweisung/app"
@@ -49,17 +49,17 @@ load_areas() {
   local area_dir
   AREAS=()
   while IFS= read -r area_dir; do
-    AREAS+=("$(basename "$area_dir")")
-  done < <(find sites -mindepth 1 -maxdepth 1 -type d -exec test -f '{}/mkdocs.yml' ';' -print | sort)
+    AREAS+=("${area_dir#sites/}")
+  done < <(find sites -mindepth 2 -maxdepth 2 -type d -exec test -f '{}/mkdocs.yml' ';' -print | sort)
 
   if [[ ${#AREAS[@]} -eq 0 ]]; then
-    log "ERROR: no MkDocs areas found under sites/*/mkdocs.yml"
+    log "ERROR: no MkDocs areas found under sites/*/*/mkdocs.yml"
     exit 1
   fi
 }
 
 area_route() {
-  basename "$1" | tr '[:upper:]' '[:lower:]'
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
 }
 
 preserve_content_snapshot() {
@@ -80,10 +80,40 @@ restore_content_snapshot() {
   local path
   for path in "${CONTENT_PATHS[@]}"; do
     if [[ -e "${snapshot_dir}/${path}" ]]; then
-      rm -rf "$path"
       mkdir -p "$path"
-      rsync -a --delete "${snapshot_dir}/${path}/" "${path}/"
+      if [[ "$path" == "sites" ]]; then
+        # Code-only Repo bringt technische sites/<land>/<bereich>-Skeletons mit.
+        # Lokale Inhalte werden daruebergelegt, damit die Skeletons nicht geloescht werden.
+        rsync -a "${snapshot_dir}/${path}/" "${path}/"
+      else
+        rm -rf "$path"
+        mkdir -p "$path"
+        rsync -a --delete "${snapshot_dir}/${path}/" "${path}/"
+      fi
     fi
+  done
+}
+
+migrate_legacy_flat_sites_to_at() {
+  local legacy
+  local area
+  local target
+  for legacy in sites/*; do
+    [[ -d "$legacy" ]] || continue
+    area="$(basename "$legacy")"
+    [[ "$area" =~ ^(at|de|si|it|ro)$ ]] && continue
+    [[ -f "$legacy/mkdocs.yml" || -d "$legacy/docs" || -d "$legacy/docs_draft" ]] || continue
+
+    target="sites/at/$area"
+    mkdir -p "$target/docs" "$target/docs_draft"
+    if [[ -d "$legacy/docs" ]]; then
+      rsync -a "$legacy/docs/" "$target/docs/"
+    fi
+    if [[ -d "$legacy/docs_draft" ]]; then
+      rsync -a "$legacy/docs_draft/" "$target/docs_draft/"
+    fi
+    rm -rf "$legacy"
+    log "Migrated legacy site $area -> at/$area"
   done
 }
 
@@ -150,6 +180,7 @@ git fetch --prune origin
 git reset --hard origin/main
 git clean -fd
 restore_content_snapshot "$CONTENT_SNAPSHOT"
+migrate_legacy_flat_sites_to_at
 rm -rf "$CONTENT_SNAPSHOT"
 CONTENT_SNAPSHOT=""
 load_areas
@@ -179,6 +210,10 @@ for area in "${AREAS[@]}"; do
   cfg="sites/${area}/mkdocs.yml"
   route="$(area_route "$area")"
   if [[ -f "$cfg" ]]; then
+    if ! find "sites/${area}/docs" -type f -name '*.md' -print -quit 2>/dev/null | grep -q .; then
+      log "  - skip: ${area} (no markdown content)"
+      continue
+    fi
     log "  - build: ${area} -> /${route}/"
     "$MKDOCS" build -c -f "$cfg" -d "${BUILD_TMP}/${route}"
   else
@@ -199,3 +234,8 @@ sudo nginx -t
 sudo systemctl reload nginx
 
 log "Deploy OK"
+
+
+
+
+

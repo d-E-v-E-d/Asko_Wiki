@@ -1,28 +1,40 @@
-(function () {
-    const LINKS = [
-        { label: "Portal", href: "/" },
-        { label: "Allgemein", href: "/allgemein/" },
-        { label: "Schaden", href: "/schaden/" },
-        { label: "Betrieb", href: "/betrieb/" },
-        { label: "Vertrieb", href: "/vertrieb/" },
-        { label: "Buchhaltung", href: "/buchhaltung/" },
-        { label: "Novas", href: "/novas/" },
-        { label: "WTO", href: "/wto/" },
-        { label: "Datenschutz", href: "/datenschutz/" },
-        { label: "IT-FAQ", href: "/it-faq/" },
-        { label: "Testumgebung", href: "/testumgebung/" }
+﻿(function () {
+    const AREAS = [
+        { label: "Land", href: "../" },
+        { label: "Allgemein", area: "allgemein" },
+        { label: "Schaden", area: "schaden" },
+        { label: "Betrieb", area: "betrieb" },
+        { label: "Vertrieb", area: "vertrieb" },
+        { label: "Buchhaltung", area: "buchhaltung" },
+        { label: "Novas", area: "novas" },
+        { label: "WTO", area: "wto" },
+        { label: "Datenschutz", area: "datenschutz" },
+        { label: "IT-FAQ", area: "it-faq" },
+        { label: "Testumgebung", area: "testumgebung" }
     ];
+    const COUNTRY_KEYS = new Set(["at", "de", "si", "it", "ro"]);
+
+    function routeParts() {
+        const parts = (location.pathname || "/").replace(/^\/+/, "").split("/").filter(Boolean);
+        if (parts[0] === "site") return parts.slice(1);
+        return parts;
+    }
+
+    function currentCountry() {
+        const parts = routeParts();
+        return COUNTRY_KEYS.has(parts[0]) ? parts[0] : "at";
+    }
 
     function mount() {
-        // Ziel: links neben Bearbeiten/Admin (aw-actions)
         const actions = document.querySelector(".aw-actions");
         if (!actions) return;
-
         if (document.getElementById("asko-area-switcher")) return;
 
+        const country = currentCountry();
+        const prefix = location.pathname.replace(/^\/site\//, "/").startsWith(`/${country}/`) ? "" : "/site";
         const wrap = document.createElement("div");
         wrap.id = "asko-area-switcher";
-        wrap.className = "aw-switcher"; // styling wie aw-btn
+        wrap.className = "aw-switcher";
 
         const select = document.createElement("select");
         select.className = "aw-switcher__select";
@@ -35,13 +47,13 @@
         ph.disabled = true;
         select.appendChild(ph);
 
-        // optional: current markieren (best-effort)
-        const here = (location.pathname || "/").replace(/\/+$/, "") + "/";
-        LINKS.forEach((l) => {
+        const here = (location.pathname || "/").replace(/^\/site/, "").replace(/\/+$/, "") + "/";
+        AREAS.forEach((item) => {
             const opt = document.createElement("option");
-            const target = (l.href || "/").replace(/\/+$/, "") + "/";
-            opt.value = l.href;
-            opt.textContent = (target === here) ? `✓ ${l.label}` : l.label;
+            const href = item.area ? `${prefix}/${country}/${item.area}/` : `${prefix}/${country}/`;
+            const target = href.replace(/^\/site/, "").replace(/\/+$/, "") + "/";
+            opt.value = href;
+            opt.textContent = (target === here) ? `✓ ${item.label}` : item.label;
             select.appendChild(opt);
         });
 
@@ -51,8 +63,6 @@
         });
 
         wrap.appendChild(select);
-
-        // links einfügen (vor Bearbeiten/Admin)
         actions.insertBefore(wrap, actions.firstChild);
     }
 

@@ -1,5 +1,6 @@
-(function () {
+﻿(function () {
   const PUBLISH_SIGNAL_KEY = "asko:publish-refresh";
+  const COUNTRY_KEYS = new Set(["at", "de", "si", "it", "ro"]);
 
   const onReady = (fn) =>
       window.document$
@@ -11,21 +12,33 @@
     return m ? m.getAttribute("content") : null;
   }
 
-  function pathToMd(p) {
-    p = (p || "").replace(/^\/+/, "");
-    if (p === "" || p.endsWith("/")) p += "index.html";
-    return p.replace(/index\.html$/i, "index.md").replace(/\.html$/i, ".md");
-  }
-
-  function inferSite() {
+  function routeParts() {
     const parts = (window.location.pathname || "")
       .replace(/\\/g, "/")
       .replace(/^\/+/, "")
       .split("/")
       .filter(Boolean);
+    if (parts[0] === "site") return parts.slice(1);
+    return parts;
+  }
 
-    if (parts[0] === "site" && parts[1]) return parts[1];
-    return parts[0] || "schaden";
+  function pathToMd(p) {
+    let parts = (p || "")
+      .replace(/\\/g, "/")
+      .replace(/^\/+/, "")
+      .split("/")
+      .filter(Boolean);
+    if (parts[0] === "site") parts = parts.slice(1);
+    if (COUNTRY_KEYS.has(parts[0]) && parts[1]) parts = parts.slice(2);
+    let clean = parts.join("/");
+    if (clean === "" || clean.endsWith("/")) clean += "index.html";
+    return clean.replace(/index\.html$/i, "index.md").replace(/\.html$/i, ".md");
+  }
+
+  function inferSite() {
+    const parts = routeParts();
+    if (COUNTRY_KEYS.has(parts[0]) && parts[1]) return `${parts[0]}-${parts[1]}`;
+    return parts[0] || "at-schaden";
   }
 
   function signalMatchesCurrentSite(signal) {

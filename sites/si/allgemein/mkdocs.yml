@@ -1,0 +1,47 @@
+﻿site_name: Slowenien - Allgemein
+site_url: https://docs.asko24.at/si/allgemein
+theme:
+  name: material
+  language: de
+  logo: assets/img/logo.svg
+  favicon: assets/img/logo.svg
+  features:
+  - navigation.instant
+  - navigation.tracking
+  - navigation.path
+  - toc.integrate
+  - content.code.copy
+  - navigation.indexes
+  - navigation.prune
+  custom_dir: overrides
+extra:
+  backend_base: /api
+  version: 16.05.2026-6
+  version_date: '2026-05-16'
+extra_css:
+- assets/css/custom.css
+- assets/css/pdf-print.css
+- assets/css/site-switcher.css
+extra_javascript:
+- assets/js/edit-admin-buttons.js
+- assets/js/footer-meta.js
+- assets/js/site-toc.js
+- assets/js/site-switcher.js
+markdown_extensions:
+- admonition
+- toc:
+    permalink: true
+- tables
+- attr_list
+plugins:
+- search
+- awesome-pages
+- pdf-export:
+    enabled_if_env: ENABLE_PDF_EXPORT
+    combined: true
+    combined_output_path: exports/Arbeitsanweisung_AKTUELL.pdf
+    media_type: print
+    verbose: false
+docs_dir: docs
+site_dir: ../../../site/si/allgemein
+

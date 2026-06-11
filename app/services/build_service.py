@@ -15,7 +15,7 @@ import yaml
 
 from app.config import config
 from app.services.version_service import set_version, get_version
-from app.site_registry import SITE_KEYS, site_folder, normalize_site
+from app.site_registry import COUNTRY_KEYS, SITE_KEYS, site_folder, site_route, normalize_site
 
 # ---------- Repo Layout (multi-site) ----------
 def _find_repo_root(start: Path) -> Path:
@@ -278,6 +278,11 @@ def _sync_shared_mkdocs_assets() -> str:
     return f"shared sync OK ({synced} Ziele)"
 
 
+
+def _site_has_markdown(site: str) -> bool:
+    docs_root = SITES_DIR / site_folder(site) / "docs"
+    return docs_root.exists() and any(docs_root.rglob("*.md"))
+
 def _merge_portal_into_site_root(portal_out: Path) -> Tuple[bool, str]:
     """
     Kopiert Portal-Output nach SITE_DIR (Root), ohne die Bereich-Ordner (schaden/, betrieb/, ...) zu löschen.
@@ -289,7 +294,7 @@ def _merge_portal_into_site_root(portal_out: Path) -> Tuple[bool, str]:
     # rsync --delete, aber excludes für Bereiche + .portal_tmp selbst
     exclude_args: List[str] = []
     for s in ALLOWED_SITES:
-        exclude_args += ["--exclude", f"/{s}/"]
+        exclude_args += ["--exclude", f"/{site_route(s)}/"]
     exclude_args += ["--exclude", "/.portal_tmp/"]
 
     cmd = ["rsync", "-a", "--delete"] + exclude_args + [f"{portal_out}/", f"{SITE_DIR}/"]
@@ -300,7 +305,7 @@ def _merge_portal_into_site_root(portal_out: Path) -> Tuple[bool, str]:
     # Windows/local fallback: mirror portal files while preserving built area folders.
     try:
         SITE_DIR.mkdir(parents=True, exist_ok=True)
-        keep_names = set(ALLOWED_SITES) | {".portal_tmp"}
+        keep_names = set(COUNTRY_KEYS) | {".portal_tmp"}
 
         for child in SITE_DIR.iterdir():
             if child.name in keep_names:
@@ -313,9 +318,12 @@ def _merge_portal_into_site_root(portal_out: Path) -> Tuple[bool, str]:
         for source in portal_out.iterdir():
             target = SITE_DIR / source.name
             if source.is_dir():
-                if target.exists():
-                    shutil.rmtree(target)
-                shutil.copytree(source, target)
+                if target.exists() and source.name in COUNTRY_KEYS:
+                    shutil.copytree(source, target, dirs_exist_ok=True)
+                else:
+                    if target.exists():
+                        shutil.rmtree(target)
+                    shutil.copytree(source, target)
             else:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
@@ -363,16 +371,23 @@ def mkdocs_build(site: str = "all", enable_pdf: bool = False) -> Tuple[bool, str
     # 2) Bereiche
     if site == "all":
         for s in ALLOWED_SITES:
+            if not _site_has_markdown(s):
+                logs.append(f"[{s}] SKIP - keine Markdown-Inhalte")
+                continue
             cfg = SITES_DIR / site_folder(s) / "mkdocs.yml"
-            out_dir = SITE_DIR / s
+            out_dir = SITE_DIR / site_route(s)
             ok, out = _mkdocs_build_one(cfg, out_dir, enable_pdf=enable_pdf)
             logs.append(f"[{s}] " + ("OK" if ok else "FEHLER") + "\n" + out)
             if not ok:
                 return False, "\n\n".join(logs)
         return True, "\n\n".join(logs)
+
+    if not _site_has_markdown(site):
+        logs.append(f"[{site}] SKIP - keine Markdown-Inhalte")
+        return True, "\n\n".join(logs)
 
     cfg = SITES_DIR / site_folder(site) / "mkdocs.yml"
-    out_dir = SITE_DIR / site
+    out_dir = SITE_DIR / site_route(site)
     ok_s, out_s = _mkdocs_build_one(cfg, out_dir, enable_pdf=enable_pdf)
     logs.append(f"[{site}] " + ("OK" if ok_s else "FEHLER") + "\n" + out_s)
     return ok_s, "\n\n".join(logs)
@@ -455,14 +470,14 @@ def _pdf_urls_for_site(site: str) -> list[str]:
     if site == "all":
         urls: list[str] = []
         for s in ALLOWED_SITES:
-            p = SITE_DIR / s / "exports" / pdf_name
+            p = SITE_DIR / site_route(s) / "exports" / pdf_name
             if p.exists():
-                urls.append(f"/{s}/exports/{pdf_name}")
+                urls.append(f"/{site_route(s)}/exports/{pdf_name}")
         return urls
 
-    p = SITE_DIR / site / "exports" / pdf_name
+    p = SITE_DIR / site_route(site) / "exports" / pdf_name
     if p.exists():
-        return [f"/{site}/exports/{pdf_name}"]
+        return [f"/{site_route(site)}/exports/{pdf_name}"]
 
     return []
 
@@ -820,7 +835,7 @@ def _render_site_pdf(site: str) -> Tuple[bool, str]:
 </body>
 </html>'''
 
-        out_pdf = SITE_DIR / site / "exports" / _pdf_export_name()
+        out_pdf = SITE_DIR / site_route(site) / "exports" / _pdf_export_name()
         out_pdf.parent.mkdir(parents=True, exist_ok=True)
         HTML(string=html, base_url=str(build_root)).write_pdf(str(out_pdf))
         return True, f"PDF erstellt: {out_pdf}"
@@ -979,6 +994,12 @@ def git_commit_and_push_paths(message: str, add_paths: list[str], branch: str) -
         return False, out7
 
     return True, (out4 + "\n" + out6 + "\n" + out7).strip()
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="de">
 <head>
     <meta charset="utf-8" />
@@ -68,7 +68,7 @@
         .layout.cheat-collapsed{grid-template-rows:minmax(0, 1fr) 0}
         .pane{display:flex;flex-direction:column;height:100%;min-height:0}
 
-        /* FIX: nur der Pane-Header (direktes Kind) soll so aussehen – NICHT Markdown-h2 */
+        /* FIX: nur der Pane-Header (direktes Kind) soll so aussehen â€“ NICHT Markdown-h2 */
         .pane > h2{margin:8px 14px 6px;font-size:13px;color:#555}
 
         .editor, .preview{flex:1;margin:0 8px 8px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:auto}
@@ -102,7 +102,7 @@
         .folder-row.active{background:#eaf4fb}
         .tag{font-size:11px;color:#555;padding:2px 8px;border:1px solid var(--border);border-radius:999px;background:#fff;flex:0 0 auto}
 
-        /* Login-Modal für Editor (Gast) */
+        /* Login-Modal fÃ¼r Editor (Gast) */
         .login-modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:40}
         .login-modal.open{display:flex}
         .login-dialog{background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:16px;min-width:320px;max-width:90vw;box-shadow:0 12px 30px rgba(0,0,0,.15)}
@@ -238,7 +238,7 @@
         .editor, .preview{ flex:1; min-height:0; }
         .cheat{background:#fff;border:0;border-radius:12px;padding:0;margin:0}
 
-        /* Optional: damit Material-typische Typo auch im Editor nicht “zu stark” von deinem Container beeinflusst wird */
+        /* Optional: damit Material-typische Typo auch im Editor nicht â€œzu starkâ€ von deinem Container beeinflusst wird */
         .preview-inner .md-typeset { font-size: 14px; }
     </style>
 </head>
@@ -265,7 +265,7 @@
     <label> Datei:&nbsp;
         <input id="file" type="text" placeholder="einleitung/zweck.md" />
     </label>
-    <span id="source" class="chip">–</span>
+    <span id="source" class="chip">â€“</span>
 
     <div class="toolbar">
         <button class="btn" id="pickBtn">Andere Datei bearbeiten</button>
@@ -276,7 +276,7 @@
                 <button class="menu-item" id="moveFileOpenBtn" type="button">Datei verschieben</button>
                 <button class="menu-item" id="renameFileOpenBtn" type="button">Datei umbenennen</button>
                 <div class="menu-sep"></div>
-                <button class="menu-item danger" id="deleteBtn" type="button">Datei löschen</button>
+                <button class="menu-item danger" id="deleteBtn" type="button">Datei lÃ¶schen</button>
             </div>
         </div>
         <div class="menu-group" id="folderMenuGroup">
@@ -286,15 +286,15 @@
                 <button class="menu-item" id="moveFolderOpenBtn" type="button">Ordner verschieben</button>
                 <button class="menu-item" id="renameFolderOpenBtn" type="button">Ordner umbenennen</button>
                 <div class="menu-sep"></div>
-                <button class="menu-item danger" id="deleteFolderOpenBtn" type="button">Ordner löschen</button>
+                <button class="menu-item danger" id="deleteFolderOpenBtn" type="button">Ordner lÃ¶schen</button>
             </div>
         </div>
-        <button class="btn" id="imgBtn">Datei einfügen</button>
+        <button class="btn" id="imgBtn">Datei einfÃ¼gen</button>
         <input class="hidden" id="imgInput" type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" />
         <button class="btn primary" id="saveBtn">Speichern</button>
 
         <button class="btn" id="toggleCheatBtn" title="Formatvorlagen ein-/ausblenden">Formatvorlagen ein-/ausblenden</button>
-        <button class="btn" id="undoBtn" title="letzten Schritt rückgängig">&larr;</button>
+        <button class="btn" id="undoBtn" title="letzten Schritt rÃ¼ckgÃ¤ngig">&larr;</button>
         <button class="btn" id="redoBtn" title="einen Schritt vor">&rarr;</button>
     </div>
   </div>
@@ -303,7 +303,7 @@
     <span id="who" class="who"></span>
     <button id="logoutBtn" class="btn logout" title="Benutzer wechseln">Benutzer wechseln</button>
     <button id="adminBtn" class="btn admin">Zum Admin-Tool</button>
-    <button id="portalBtn" class="btn portal" title="Zurück zum Portal">Zum Portal</button>
+    <button id="portalBtn" class="btn portal" title="ZurÃ¼ck zum Portal">Zum Portal</button>
   </div>
 </div>
 <div class="layout" id="layout">
@@ -311,10 +311,10 @@
     <div class="pane editor-pane">
         <h2>Markdown</h2>
         <div class="editor">
-            <textarea id="md" placeholder="# Überschrift&#10;Text …"></textarea>
+            <textarea id="md" placeholder="# Ãœberschrift&#10;Text â€¦"></textarea>
         </div>
         <div class="drop-hint">
-            Bilder und Dokumente per <strong>Drag&Drop</strong> einfügen – Bilder funktionieren auch per <strong>Strg+V</strong>.
+            Bilder und Dokumente per <strong>Drag&Drop</strong> einfÃ¼gen â€“ Bilder funktionieren auch per <strong>Strg+V</strong>.
         </div>
     </div>
 
@@ -329,8 +329,8 @@
 
     <div class="cheat-pane" id="cheatPane">
         <header>
-            <div class="title">Formatierung wählen</div>
-            <button class="btn" id="collapseCheatBtn" title="Formatierung wählen zuklappen">Zuklappen</button>
+            <div class="title">Formatierung wÃ¤hlen</div>
+            <button class="btn" id="collapseCheatBtn" title="Formatierung wÃ¤hlen zuklappen">Zuklappen</button>
         </header>
 
         <div class="cheat-body">
@@ -338,21 +338,21 @@
                 <div class="list">
 
                     <div class="c-row">
-                        <div class="c-label">Überschrift H1</div>
+                        <div class="c-label">Ãœberschrift H1</div>
                         <div class="c-syntax"><code># Text</code></div>
-                        <div class="c-example"><div class="md-typeset"><h1>Überschrift</h1></div></div>
+                        <div class="c-example"><div class="md-typeset"><h1>Ãœberschrift</h1></div></div>
                         <div class="c-insert"><button class="btn" data-action="h1">Anwenden</button></div>
                     </div>
 
                     <div class="c-row">
-                        <div class="c-label">Überschrift H2</div>
+                        <div class="c-label">Ãœberschrift H2</div>
                         <div class="c-syntax"><code>## Text</code></div>
                         <div class="c-example"><div class="md-typeset"><h2>Abschnitt</h2></div></div>
                         <div class="c-insert"><button class="btn" data-action="h2">Anwenden</button></div>
                     </div>
 
                     <div class="c-row">
-                        <div class="c-label">Überschrift H3</div>
+                        <div class="c-label">Ãœberschrift H3</div>
                         <div class="c-syntax"><code>### Text</code></div>
                         <div class="c-example"><div class="md-typeset"><h3>Unter-Abschnitt</h3></div></div>
                         <div class="c-insert"><button class="btn" data-action="h3">Anwenden</button></div>
@@ -373,9 +373,9 @@
                     </div>
 
                     <div class="c-row">
-                        <div class="c-label">Einrückung</div>
-                        <div class="c-syntax"><code>␣␣␣␣Text</code></div>
-                        <div class="c-example"><div class="md-typeset"><blockquote><p>Eingerückter Text</p></blockquote></div></div>
+                        <div class="c-label">EinrÃ¼ckung</div>
+                        <div class="c-syntax"><code>â£â£â£â£Text</code></div>
+                        <div class="c-example"><div class="md-typeset"><blockquote><p>EingerÃ¼ckter Text</p></blockquote></div></div>
                         <div class="c-insert"><button class="btn" data-action="indent">Anwenden</button></div>
                     </div>
 
@@ -437,12 +437,12 @@
 
                     <div class="c-row">
                         <div class="c-label">Info</div>
-                        <div class="c-syntax"><code>!!! info<br>&nbsp;&nbsp;&nbsp;&nbsp;Zusätzliche Information.</code></div>
+                        <div class="c-syntax"><code>!!! info<br>&nbsp;&nbsp;&nbsp;&nbsp;ZusÃ¤tzliche Information.</code></div>
                         <div class="c-example">
                             <div class="md-typeset">
                                 <div class="admonition info">
                                     <p class="admonition-title">Info</p>
-                                    <p>Zusätzliche Information.</p>
+                                    <p>ZusÃ¤tzliche Information.</p>
                                 </div>
                             </div>
                         </div>
@@ -480,7 +480,7 @@
                     <div class="c-row">
                         <div class="c-label">Kapitel-Link</div>
                         <div class="c-syntax"><code>[wie hier beschrieben](#rauchen "Rauchen")</code></div>
-                        <div class="c-example"><div class="md-typeset"><p>Wie im Kapitel <a href="#rauchen">Rauchen</a> erwähnt.</p></div></div>
+                        <div class="c-example"><div class="md-typeset"><p>Wie im Kapitel <a href="#rauchen">Rauchen</a> erwÃ¤hnt.</p></div></div>
                         <div class="c-insert"><button class="btn" data-action="chapter-link">Anwenden</button></div>
                     </div>
 
@@ -535,7 +535,7 @@
     <div class="card">
         <header id="createModalTitle">Datei oder Ordner anlegen</header>
         <div class="section">
-            <div class="muted">Ordner auswählen</div>
+            <div class="muted">Ordner auswÃ¤hlen</div>
             <input id="folderSearch" class="search" type="text" placeholder="Ordner suchen..." />
         </div>
         <div id="folderList" class="list" style="max-height:260px;"></div>
@@ -546,7 +546,7 @@
         <div class="section actions">
             <button id="createFileBtn" class="btn">Datei anlegen</button>
             <button id="createFolderBtn" class="btn">Ordner anlegen</button>
-            <button id="deleteFolderBtn" class="btn logout">Ordner löschen</button>
+            <button id="deleteFolderBtn" class="btn logout">Ordner lÃ¶schen</button>
         </div>
     </div>
 </div>
@@ -555,12 +555,12 @@
     <div class="card">
         <header id="moveModalTitle">Datei oder Ordner verschieben</header>
         <div class="section" id="moveSourceSection">
-            <div class="muted">Quellordner auswählen</div>
+            <div class="muted">Quellordner auswÃ¤hlen</div>
             <input id="moveSourceFolderSearch" class="search" type="text" placeholder="Quellordner suchen..." />
         </div>
         <div id="moveSourceFolderList" class="list" style="max-height:180px;"></div>
         <div class="section" id="moveTargetSection">
-            <div class="muted">Zielordner auswählen</div>
+            <div class="muted">Zielordner auswÃ¤hlen</div>
             <input id="moveFolderSearch" class="search" type="text" placeholder="Ordner suchen..." />
         </div>
         <div id="moveFolderList" class="list" style="max-height:180px;"></div>
@@ -569,7 +569,7 @@
             <input id="moveName" class="search" type="text" placeholder="Neuen Namen eingeben" />
         </div>
         <div class="section actions">
-            <button id="moveConfirmBtn" class="btn">Ausführen</button>
+            <button id="moveConfirmBtn" class="btn">AusfÃ¼hren</button>
         </div>
     </div>
 </div>
@@ -582,24 +582,24 @@
             <input id="chapterLinkText" class="search" type="text" placeholder="z.B. wie hier beschrieben" />
         </div>
         <div class="section">
-            <div class="muted">Ziel-Datei auswählen</div>
+            <div class="muted">Ziel-Datei auswÃ¤hlen</div>
             <input id="chapterLinkFileSearch" class="search" type="text" placeholder="Bereich oder Datei suchen..." />
         </div>
         <div id="chapterLinkFileList" class="list" style="max-height:180px;"></div>
         <div class="section">
-            <div class="muted">Ziel-Kapitel auswählen</div>
+            <div class="muted">Ziel-Kapitel auswÃ¤hlen</div>
             <input id="chapterLinkSearch" class="search" type="text" placeholder="Kapitel suchen..." />
         </div>
         <div id="chapterLinkList" class="list" style="max-height:260px;"></div>
         <div class="section actions">
-            <button id="chapterLinkConfirmBtn" class="btn primary">Link einfügen</button>
+            <button id="chapterLinkConfirmBtn" class="btn primary">Link einfÃ¼gen</button>
         </div>
     </div>
 </div>
 
 <div id="sharePointLinkModal" class="modal" role="dialog" aria-modal="true">
     <div class="card">
-        <header>SharePoint-Link einfügen</header>
+        <header>SharePoint-Link einfÃ¼gen</header>
         <div class="section">
             <div class="muted">Sichtbarer Text</div>
             <input id="sharePointLinkText" class="search" type="text" placeholder="z.B. Mitarbeiteransprechliste" />
@@ -610,7 +610,7 @@
         </div>
         <div class="section actions">
             <button id="sharePointLinkCancelBtn" class="btn" type="button">Abbrechen</button>
-            <button id="sharePointLinkConfirmBtn" class="btn primary" type="button">Link einfügen</button>
+            <button id="sharePointLinkConfirmBtn" class="btn primary" type="button">Link einfÃ¼gen</button>
         </div>
     </div>
 </div>
@@ -618,7 +618,7 @@
 <div id="editorLoginModal" class="login-modal">
     <div class="login-dialog">
         <h3>Bearbeiten starten</h3>
-        <p>Bitte gib deinen Namen ein (erscheint im Änderungsprotokoll). Kein Passwort erforderlich.</p>
+        <p>Bitte gib deinen Namen ein (erscheint im Ã„nderungsprotokoll). Kein Passwort erforderlich.</p>
         <label>Dein Name</label>
         <input id="editorName" placeholder="z.B. Max Mustermann" />
         <div class="row">
@@ -701,6 +701,41 @@
     const redoBtn = qs('#redoBtn');
 
     const siteSel = qs('#siteSel');
+    const SITE_OPTIONS = [
+      { country: 'at', countryLabel: 'Österreich' },
+      { country: 'de', countryLabel: 'Deutschland' },
+      { country: 'si', countryLabel: 'Slowenien' },
+      { country: 'it', countryLabel: 'Italien' },
+      { country: 'ro', countryLabel: 'Rumänien' },
+    ].flatMap(({ country, countryLabel }) => [
+      ['allgemein', 'Allgemein'], ['schaden', 'Schaden'], ['betrieb', 'Betrieb'], ['vertrieb', 'Vertrieb'],
+      ['buchhaltung', 'Buchhaltung'], ['novas', 'Novas'], ['datenschutz', 'Datenschutz'], ['wto', 'Warentransport Online'],
+      ['it-faq', 'IT-FAQ'], ['testumgebung', 'Testumgebung']
+    ].map(([area, label]) => ({ value: `${country}-${area}`, route: `${country}/${area}`, label: `${countryLabel} / ${label}` })));
+    const SITE_ROUTES = Object.fromEntries(SITE_OPTIONS.map(item => [item.value, item.route]));
+    function normalizeLegacySite(value){
+      const clean = (value || '').trim().toLowerCase();
+      if(SITE_OPTIONS.some(item => item.value === clean)) return clean;
+      if(['allgemein','schaden','betrieb','vertrieb','buchhaltung','novas','datenschutz','wto','it-faq','testumgebung'].includes(clean)) return 'at-' + clean;
+      return clean;
+    }
+    function siteRoute(site){
+      const key = normalizeLegacySite(site || 'at-schaden');
+      return SITE_ROUTES[key] || key.replace('-', '/');
+    }
+    function populateSiteSelect(select, includeAll=false){
+      if(!select) return;
+      const current = select.value;
+      select.innerHTML = includeAll ? '<option value="">Alle Bereiche</option>' : '';
+      SITE_OPTIONS.forEach((item) => {
+        const opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        select.appendChild(opt);
+      });
+      select.value = SITE_OPTIONS.some(item => item.value === current) ? current : (includeAll ? '' : 'at-schaden');
+    }
+    populateSiteSelect(siteSel);
     let lastFileItems = [];
     let folderItems = [];
     let selectedFolder = '';
@@ -728,7 +763,7 @@
     }
 
     function applyDeeplinkSelection(){
-      const incomingSite = (getParam("site") || "").trim().toLowerCase();
+      const incomingSite = normalizeLegacySite(getParam("site") || "");
       const incomingFile = (getParam("file") || "").trim();
 
       if(incomingSite){
@@ -743,7 +778,7 @@
       }
     }
 
-    function getSite(){ return (siteSel.value || 'schaden').trim().toLowerCase(); }
+    function getSite(){ return (siteSel.value || 'at-schaden').trim().toLowerCase(); }
 
     function markEditorClean(){
         cleanEditorContent = mdEl.value || '';
@@ -755,7 +790,7 @@
 
     function confirmUnsavedChanges(){
         if(!hasUnsavedChanges()) return true;
-        return window.confirm('Es gibt ungespeicherte Änderungen. Wenn Sie die Seite verlassen oder eine andere Datei laden, gehen diese Änderungen verloren. Wirklich fortfahren?');
+        return window.confirm('Es gibt ungespeicherte Ã„nderungen. Wenn Sie die Seite verlassen oder eine andere Datei laden, gehen diese Ã„nderungen verloren. Wirklich fortfahren?');
     }
 
     function navigateWithUnsavedCheck(url){
@@ -885,15 +920,15 @@
         });
     }
 
-    // FIX: extra_css aus mkdocs.yml (bei dir: assets/css/*.css) zusätzlich laden
+    // FIX: extra_css aus mkdocs.yml (bei dir: assets/css/*.css) zusÃ¤tzlich laden
     function ensureExtraCss(site){
         const head = document.head || document.getElementsByTagName('head')[0];
         const extra = [
-            `/site/${site}/assets/css/custom.css`,
-            `/site/${site}/assets/css/pdf-print.css`,
-            `/site/${site}/assets/css/site-switcher.css`,
+            `/site/${siteRoute(site)}/assets/css/custom.css`,
+            `/site/${siteRoute(site)}/assets/css/pdf-print.css`,
+            `/site/${siteRoute(site)}/assets/css/site-switcher.css`,
             // falls Material/MkDocs ein "extra.css" unter stylesheets ablegt:
-            `/site/${site}/assets/stylesheets/extra.css`
+            `/site/${siteRoute(site)}/assets/stylesheets/extra.css`
         ];
 
         extra.forEach(href => {
@@ -1002,7 +1037,7 @@
         const bodyText = (selected && selected.trim().length > 0)
             ? selected
             : (type === "note" ? "Dies ist ein Hinweis."
-                : type === "info" ? "Zusätzliche Information."
+                : type === "info" ? "ZusÃ¤tzliche Information."
                     : type === "warning" ? "Kritischer Hinweis."
                         : "Sehr kritischer Hinweis.");
 
@@ -1296,7 +1331,7 @@
             return;
         }
 
-        chapterLinkList.innerHTML = '<div class="row"><em>lade…</em></div>';
+        chapterLinkList.innerHTML = '<div class="row"><em>ladeâ€¦</em></div>';
         const res = await fetch(`/editor/load?site=${encodeURIComponent(site)}&file=${encodeURIComponent(file)}`, { credentials: 'include' });
         if(!res.ok){
             chapterLinkItems = [];
@@ -1328,7 +1363,7 @@
     }
 
     function toSiteHref(site, file, anchor){
-        const normalizedSite = (site || '').trim().toLowerCase();
+        const normalizedSite = siteRoute(site || 'at-schaden');
         const normalizedFile = ensureMdFilename(file || '');
         const parts = normalizedFile.split('/');
         const last = parts[parts.length - 1] || 'index.md';
@@ -1390,7 +1425,7 @@
             return;
         }
         if(!selectedChapterLink){
-            showStatus('Bitte Ziel-Kapitel auswählen', false);
+            showStatus('Bitte Ziel-Kapitel auswÃ¤hlen', false);
             chapterLinkSearchInput.focus();
             return;
         }
@@ -1461,7 +1496,7 @@
             return;
         }
         if(!isSharePointDocumentUrl(url)){
-            showStatus('Bitte einen gültigen SharePoint-Link mit https eingeben', false);
+            showStatus('Bitte einen gÃ¼ltigen SharePoint-Link mit https eingeben', false);
             sharePointLinkUrlInput.focus();
             return;
         }
@@ -1473,7 +1508,7 @@
         sharePointLinkModal.classList.remove('open');
         sharePointLinkSelection = null;
         mdEl.focus();
-        showStatus('SharePoint-Link eingefügt', true, 3000);
+        showStatus('SharePoint-Link eingefÃ¼gt', true, 3000);
         renderPreviewDebounced();
     }
 
@@ -1544,13 +1579,13 @@
         selectedFolder = '';
         folderSearch.value = '';
         createNameInput.value = '';
-        createModalTitle.textContent = createModalKind === 'folder' ? 'Ordner anlegen oder löschen' : 'Datei anlegen';
+        createModalTitle.textContent = createModalKind === 'folder' ? 'Ordner anlegen oder lÃ¶schen' : 'Datei anlegen';
         createNameInput.placeholder = createModalKind === 'folder' ? 'z.B. Neuer-Ordner' : 'z.B. Neue-Datei';
         createFileBtn.style.display = createModalKind === 'file' ? '' : 'none';
         createFolderBtn.style.display = createModalKind === 'folder' ? '' : 'none';
         deleteFolderBtn.style.display = createModalKind === 'folder' ? '' : 'none';
         createModal.classList.add('open');
-        folderList.innerHTML = '<div class="row"><em>lade…</em></div>';
+        folderList.innerHTML = '<div class="row"><em>ladeâ€¦</em></div>';
         await loadFolders();
     }
 
@@ -1584,10 +1619,10 @@
     async function deleteCurrentFile(){
         const f = ensureMdFilename(fileEl.value);
         if(!f){
-            showStatus('Bitte Datei wählen', false);
+            showStatus('Bitte Datei wÃ¤hlen', false);
             return;
         }
-        if(!confirm(`Aktuelle Draft-Datei wirklich löschen?\n\n${f}`)) return;
+        if(!confirm(`Aktuelle Draft-Datei wirklich lÃ¶schen?\n\n${f}`)) return;
         const fd = new FormData();
         fd.append('site', getSite());
         fd.append('target', f);
@@ -1602,13 +1637,13 @@
         mdEl.value = '';
         sourceEl.textContent = 'Neu';
         resetEditorHistory();
-        showStatus(data.source_origin === 'live' ? 'Lösch-Antrag für Datei erstellt' : 'Datei gelöscht');
+        showStatus(data.source_origin === 'live' ? 'LÃ¶sch-Antrag fÃ¼r Datei erstellt' : 'Datei gelÃ¶scht');
         renderPreview();
     }
 
     async function deleteSelectedFolder(){
         if(!selectedFolder){
-            showStatus('Bitte zuerst einen Ordner wählen', false);
+            showStatus('Bitte zuerst einen Ordner wÃ¤hlen', false);
             return;
         }
         const previewRes = await fetch(`/editor/delete_preview?site=${encodeURIComponent(getSite())}&kind=folder&target=${encodeURIComponent(selectedFolder)}`, { credentials:'include' });
@@ -1623,7 +1658,7 @@
         const fileList = files.length
             ? `\n\nEnthaltene Dateien:\n- ${files.join('\n- ')}`
             : '\n\nDer Ordner ist leer.';
-        if(!confirm(`Ausgewählten Draft-Ordner wirklich löschen?\n\n${selectedFolder}${fileList}\n\nBei Bestätigung werden alle enthaltenen Dateien ebenfalls gelöscht.`)) return;
+        if(!confirm(`AusgewÃ¤hlten Draft-Ordner wirklich lÃ¶schen?\n\n${selectedFolder}${fileList}\n\nBei BestÃ¤tigung werden alle enthaltenen Dateien ebenfalls gelÃ¶scht.`)) return;
         const fd = new FormData();
         fd.append('site', getSite());
         fd.append('target', selectedFolder);
@@ -1636,7 +1671,7 @@
             throw new Error(data.detail || data.raw || `HTTP ${res.status}`);
         }
         await loadFolders();
-        showStatus(data.source_origin === 'live' ? 'Lösch-Antrag für Ordner erstellt' : 'Ordner gelöscht');
+        showStatus(data.source_origin === 'live' ? 'LÃ¶sch-Antrag fÃ¼r Ordner erstellt' : 'Ordner gelÃ¶scht');
     }
 
     async function moveItem(kind){
@@ -1647,13 +1682,13 @@
         if(kind === 'file'){
             source = ensureMdFilename(fileEl.value);
             if(!source){
-                showStatus('Bitte Datei wählen', false);
+                showStatus('Bitte Datei wÃ¤hlen', false);
                 return;
             }
         }else{
             source = selectedMoveSourceFolder || '';
             if(!source){
-                showStatus('Bitte zuerst den Quellordner wählen', false);
+                showStatus('Bitte zuerst den Quellordner wÃ¤hlen', false);
                 return;
             }
         }
@@ -1698,7 +1733,7 @@
         if(kind === 'file'){
             source = ensureMdFilename(fileEl.value);
             if(!source){
-                showStatus('Bitte Datei wählen', false);
+                showStatus('Bitte Datei wÃ¤hlen', false);
                 return;
             }
             const parts = source.split('/');
@@ -1707,7 +1742,7 @@
         }else{
             source = selectedMoveSourceFolder || '';
             if(!source){
-                showStatus('Bitte zuerst den Quellordner wählen', false);
+                showStatus('Bitte zuerst den Quellordner wÃ¤hlen', false);
                 return;
             }
             const parts = source.split('/');
@@ -1768,14 +1803,14 @@
                 : (isFolder ? 'Ordner verschieben' : 'Datei verschieben');
 
         moveModal.classList.add('open');
-        moveSourceFolderList.innerHTML = '<div class="row"><em>lade…</em></div>';
-        moveFolderList.innerHTML = '<div class="row"><em>lade…</em></div>';
+        moveSourceFolderList.innerHTML = '<div class="row"><em>ladeâ€¦</em></div>';
+        moveFolderList.innerHTML = '<div class="row"><em>ladeâ€¦</em></div>';
     }
 
     // Datei-Picker
     pickBtn.addEventListener('click', async () => {
         try{
-            fileList.innerHTML = '<div class="row"><em>lade…</em></div>';
+            fileList.innerHTML = '<div class="row"><em>ladeâ€¦</em></div>';
             modal.classList.add('open');
             const res = await fetch(`/editor/list?site=${encodeURIComponent(getSite())}`, { credentials:'include' });
             if(!res.ok){
@@ -1831,7 +1866,7 @@
         try { await createItem('folder'); } catch(e){ showStatus(e.message || 'Anlegen fehlgeschlagen', false); console.error(e); }
     });
     deleteFolderBtn.addEventListener('click', async () => {
-        try { await deleteSelectedFolder(); } catch(e){ showStatus(e.message || 'Löschen fehlgeschlagen', false); console.error(e); }
+        try { await deleteSelectedFolder(); } catch(e){ showStatus(e.message || 'LÃ¶schen fehlgeschlagen', false); console.error(e); }
     });
     deleteFolderOpenBtn.addEventListener('click', async () => {
         closeManagementMenus();
@@ -1961,7 +1996,7 @@
     });
     deleteBtn.addEventListener('click', async () => {
         closeManagementMenus();
-        try { await deleteCurrentFile(); } catch(e){ showStatus(e.message || 'Löschen fehlgeschlagen', false); console.error(e); }
+        try { await deleteCurrentFile(); } catch(e){ showStatus(e.message || 'LÃ¶schen fehlgeschlagen', false); console.error(e); }
     });
     document.addEventListener('click', (e) => {
         if(!e.target.closest('.menu-group')){
@@ -1989,7 +2024,7 @@
                 const isImage = data.kind === 'image' || String(file.type || '').startsWith('image/') || /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name || '');
                 insertAtCursor(mdEl, isImage ? `![${label}](${data.path})` : `[${label}](${data.path})`);
                 renderPreview();
-                showStatus(isImage ? 'Bild eingefügt' : 'Datei eingefügt');
+                showStatus(isImage ? 'Bild eingefÃ¼gt' : 'Datei eingefÃ¼gt');
             }
         }catch(e){
             showStatus('Upload fehlgeschlagen', false);
@@ -2060,7 +2095,8 @@
         recordHistorySnapshot(true);
     }
 
-    siteSel.value = localStorage.getItem('editor:site') || 'schaden';
+    siteSel.value = normalizeLegacySite(localStorage.getItem('editor:site') || 'at-schaden');
+    if(!SITE_OPTIONS.some(item => item.value === siteSel.value)) siteSel.value = 'at-schaden';
     let activeSiteValue = siteSel.value;
     siteSel.addEventListener('change', async () => {
         if(!confirmUnsavedChanges()){
@@ -2069,7 +2105,7 @@
         }
         localStorage.setItem('editor:site', getSite());
         activeSiteValue = getSite();
-        sourceEl.textContent = '–';
+        sourceEl.textContent = 'â€“';
         showStatus('Bereich gewechselt');
         ensureExtraCss(getSite()); // beim Wechsel ebenfalls laden
         const lastKey = 'editor:lastFile:' + getSite();
@@ -2110,7 +2146,7 @@
 
     function heading(level){
         const hashes = '#'.repeat(level) + ' ';
-        prefixLines(hashes, level === 1 ? 'Überschrift' : 'Abschnitt');
+        prefixLines(hashes, level === 1 ? 'Ãœberschrift' : 'Abschnitt');
     }
 
     function makeOL(){
@@ -2143,7 +2179,7 @@
             .toLowerCase()
             .normalize('NFKD')
             .replace(/[\u0300-\u036f]/g, '')
-            .replace(/ß/g, 'ss')
+            .replace(/ÃŸ/g, 'ss')
             .replace(/[^a-z0-9\\s-]/g, '')
             .replace(/\s+/g, '-')
             .replace(/-+/g, '-')
@@ -2228,7 +2264,7 @@
         const collapsed = localStorage.getItem('editor:cheatCollapsed') === '1';
         setCheatCollapsed(collapsed);
 
-        ensureExtraCss(getSite()); // lädt CSS passend zum (ggf. deeplink) site
+        ensureExtraCss(getSite()); // lÃ¤dt CSS passend zum (ggf. deeplink) site
 
         // lastFile nur setzen, wenn Deeplink kein file gesetzt hat
         if(!fileEl.value){
@@ -2248,6 +2284,15 @@
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 
 
 

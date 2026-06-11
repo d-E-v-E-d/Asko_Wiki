@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+﻿from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pygments.formatters import HtmlFormatter
 from app.auth.deps import require_role, CurrentUser
 import re
@@ -8,7 +8,7 @@ from pathlib import Path
 from markdown import Markdown
 from bs4 import BeautifulSoup
 from app.runtime_paths import get_site_build_root, get_sites_root
-from app.site_registry import SITE_KEY_SET, normalize_site, site_folder
+from app.site_registry import SITE_KEY_SET, normalize_site, site_folder, site_route
 
 router = APIRouter(prefix="/preview", tags=["preview"])
 
@@ -24,7 +24,7 @@ SITES_ROOT = get_sites_root()
 
 def _norm_site(site: str | None) -> str:
     try:
-        s = normalize_site(site or "schaden")
+        s = normalize_site(site or "at-schaden")
     except KeyError:
         s = ""
     if s not in ALLOWED_SITES:
@@ -99,10 +99,10 @@ def _rewrite_url_to_best_mount(site: str, md_file: str, url0: str) -> str:
 def _rewrite_image_paths(text: str, md_file: str, site: str) -> str:
     """
     Draft-first, live-fallback:
-    - relative URLs werden relativ zum md_file-Verzeichnis aufgelöst
+    - relative URLs werden relativ zum md_file-Verzeichnis aufgelÃ¶st
     - wenn Datei in docs_draft existiert -> /docs_draft/<site>/...
     - sonst -> /docs/<site>/...
-    - Spezialfälle: assets/... gilt als site-root (nicht relativ zum md-file)
+    - SpezialfÃ¤lle: assets/... gilt als site-root (nicht relativ zum md-file)
     """
 
     def rewrite_one(url0: str) -> str:
@@ -169,15 +169,15 @@ def _rewrite_image_paths(text: str, md_file: str, site: str) -> str:
 def _markdown_path_to_site_url(site: str, md_path: str, anchor: str = "") -> str:
     rel = (md_path or "").replace("\\", "/").lstrip("/")
     if not rel:
-        base = f"/{site}/"
+        base = f"/{site_route(site)}/"
     elif rel.lower() == "index.md":
-        base = f"/{site}/"
+        base = f"/{site_route(site)}/"
     elif rel.lower().endswith("/index.md"):
-        base = f"/{site}/{rel[:-len('index.md')]}"
+        base = f"/{site_route(site)}/{rel[:-len('index.md')]}"
     elif rel.lower().endswith(".md"):
-        base = f"/{site}/{rel[:-3]}/"
+        base = f"/{site_route(site)}/{rel[:-3]}/"
     else:
-        base = f"/{site}/{rel}"
+        base = f"/{site_route(site)}/{rel}"
 
     if not base.endswith("/") and "." not in posixpath.basename(base):
         base += "/"
@@ -192,7 +192,7 @@ def _rewrite_link_href(site: str, md_file: str, href: str) -> str:
     if _is_external_or_special(raw):
         return raw
 
-    if raw.startswith(f"/{site}/") or raw.startswith("/site/") or raw.startswith("/docs/") or raw.startswith("/docs_draft/"):
+    if raw.startswith(f"/{site_route(site)}/") or raw.startswith("/site/") or raw.startswith("/docs/") or raw.startswith("/docs_draft/"):
         return raw
 
     if raw.startswith("/"):
@@ -213,7 +213,7 @@ def _rewrite_anchor_links(html: str, md_file: str, site: str) -> str:
     return str(soup)
 
 # =========================
-# Fix: Headings dürfen nicht als Codeblock enden
+# Fix: Headings dÃ¼rfen nicht als Codeblock enden
 # =========================
 RE_HEADING_INDENT = re.compile(r'(?m)^[ \t]{4,}(#{1,6}\s)')
 def _normalize_heading_indent(text: str) -> str:
@@ -223,7 +223,7 @@ def _normalize_heading_indent(text: str) -> str:
 # Stylesheets: Material aus build output
 # =========================
 def _get_site_stylesheets(site: str) -> list[str]:
-    base = SITE_BUILD_ROOT / site / "assets" / "stylesheets"
+    base = SITE_BUILD_ROOT / site_route(site) / "assets" / "stylesheets"
     if not base.exists():
         return []
 
@@ -238,7 +238,7 @@ def _get_site_stylesheets(site: str) -> list[str]:
         return (5, n)
 
     css_files = sorted(css_files, key=key)
-    return [f"/site/{site}/assets/stylesheets/{p.name}" for p in css_files]
+    return [f"/site/{site_route(site)}/assets/stylesheets/{p.name}" for p in css_files]
 
 # =========================
 # Markdown Renderer (MkDocs-nah)
@@ -269,7 +269,7 @@ async def preview(request: Request, user: CurrentUser = Depends(require_role("ed
 
         text = ""
         md_file = ""
-        site = "schaden"
+        site = "at-schaden"
 
         if content_type == "application/json":
             data = await request.json()
@@ -314,3 +314,4 @@ async def preview(request: Request, user: CurrentUser = Depends(require_role("ed
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Preview failed: {e}")
+
