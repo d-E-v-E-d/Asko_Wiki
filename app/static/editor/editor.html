@@ -9,16 +9,21 @@
     <style>
         :root { --bg:#f6f7fb; --card:#fff; --border:#dfe3ea; --brand:#0f766e; --muted:#6b7280; --asko-teal:#16b9a6; --asko-teal-dark:#0ea58f; --cheat-h: 34vh; }
         html, body{height:100%}
-        body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);overflow:hidden;}
+        body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;}
 
-        .topbar{display:flex;gap:12px;align-items:center;padding:10px 14px;border-bottom:0;background:linear-gradient(90deg,var(--asko-teal),var(--asko-teal-dark));color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(15,23,42,.12)}
-        .topbar-left,
-        .topbar-right{flex:0 0 auto;margin-left:auto;padding-left:14px;border-left:1px solid rgba(255,255,255,.35)}
+        .topbar{display:flex;flex-direction:column;gap:8px;padding:10px 14px;border-bottom:0;background:linear-gradient(90deg,var(--asko-teal),var(--asko-teal-dark));color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(15,23,42,.12)}
+        .topbar-left,.topbar-right{display:flex;align-items:center;gap:10px;min-width:0}
         .topbar-left{flex:1 1 auto;flex-wrap:wrap}
         .topbar-right{flex:0 0 auto;margin-left:auto;padding-left:14px;border-left:1px solid rgba(255,255,255,.35)}
         .topbar input[type=text]{min-width:320px;padding:6px 10px;border:1px solid rgba(255,255,255,.55);border-radius:8px;background:#fff;color:#0f172a;font-size:13px}
         .topbar select{padding:6px 28px 6px 10px;border:1px solid rgba(255,255,255,.55);border-radius:8px;background:#fff;color:#0f172a;font-size:13px;font-weight:700}
         .topbar label{display:flex;align-items:center;gap:6px;font-size:13px;color:#fff;font-weight:700}
+        .editor-header-row{display:flex;align-items:center;gap:10px;width:100%;min-width:0}
+        .editor-header-main{justify-content:space-between}
+        .editor-title{font-size:18px;font-weight:900;color:#fff;letter-spacing:0;white-space:nowrap}
+        .editor-filter-row{flex-wrap:wrap}
+        .editor-tool-row{align-items:flex-start}
+        .editor-tool-row .toolbar{width:100%}
         .btn{padding:6px 10px;border:1px solid #dbe3ed;border-radius:8px;background:#f8fafc;color:#1f2937;cursor:pointer;font-size:12px;font-weight:700;transition:background .12s ease,border-color .12s ease,color .12s ease,transform .12s ease}
         .btn.primary{background:#0f766e;color:#fff;border-color:#0f766e}
         .btn.admin{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.55);color:#fff;font-weight:800;box-shadow:none}
@@ -63,7 +68,8 @@
         .layout{
             display:grid;
             grid-template-rows:minmax(0, 1fr) minmax(0, var(--cheat-h));
-            height:calc(100vh - 56px);
+            flex:1 1 auto;
+            height:auto;
             min-height:0;
         }
         .layout.cheat-collapsed{grid-template-rows:minmax(0, 1fr) 0}
@@ -121,7 +127,7 @@
             .modal header{padding:9px 10px}
             .modal .section{padding:9px 10px}
             .modal .actions{justify-content:stretch}
-            .modal .actions .btn{padding:6px 10px;border:1px solid #dbe3ed;border-radius:8px;background:#f8fafc;color:#1f2937;cursor:pointer;font-size:12px;font-weight:700;transition:background .12s ease,border-color .12s ease,color .12s ease,transform .12s ease}
+            .modal .actions .btn{flex:1 1 150px}
             .modal .row,
             .folder-row{align-items:flex-start;padding:8px 10px}
             #folderList,
@@ -133,7 +139,7 @@
         }
 
         @media (max-width: 480px){
-            .modal .actions .btn{padding:6px 10px;border:1px solid #dbe3ed;border-radius:8px;background:#f8fafc;color:#1f2937;cursor:pointer;font-size:12px;font-weight:700;transition:background .12s ease,border-color .12s ease,color .12s ease,transform .12s ease}
+            .modal .actions .btn{flex-basis:100%}
             .login-dialog{min-width:0;width:calc(100vw - 24px);box-sizing:border-box}
             .login-dialog input{box-sizing:border-box}
         }
@@ -197,7 +203,16 @@
         }
         .c-label{font-size:12px;color:#374151}
         .c-example{font-size:12px;max-width:none;min-width:0;overflow:hidden}
-        .c-insert .btn{padding:6px 10px;border:1px solid #dbe3ed;border-radius:8px;background:#f8fafc;color:#1f2937;cursor:pointer;font-size:12px;font-weight:700;transition:background .12s ease,border-color .12s ease,color .12s ease,transform .12s ease}
+        .c-insert .btn{
+            width:100%;
+            font-size:12px;
+            font-weight:600;
+            padding:7px 12px;
+            background:#fff;
+            border-color:#93c5fd;
+            color:#1d4ed8;
+            box-shadow:0 4px 12px rgba(59,130,246,.10);
+        }
         .c-insert .btn:hover{
             background:#eff6ff;
             border-color:#60a5fa;
@@ -239,7 +254,18 @@
 <!-- FIX: Material Palette/Theme Variablen aktivieren (Defaults) -->
 <body data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
 <div class="topbar">
-  <div class="topbar-left">
+  <div class="editor-header-row editor-header-main">
+    <div class="editor-title">Editor</div>
+    <div class="topbar-right">
+      <span id="status" class="status"></span>
+      <span id="who" class="who"></span>
+      <button id="logoutBtn" class="btn logout" title="Benutzer wechseln">Benutzer wechseln</button>
+      <button id="adminBtn" class="btn admin">Zum Admin-Tool</button>
+      <button id="portalBtn" class="btn portal" title="Zurück zum Portal">Zum Portal</button>
+    </div>
+  </div>
+
+  <div class="editor-header-row editor-filter-row topbar-left">
     <label> Land:&nbsp;
         <select id="countrySel"></select>
     </label>
@@ -263,7 +289,9 @@
         <input id="file" type="text" placeholder="einleitung/zweck.md" />
     </label>
     <span id="source" class="chip">–</span>
+  </div>
 
+  <div class="editor-header-row editor-tool-row">
     <div class="toolbar">
         <button class="btn" id="pickBtn">Andere Datei bearbeiten</button>
         <div class="menu-group" id="fileMenuGroup">
@@ -289,18 +317,10 @@
         <button class="btn" id="imgBtn">Bild einfügen</button>
         <input class="hidden" id="imgInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,image/avif,.png,.jpg,.jpeg,.gif,.webp,.svg,.avif" />
         <button class="btn primary" id="saveBtn">Speichern</button>
-
         <button class="btn" id="toggleCheatBtn" title="Formatvorlagen ein-/ausblenden">Formatvorlagen ein-/ausblenden</button>
         <button class="btn" id="undoBtn" title="letzten Schritt rückgängig">&larr;</button>
         <button class="btn" id="redoBtn" title="einen Schritt vor">&rarr;</button>
     </div>
-  </div>
-  <div class="topbar-right">
-    <span id="status" class="status"></span>
-    <span id="who" class="who"></span>
-    <button id="logoutBtn" class="btn logout" title="Benutzer wechseln">Benutzer wechseln</button>
-    <button id="adminBtn" class="btn admin">Zum Admin-Tool</button>
-    <button id="portalBtn" class="btn portal" title="Zurück zum Portal">Zum Portal</button>
   </div>
 </div>
 <div class="layout" id="layout">
@@ -2318,6 +2338,11 @@
 </script>
 </body>
 </html>
+
+
+
+
+
 
 
 

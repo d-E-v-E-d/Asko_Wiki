@@ -39,6 +39,8 @@
     .view-switch .view-toggle.active{background:#0f766e;color:#fff;border-color:#0f766e;box-shadow:0 1px 4px rgba(15,118,110,.18)}
     .btn{padding:6px 10px;border:1px solid #dbe3ed;border-radius:8px;background:#f8fafc;color:#1f2937;cursor:pointer;font-size:12px;font-weight:700;transition:background .12s ease,border-color .12s ease,color .12s ease,transform .12s ease}
     .btn.primary{background:#0f766e;color:#fff;border-color:#0f766e}
+    #approveBtn.btn.primary{background:#2563eb;border-color:#2563eb;color:#fff}
+    #approveBtn.btn.primary:hover{background:#1d4ed8;border-color:#1d4ed8}
     .btn.admin{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.55);color:#fff;font-weight:800;box-shadow:none}
     .btn.admin:hover{background:rgba(255,255,255,.25);border-color:#fff}
     .btn.portal{background:#fff;border-color:#fff;color:#0f766e;font-weight:900;box-shadow:none}
@@ -155,9 +157,9 @@
   <div class="wrap">
     <div class="panel">
       <h2> Änderungslog (offene Entwürfe)</h2>
-      <div style="padding:0 12px 10px 12px;display:flex;gap:.5rem;align-items:center;">
+      <div style="padding:0 12px 10px 12px;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;">
         <select id="change-country" style="padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;min-width:10rem;"></select>
-        <select id="change-area" style="padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;min-width:12rem;">
+        <select id="change-area" style="padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;min-width:13.5rem;">
           <option value="">Alle Bereiche</option>
           <option value="schaden">Schaden</option>
           <option value="betrieb">Betrieb</option>
@@ -170,7 +172,7 @@
           <option value="it-faq">IT-FAQ</option>
           <option value="testumgebung">Testumgebung</option>
         </select>
-        <input id="change-search" type="text" placeholder="Änderungen suchen..." style="width:100%;padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;" />
+        <input id="change-search" type="text" placeholder="Änderungen suchen..." style="flex:1 1 100%;min-width:0;padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;" />
       </div>
       <div id="list" class="list"></div>
     </div>
@@ -515,7 +517,7 @@
   function populateAreaSelect(select, includeAll=false){
     if(!select) return;
     const current = (select.value || '').trim().toLowerCase();
-    select.innerHTML = includeAll ? '<option value="">(alle Bereiche)</option>' : '';
+    select.innerHTML = includeAll ? '<option value=\"\">Alle Bereiche</option>' : '';
     AREAS.forEach((item) => {
       const opt = document.createElement('option');
       opt.value = item.value;
@@ -1688,6 +1690,7 @@
 </script>
 </body>
 </html>
+
 
 
 
