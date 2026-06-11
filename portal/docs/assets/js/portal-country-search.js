@@ -119,15 +119,17 @@
         return;
       }
       const nq = normalize(q);
-      const found = docs.filter(function(doc){
+      const allFound = docs.filter(function(doc){
         return normalize(doc.title + ' ' + doc.text + ' ' + doc.area).includes(nq);
-      }).slice(0, 80);
+      });
+      const shown = allFound.slice(0, 80);
       results.hidden = false;
-      if(!found.length){
+      if(!allFound.length){
         results.innerHTML = '<div class="asko-portal-search-note">Keine Treffer gefunden.</div>';
         return;
       }
-      results.innerHTML = found.map(function(doc){
+      const summary = '<div class="asko-portal-search-summary">' + shown.length + ' von ' + allFound.length + ' Treffern angezeigt</div>';
+      results.innerHTML = summary + shown.map(function(doc){
         return '<a class="asko-portal-search-hit" href="' + escapeHtml(doc.location) + '">' +
           '<span class="asko-portal-search-area">' + escapeHtml(doc.area) + '</span>' +
           '<span class="asko-portal-search-body"><strong>' + escapeHtml(doc.title) + '</strong><small>' + makeExcerpt(doc.text, q) + '</small></span>' +
@@ -151,4 +153,5 @@
     });
   });
 })();
+
 

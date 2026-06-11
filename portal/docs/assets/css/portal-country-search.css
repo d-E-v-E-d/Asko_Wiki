@@ -36,6 +36,17 @@ body.asko-portal .asko-portal-search-results{
   border-radius:8px;
   box-shadow:0 18px 48px rgba(15,23,42,.22);
 }
+body.asko-portal .asko-portal-search-summary{
+  position:sticky;
+  top:0;
+  z-index:1;
+  padding:8px 13px;
+  background:#f8fafc;
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+  border-bottom:1px solid rgba(15,23,42,.08);
+}
 body.asko-portal .asko-portal-search-hit{
   display:grid;
   grid-template-columns:minmax(132px,180px) minmax(0,1fr);
@@ -83,7 +94,19 @@ body.asko-portal .asko-portal-search-note{
     width:100%;
     margin:8px 0 0;
   }
-  body.asko-portal .asko-portal-search-hit{
+  body.asko-portal .asko-portal-search-summary{
+  position:sticky;
+  top:0;
+  z-index:1;
+  padding:8px 13px;
+  background:#f8fafc;
+  color:#64748b;
+  font-size:12px;
+  font-weight:700;
+  border-bottom:1px solid rgba(15,23,42,.08);
+}
+body.asko-portal .asko-portal-search-hit{
     grid-template-columns:minmax(92px,120px) minmax(0,1fr);
   }
 }
+
