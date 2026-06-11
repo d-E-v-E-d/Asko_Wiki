@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 import posixpath
@@ -20,12 +20,8 @@ SITES_ROOT = REPO_ROOT / "sites"
 
 ALLOWED_SITES = SITE_KEY_SET
 SITES = {site: {"root": SITES_ROOT / site_folder(site)} for site in ALLOWED_SITES}
-ALLOWED_UPLOAD_EXTENSIONS = {
-    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg",
-    ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
-    ".txt", ".csv",
-}
-IMAGE_UPLOAD_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+IMAGE_UPLOAD_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".avif"}
+ALLOWED_UPLOAD_EXTENSIONS = IMAGE_UPLOAD_EXTENSIONS
 
 
 def _safe_upload_filename(filename: str, dest_dir: Path) -> str:
@@ -48,11 +44,13 @@ def _upload_kind(filename: str, content_type: str = "") -> str:
     return "file"
 
 
-def _ensure_allowed_upload(filename: str) -> None:
+def _ensure_allowed_upload(filename: str, content_type: str = "") -> None:
     suffix = Path(filename or "").suffix.lower()
-    if suffix not in ALLOWED_UPLOAD_EXTENSIONS:
-        allowed = ", ".join(sorted(ALLOWED_UPLOAD_EXTENSIONS))
-        raise HTTPException(status_code=400, detail=f"Dateityp nicht erlaubt. Erlaubt: {allowed}")
+    mime = str(content_type or "").lower()
+    if suffix in ALLOWED_UPLOAD_EXTENSIONS or (not suffix and mime.startswith("image/")):
+        return
+    allowed = ", ".join(sorted(ALLOWED_UPLOAD_EXTENSIONS))
+    raise HTTPException(status_code=400, detail=f"Dateityp nicht erlaubt. Erlaubt sind nur Bildformate: {allowed}")
 
 
 def _safe_rel(path: str) -> Path:
@@ -324,6 +322,7 @@ async def upload_image(
     user: CurrentUser = Depends(require_role("editor")),
 ):
     _, _, assets_dir = _resolve_site(site)
+    _ensure_allowed_upload(image.filename or "image.png", image.content_type or "")
 
     filename = _safe_upload_filename(image.filename or "image.png", assets_dir)
     dest_path = assets_dir / filename
@@ -349,7 +348,7 @@ async def upload_file(
 ):
     _, drafts_dir, _ = _resolve_site(site)
     original_name = upload.filename or "datei"
-    _ensure_allowed_upload(original_name)
+    _ensure_allowed_upload(original_name, upload.content_type or "")
 
     kind = _upload_kind(original_name, upload.content_type or "")
     asset_folder = "images" if kind == "image" else "files"
@@ -539,3 +538,5 @@ async def delete_item(
         },
     )
     return {"ok": True, "site": site, "source_origin": source_origin}
+
+

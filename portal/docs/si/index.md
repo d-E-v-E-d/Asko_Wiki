@@ -1,4 +1,4 @@
-<!-- ASKO Wiki Länderportal: Slowenien -->
+﻿<!-- ASKO Wiki Länderportal: Slowenien -->
 <div class="asko-page">
   <header class="asko-portal-header">
     <div class="asko-portal-header-inner">
@@ -26,20 +26,8 @@
     </div>
   </section>
 </div>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    if (document.querySelector(".asko-page")) document.body.classList.add("asko-portal");
-    document.querySelectorAll(".asko-tile[href]").forEach((tile) => {
-      tile.addEventListener("click", (event) => {
-        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        const href = tile.getAttribute("href");
-        if (!href) return;
-        event.preventDefault();
-        window.location.assign(new URL(href, window.location.href).href);
-      });
-    });
-  });
-</script>
+<link rel="stylesheet" href="../assets/css/portal-country-search.css">
+<script src="../assets/js/portal-country-search.js"></script>
 
 <style>
   body.asko-portal{
@@ -168,3 +156,4 @@
     body.asko-portal .asko-grid{grid-template-columns:1fr;}
   }
 </style>
+

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="de">
 <head>
     <meta charset="utf-8" />
@@ -293,8 +293,8 @@
                 <button class="menu-item danger" id="deleteFolderOpenBtn" type="button">Ordner löschen</button>
             </div>
         </div>
-        <button class="btn" id="imgBtn">Datei einfügen</button>
-        <input class="hidden" id="imgInput" type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" />
+        <button class="btn" id="imgBtn">Bild einfügen</button>
+        <input class="hidden" id="imgInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,image/avif,.png,.jpg,.jpeg,.gif,.webp,.svg,.avif" />
         <button class="btn primary" id="saveBtn">Speichern</button>
 
         <button class="btn" id="toggleCheatBtn" title="Formatvorlagen ein-/ausblenden">Formatvorlagen ein-/ausblenden</button>
@@ -2033,7 +2033,17 @@
     });
 
     // Bild-Upload
+    const allowedImageExtensions = /\.(png|jpe?g|gif|webp|svg|avif)$/i;
+    function isAllowedImageUpload(file){
+        const type = String(file?.type || '').toLowerCase();
+        const name = String(file?.name || '');
+        return type.startsWith('image/') || allowedImageExtensions.test(name);
+    }
     async function uploadAndInsertImage(file){
+        if(!isAllowedImageUpload(file)){
+            showStatus('Nur Bildformate können eingefügt werden', false);
+            return;
+        }
         try{
             const fd = new FormData();
             fd.append('site', getSite());
@@ -2042,24 +2052,22 @@
             const res = await fetch('/editor/upload_file', { method:'POST', body: fd, credentials:'include' });
             if(!res.ok){
                 const txt = await res.text();
-                showStatus(`Upload fehlgeschlagen (${res.status})`, false);
+                showStatus(`Bildupload fehlgeschlagen (${res.status})`, false);
                 console.error('UPLOAD FAIL', res.status, txt);
                 return;
             }
             const data = await res.json();
             if(data.ok && data.path){
-                const label = data.original_name || file.name || data.filename || 'Datei';
-                const isImage = data.kind === 'image' || String(file.type || '').startsWith('image/') || /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name || '');
-                insertAtCursor(mdEl, isImage ? `![${label}](${data.path})` : `[${label}](${data.path})`);
+                const label = data.original_name || file.name || data.filename || 'Bild';
+                insertAtCursor(mdEl, `![${label}](${data.path})`);
                 renderPreview();
-                showStatus(isImage ? 'Bild eingefügt' : 'Datei eingefügt');
+                showStatus('Bild eingefügt');
             }
         }catch(e){
-            showStatus('Upload fehlgeschlagen', false);
+            showStatus('Bildupload fehlgeschlagen', false);
             console.error(e);
         }
     }
-
     imgBtn.addEventListener('click', () => imgInput.click());
     imgInput.addEventListener('change', async (e) => {
         if(e.target.files && e.target.files[0]) await uploadAndInsertImage(e.target.files[0]);
@@ -2313,3 +2321,4 @@
 </script>
 </body>
 </html>
+
