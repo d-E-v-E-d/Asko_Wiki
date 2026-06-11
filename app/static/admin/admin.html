@@ -6,16 +6,16 @@
   <link rel="stylesheet" href="/static/editor/preview-fix.css">
   <title>Admin Änderungsprüfung</title>
   <style>
-    :root{--bg:#f6f7fb;--card:#fff;--border:#dfe3ea;--brand:#0b72b9;--muted:#6b7280}
+    :root{--bg:#f6f7fb;--card:#fff;--border:#dfe3ea;--brand:#0f766e;--muted:#6b7280;--asko-teal:#16b9a6;--asko-teal-dark:#0ea58f}
     *{box-sizing:border-box}
     body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);color:#111827}
-    .top{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:#fff}
+    .top{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:0;background:linear-gradient(90deg,var(--asko-teal),var(--asko-teal-dark));color:#fff;box-shadow:0 2px 10px rgba(15,23,42,.12)}
     .top-left,.top-right{display:flex;align-items:center;gap:10px;min-width:0}
     .top-left{flex:1 1 auto}
-    .top-right{margin-left:auto;padding-left:14px;border-left:1px solid #e5e7eb}
-    .title{font-weight:700}
+    .top-right{margin-left:auto;padding-left:14px;border-left:1px solid rgba(255,255,255,.35)}
+    .title{font-weight:800;color:#fff}
     .top-grow{flex:1}
-    .top-status{color:var(--muted);font-size:12px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top-status{color:rgba(255,255,255,.92);font-size:12px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .wrap{display:grid;grid-template-columns:360px 1fr;gap:10px;min-height:calc(100vh - 58px);padding:10px}
 
     /* Panels: default scrollbar OK */
@@ -26,19 +26,23 @@
     .list .row:hover{background:#f7f9fc}
     .meta{font-size:12px;color:#444}
     .muted{color:var(--muted);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top .muted{color:rgba(255,255,255,.92)}
     .diffwrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
     .col{display:flex;flex-direction:column;min-height:280px}
     .head{padding:8px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
     .label{font-size:12px;color:#374151}
     .toolbar{display:flex;gap:8px;align-items:center}
-    .view-switch{display:flex;gap:6px;align-items:center}
-    .view-toggle.active{background:var(--brand);color:#fff;border-color:var(--brand)}
-    .btn{padding:6px 10px;border:1px solid var(--border);border-radius:10px;background:#f2f5f9;cursor:pointer;font-size:12px}
-    .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
-    .btn.admin{background:#7c3aed;border-color:#7c3aed;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(124,58,237,.18)}
-    .btn.admin:hover{background:#6d28d9;border-color:#6d28d9}
-    .btn.portal{background:#0f766e;border-color:#0f766e;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(15,118,110,.18)}
-    .btn.portal:hover{background:#115e59;border-color:#115e59}
+    .view-switch{display:inline-flex;gap:0;align-items:center;border:1px solid #cbd5e1;border-radius:9px;overflow:hidden;background:#eef2f7;padding:2px}
+    .view-toggle.active{background:#0f766e;color:#fff;border-color:#0f766e;box-shadow:0 1px 4px rgba(15,118,110,.18)}
+    .view-switch .view-toggle{border:0;border-radius:7px;background:transparent;color:#475569;padding:6px 11px}
+    .view-switch .view-toggle:not(.active):hover{background:#fff;color:#0f172a}
+    .view-switch .view-toggle.active{background:#0f766e;color:#fff;border-color:#0f766e;box-shadow:0 1px 4px rgba(15,118,110,.18)}
+    .btn{padding:6px 10px;border:1px solid #dbe3ed;border-radius:8px;background:#f8fafc;color:#1f2937;cursor:pointer;font-size:12px;font-weight:700;transition:background .12s ease,border-color .12s ease,color .12s ease,transform .12s ease}
+    .btn.primary{background:#0f766e;color:#fff;border-color:#0f766e}
+    .btn.admin{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.55);color:#fff;font-weight:800;box-shadow:none}
+    .btn.admin:hover{background:rgba(255,255,255,.25);border-color:#fff}
+    .btn.portal{background:#fff;border-color:#fff;color:#0f766e;font-weight:900;box-shadow:none}
+    .btn.portal:hover{background:#ecfdf5;border-color:#ecfdf5}
     .btn.danger{background:#b71c1c;color:#fff;border-color:#b71c1c}
     .btn.warn{background:#f59e0b;color:#111;border-color:#f59e0b}
     .btn.success{background:#15803d;border-color:#15803d;color:#fff;font-weight:600}
@@ -1684,4 +1688,7 @@
 </script>
 </body>
 </html>
+
+
+
 
