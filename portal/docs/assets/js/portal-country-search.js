@@ -45,6 +45,27 @@
     return parts.join('');
   }
 
+
+  function parseQuery(query){
+    const raw = String(query || '').trim();
+    const quoted = raw.match(/^"(.+)"$/);
+    if(quoted && quoted[1].trim()){
+      return { mode: 'phrase', values: [normalize(quoted[1].trim())] };
+    }
+    if(raw.includes('+')){
+      const values = raw.split('+').map(function(part){ return normalize(part.trim()); }).filter(Boolean);
+      if(values.length > 1) return { mode: 'and', values: values };
+    }
+    return { mode: 'plain', values: [normalize(raw)] };
+  }
+
+  function matchesQuery(doc, parsed){
+    const haystack = normalize(doc.title + ' ' + doc.text + ' ' + doc.area);
+    if(parsed.mode === 'and'){
+      return parsed.values.every(function(value){ return haystack.includes(value); });
+    }
+    return haystack.includes(parsed.values[0]);
+  }
   async function loadIndexes(areas){
     const loaded = [];
     await Promise.all(areas.map(async function(area){
@@ -96,7 +117,16 @@
 
     const box = document.createElement('div');
     box.className = 'asko-portal-search';
-    box.innerHTML = '<input id="askoPortalSearch" type="search" autocomplete="off" placeholder="Suche" aria-label="Portal durchsuchen">' +
+    box.innerHTML = '<div class="asko-portal-search-field">' +
+      '<input id="askoPortalSearch" type="search" autocomplete="off" placeholder="Suche" aria-label="Portal durchsuchen">' +
+      '<button class="asko-portal-search-help" type="button" aria-label="Suchtipps">?</button>' +
+      '<div class="asko-portal-search-tooltip" role="tooltip">' +
+      '<strong>Suchtipps</strong>' +
+      '<span><code>schaden+anzeige</code> findet Seiten, die beide Wörter enthalten.</span>' +
+      '<span><code>&quot;schaden anzeige&quot;</code> sucht genau diesen zusammenhängenden Begriff.</span>' +
+      '<span>Ohne Sonderzeichen wird der eingegebene Text gesucht.</span>' +
+      '</div>' +
+      '</div>' +
       '<div class="asko-portal-search-results" hidden><div class="asko-portal-search-note">Suchindex wird geladen...</div></div>';
     header.appendChild(box);
 
@@ -118,9 +148,9 @@
         results.innerHTML = '';
         return;
       }
-      const nq = normalize(q);
+      const parsedQuery = parseQuery(q);
       const allFound = docs.filter(function(doc){
-        return normalize(doc.title + ' ' + doc.text + ' ' + doc.area).includes(nq);
+        return matchesQuery(doc, parsedQuery);
       });
       const shown = allFound.slice(0, 80);
       results.hidden = false;
@@ -153,5 +183,6 @@
     });
   });
 })();
+
 
 
