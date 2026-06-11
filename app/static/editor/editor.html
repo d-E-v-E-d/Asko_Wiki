@@ -643,6 +643,10 @@
     const previewEl = qs('#preview');
     const adminBtn = qs('#adminBtn');
     const portalBtn = qs('#portalBtn');
+    function portalHomeUrl(){
+        const local = ['localhost','127.0.0.1','::1'].includes(location.hostname);
+        return local ? '/site/' : '/';
+    }
     const pickBtn = qs('#pickBtn');
     const fileMenuGroup = qs('#fileMenuGroup');
     const folderMenuGroup = qs('#folderMenuGroup');
@@ -2096,7 +2100,7 @@
 
     saveBtn.addEventListener('click', saveDraft);
     adminBtn.addEventListener('click', () => { navigateWithUnsavedCheck('/static/admin/admin.html'); });
-    portalBtn.addEventListener('click', () => { navigateWithUnsavedCheck('https://docs.asko24.at/'); });
+    portalBtn.addEventListener('click', () => { navigateWithUnsavedCheck(portalHomeUrl()); });
     logoutBtn.addEventListener('click', () => {
         if(!confirmUnsavedChanges()) return;
         doLogout();
@@ -2321,4 +2325,5 @@
 </script>
 </body>
 </html>
+
 

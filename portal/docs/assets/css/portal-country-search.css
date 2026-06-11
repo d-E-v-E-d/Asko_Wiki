@@ -1,7 +1,51 @@
-﻿body.asko-portal .asko-portal-search{
+﻿body.asko-portal .asko-country-nav{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:0 0 auto;
+  margin-left:10px;
   position:relative;
-  width:min(720px,58vw);
-  flex:0 1 720px;
+  z-index:6;
+}
+body.asko-portal .asko-country-select-label{
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+body.asko-portal .asko-country-select{
+  height:36px;
+  min-width:132px;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:6px;
+  background:rgba(255,255,255,.16);
+  color:#fff;
+  padding:0 28px 0 10px;
+  font:inherit;
+  font-weight:800;
+}
+body.asko-portal .asko-country-select option{
+  color:#0f172a;
+  background:#fff;
+}
+body.asko-portal .asko-country-portal-btn{
+  height:36px;
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:6px;
+  background:rgba(255,255,255,.92);
+  color:#0f766e;
+  padding:0 12px;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+}
+body.asko-portal .asko-country-portal-btn:hover{
+  background:#fff;
+}
+body.asko-portal .asko-portal-search{
+  position:relative;
+  width:min(540px,42vw);
+  flex:0 1 540px;
   margin-left:auto;
   z-index:6;
 }
@@ -144,7 +188,51 @@ body.asko-portal .asko-portal-search-note{
   color:#64748b;
 }
 @media (max-width:760px){
-  body.asko-portal .asko-portal-search{
+  body.asko-portal .asko-country-nav{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:0 0 auto;
+  margin-left:10px;
+  position:relative;
+  z-index:6;
+}
+body.asko-portal .asko-country-select-label{
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+body.asko-portal .asko-country-select{
+  height:36px;
+  min-width:132px;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:6px;
+  background:rgba(255,255,255,.16);
+  color:#fff;
+  padding:0 28px 0 10px;
+  font:inherit;
+  font-weight:800;
+}
+body.asko-portal .asko-country-select option{
+  color:#0f172a;
+  background:#fff;
+}
+body.asko-portal .asko-country-portal-btn{
+  height:36px;
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:6px;
+  background:rgba(255,255,255,.92);
+  color:#0f766e;
+  padding:0 12px;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+}
+body.asko-portal .asko-country-portal-btn:hover{
+  background:#fff;
+}
+body.asko-portal .asko-portal-search{
     order:5;
     flex:1 0 100%;
     width:100%;
@@ -165,5 +253,6 @@ body.asko-portal .asko-portal-search-hit{
     grid-template-columns:minmax(92px,120px) minmax(0,1fr);
   }
 }
+
 
 

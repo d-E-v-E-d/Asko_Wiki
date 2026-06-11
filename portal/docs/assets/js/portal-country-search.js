@@ -66,6 +66,51 @@
     }
     return haystack.includes(parsed.values[0]);
   }
+
+  const COUNTRIES = [
+    { code: 'at', label: 'Österreich' },
+    { code: 'de', label: 'Deutschland' },
+    { code: 'si', label: 'Slowenien' },
+    { code: 'it', label: 'Italien' },
+    { code: 'ro', label: 'Rumänien' }
+  ];
+
+  function currentCountryCode(){
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    const siteIndex = parts.indexOf('site');
+    const candidate = siteIndex >= 0 ? parts[siteIndex + 1] : parts[0];
+    return COUNTRIES.some(function(country){ return country.code === candidate; }) ? candidate : '';
+  }
+
+  function portalBaseUrl(){
+    const base = new URL('../', window.location.href);
+    return base.href;
+  }
+
+  function countryUrl(code){
+    return new URL(code + '/', portalBaseUrl()).href;
+  }
+
+  function addCountryNav(header){
+    if(!header || header.querySelector('.asko-country-nav')) return;
+    const current = currentCountryCode();
+    const nav = document.createElement('div');
+    nav.className = 'asko-country-nav';
+    nav.innerHTML = '<label class="asko-country-select-label" for="askoCountrySelect">Anderes Land auswählen</label>' +
+      '<select id="askoCountrySelect" class="asko-country-select" aria-label="Anderes Land auswählen">' +
+      COUNTRIES.map(function(country){
+        return '<option value="' + country.code + '"' + (country.code === current ? ' selected' : '') + '>' + escapeHtml(country.label) + '</option>';
+      }).join('') +
+      '</select>' +
+      '<button class="asko-country-portal-btn" type="button">Zum Portal</button>';
+    header.appendChild(nav);
+    nav.querySelector('select').addEventListener('change', function(event){
+      window.location.assign(countryUrl(event.target.value));
+    });
+    nav.querySelector('button').addEventListener('click', function(){
+      window.location.assign(portalBaseUrl());
+    });
+  }
   async function loadIndexes(areas){
     const loaded = [];
     await Promise.all(areas.map(async function(area){
@@ -107,6 +152,7 @@
     });
 
     const header = document.querySelector('.md-header__inner');
+    addCountryNav(header);
     const tiles = Array.from(document.querySelectorAll('.asko-tile[href]'));
     let searchableTiles = tiles.filter(function(tile){ return !tile.classList.contains('asko-tile--testumgebung'); });
     if(!searchableTiles.length) searchableTiles = tiles;
@@ -183,6 +229,7 @@
     });
   });
 })();
+
 
 
 

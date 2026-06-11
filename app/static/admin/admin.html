@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8" />
@@ -417,6 +417,10 @@
   const toastEl = qs('#toast');
   const editorBtn = qs('#editorBtn');
   const portalBtn = qs('#portalBtn');
+  function portalHomeUrl(){
+    const local = ['localhost','127.0.0.1','::1'].includes(location.hostname);
+    return local ? '/site/' : '/';
+  }
   const logoutBtn = qs('#logoutBtn');
   const sortBtn = qs('#sortBtn');
   const changeDiffPanel = qs('#changeDiffPanel');
@@ -827,7 +831,7 @@
     if(event.target === sortModal) sortModal.style.display = 'none';
   });
   editorBtn.addEventListener('click', ()=>{ location.href = '/static/editor/editor.html'; });
-  portalBtn.addEventListener('click', ()=>{ location.href = 'https://docs.asko24.at/'; });
+  portalBtn.addEventListener('click', ()=>{ location.href = portalHomeUrl(); });
   previewModeBtn.addEventListener('click', ()=> setDiffView('preview'));
   diffModeBtn.addEventListener('click', ()=> setDiffView('diff'));
   changeSearchInput?.addEventListener('input', ()=> renderOpenDrafts(getFilteredOpenDrafts()));
@@ -1680,3 +1684,4 @@
 </script>
 </body>
 </html>
+
