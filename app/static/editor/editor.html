@@ -247,6 +247,10 @@
 <body data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
 <div class="topbar">
   <div class="topbar-left">
+    <label> Land:&nbsp;
+        <select id="countrySel"></select>
+    </label>
+
     <label> Bereich:&nbsp;
         <select id="siteSel">
             <option value="schaden">Schaden</option>
@@ -700,42 +704,66 @@
     const undoBtn = qs('#undoBtn');
     const redoBtn = qs('#redoBtn');
 
+    const countrySel = qs('#countrySel');
     const siteSel = qs('#siteSel');
-    const SITE_OPTIONS = [
-      { country: 'at', countryLabel: 'Österreich' },
-      { country: 'de', countryLabel: 'Deutschland' },
-      { country: 'si', countryLabel: 'Slowenien' },
-      { country: 'it', countryLabel: 'Italien' },
-      { country: 'ro', countryLabel: 'Rumänien' },
-    ].flatMap(({ country, countryLabel }) => [
+    const COUNTRIES = [
+      { value: 'at', label: 'Österreich' },
+      { value: 'de', label: 'Deutschland' },
+      { value: 'si', label: 'Slowenien' },
+      { value: 'it', label: 'Italien' },
+      { value: 'ro', label: 'Rumänien' },
+    ];
+    const AREAS = [
       ['allgemein', 'Allgemein'], ['schaden', 'Schaden'], ['betrieb', 'Betrieb'], ['vertrieb', 'Vertrieb'],
       ['buchhaltung', 'Buchhaltung'], ['novas', 'Novas'], ['datenschutz', 'Datenschutz'], ['wto', 'Warentransport Online'],
       ['it-faq', 'IT-FAQ'], ['testumgebung', 'Testumgebung']
-    ].map(([area, label]) => ({ value: `${country}-${area}`, route: `${country}/${area}`, label: `${countryLabel} / ${label}` })));
+    ].map(([value, label]) => ({ value, label }));
+    const SITE_OPTIONS = COUNTRIES.flatMap(({ value: country, label: countryLabel }) =>
+      AREAS.map(({ value: area, label }) => ({ value: `${country}-${area}`, route: `${country}/${area}`, country, area, label: `${countryLabel} / ${label}` }))
+    );
     const SITE_ROUTES = Object.fromEntries(SITE_OPTIONS.map(item => [item.value, item.route]));
     function normalizeLegacySite(value){
       const clean = (value || '').trim().toLowerCase();
       if(SITE_OPTIONS.some(item => item.value === clean)) return clean;
-      if(['allgemein','schaden','betrieb','vertrieb','buchhaltung','novas','datenschutz','wto','it-faq','testumgebung'].includes(clean)) return 'at-' + clean;
+      if(AREAS.some(item => item.value === clean)) return 'at-' + clean;
       return clean;
+    }
+    function splitSiteKey(value){
+      const key = normalizeLegacySite(value || 'at-schaden');
+      const item = SITE_OPTIONS.find(option => option.value === key) || SITE_OPTIONS.find(option => option.value === 'at-schaden');
+      return { country: item.country, area: item.area };
+    }
+    function setSiteSelection(value){
+      const parts = splitSiteKey(value);
+      countrySel.value = parts.country;
+      siteSel.value = parts.area;
     }
     function siteRoute(site){
       const key = normalizeLegacySite(site || 'at-schaden');
       return SITE_ROUTES[key] || key.replace('-', '/');
     }
-    function populateSiteSelect(select, includeAll=false){
+    function populateCountrySelect(select){
       if(!select) return;
-      const current = select.value;
-      select.innerHTML = includeAll ? '<option value="">Alle Bereiche</option>' : '';
-      SITE_OPTIONS.forEach((item) => {
+      select.innerHTML = '';
+      COUNTRIES.forEach((item) => {
         const opt = document.createElement('option');
         opt.value = item.value;
         opt.textContent = item.label;
         select.appendChild(opt);
       });
-      select.value = SITE_OPTIONS.some(item => item.value === current) ? current : (includeAll ? '' : 'at-schaden');
     }
-    populateSiteSelect(siteSel);
+    function populateAreaSelect(select){
+      if(!select) return;
+      select.innerHTML = '';
+      AREAS.forEach((item) => {
+        const opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        select.appendChild(opt);
+      });
+    }
+    populateCountrySelect(countrySel);
+    populateAreaSelect(siteSel);
     let lastFileItems = [];
     let folderItems = [];
     let selectedFolder = '';
@@ -767,7 +795,7 @@
       const incomingFile = (getParam("file") || "").trim();
 
       if(incomingSite){
-        siteSel.value = incomingSite;
+        setSiteSelection(incomingSite);
         localStorage.setItem("editor:site", incomingSite);
       }
 
@@ -778,7 +806,7 @@
       }
     }
 
-    function getSite(){ return (siteSel.value || 'at-schaden').trim().toLowerCase(); }
+    function getSite(){ return `${countrySel.value || 'at'}-${siteSel.value || 'schaden'}`.trim().toLowerCase(); }
 
     function markEditorClean(){
         cleanEditorContent = mdEl.value || '';
@@ -2095,23 +2123,24 @@
         recordHistorySnapshot(true);
     }
 
-    siteSel.value = normalizeLegacySite(localStorage.getItem('editor:site') || 'at-schaden');
-    if(!SITE_OPTIONS.some(item => item.value === siteSel.value)) siteSel.value = 'at-schaden';
-    let activeSiteValue = siteSel.value;
-    siteSel.addEventListener('change', async () => {
+    setSiteSelection(localStorage.getItem('editor:site') || 'at-schaden');
+    let activeSiteValue = getSite();
+    async function handleSiteContextChange(){
         if(!confirmUnsavedChanges()){
-            siteSel.value = activeSiteValue;
+            setSiteSelection(activeSiteValue);
             return;
         }
         localStorage.setItem('editor:site', getSite());
         activeSiteValue = getSite();
-        sourceEl.textContent = 'â€“';
+        sourceEl.textContent = '-';
         showStatus('Bereich gewechselt');
-        ensureExtraCss(getSite()); // beim Wechsel ebenfalls laden
+        ensureExtraCss(getSite());
         const lastKey = 'editor:lastFile:' + getSite();
         fileEl.value = localStorage.getItem(lastKey) || 'index.md';
         await loadCurrent();
-    });
+    }
+    siteSel.addEventListener('change', handleSiteContextChange);
+    countrySel.addEventListener('change', handleSiteContextChange);
 
     function getSelection(){
         const start = mdEl.selectionStart ?? 0;
@@ -2284,6 +2313,9 @@
 </script>
 </body>
 </html>
+
+
+
 
 
 

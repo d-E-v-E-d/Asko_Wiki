@@ -91,7 +91,7 @@
     .dialog input{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px}
     .dialog .row{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
     .sort-dialog{width:min(760px,94vw);max-height:88vh;display:flex;flex-direction:column}
-    .sort-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:12px}
+    .sort-controls{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:12px}
     .sort-controls select{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px}
     .sort-list{border:1px solid #e5e7eb;border-radius:10px;overflow:auto;min-height:180px;max-height:48vh;background:#f8fafc}
     .sort-item{display:grid;grid-template-columns:28px 1fr auto auto;gap:8px;align-items:center;padding:9px 10px;border-top:1px solid #e5e7eb;background:#fff}
@@ -152,6 +152,7 @@
     <div class="panel">
       <h2> Ã„nderungslog (offene EntwÃ¼rfe)</h2>
       <div style="padding:0 12px 10px 12px;display:flex;gap:.5rem;align-items:center;">
+        <select id="change-country" style="padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;min-width:10rem;"></select>
         <select id="change-area" style="padding:.5rem .65rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.85rem;min-width:12rem;">
           <option value="">Alle Bereiche</option>
           <option value="schaden">Schaden</option>
@@ -212,6 +213,11 @@
 
       <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;">
         <label style="display:flex;flex-direction:column;font-size:.78rem;color:#4b5563;">
+          Land
+          <select id="siteCountrySel" style="padding:.35rem .45rem;border:1px solid #cbd5e1;border-radius:8px;min-width:10rem;font-size:.82rem;"></select>
+        </label>
+
+        <label style="display:flex;flex-direction:column;font-size:.78rem;color:#4b5563;">
           Bereich
           <select id="siteSel" style="padding:.35rem .45rem;border:1px solid #cbd5e1;border-radius:8px;min-width:10rem;font-size:.82rem;">
             <option value="schaden">Schaden</option>
@@ -254,6 +260,9 @@
             <option value="draft_saved">draft_saved</option>
           </select>
         </label>
+        <label>Land
+          <select id="hist-country"></select>
+        </label>
         <label>Bereich
           <select id="hist-area">
             <option value="">(alle)</option>
@@ -289,6 +298,9 @@
     <header class="card-header">
       <h2>Rollback (lokale Versionen)</h2>
       <div class="filters">
+        <label>Land
+          <select id="gr-country"></select>
+        </label>
         <label>Bereich
           <select id="gr-site">
             <option value="schaden">Schaden</option>
@@ -366,6 +378,9 @@
       <h3>Sortierung Ã¤ndern</h3>
       <p class="muted">Die Reihenfolge wird direkt in der .pages-Datei gespeichert. index.md bleibt immer oben.</p>
       <div class="sort-controls">
+        <label>Land
+          <select id="sortCountry"></select>
+        </label>
         <label>Bereich
           <select id="sortSite">
             <option value="schaden">Schaden</option>
@@ -419,8 +434,13 @@
   let sortDraggedName = null;
   let historyUiBound = false;
 
+  const siteCountrySel = document.getElementById('siteCountrySel');
   const siteSel = document.getElementById('siteSel');
+  const changeCountrySelect = qs('#change-country');
+  const histCountrySelect = qs('#hist-country');
+  const grCountrySelect = document.getElementById('gr-country');
   const sortModal = document.getElementById('sortModal');
+  const sortCountry = document.getElementById('sortCountry');
   const sortSite = document.getElementById('sortSite');
   const sortFolder = document.getElementById('sortFolder');
   const sortList = document.getElementById('sortList');
@@ -428,45 +448,81 @@
   const sortSaveBtn = document.getElementById('sortSaveBtn');
   const sortCloseBtn = document.getElementById('sortCloseBtn');
   const sortStatus = document.getElementById('sortStatus');
-  const SITE_OPTIONS = [
-    { country: 'at', countryLabel: 'Österreich' },
-    { country: 'de', countryLabel: 'Deutschland' },
-    { country: 'si', countryLabel: 'Slowenien' },
-    { country: 'it', countryLabel: 'Italien' },
-    { country: 'ro', countryLabel: 'Rumänien' },
-  ].flatMap(({ country, countryLabel }) => [
+  const COUNTRIES = [
+    { value: 'at', label: 'Österreich' },
+    { value: 'de', label: 'Deutschland' },
+    { value: 'si', label: 'Slowenien' },
+    { value: 'it', label: 'Italien' },
+    { value: 'ro', label: 'Rumänien' },
+  ];
+  const AREAS = [
     ['allgemein', 'Allgemein'], ['schaden', 'Schaden'], ['betrieb', 'Betrieb'], ['vertrieb', 'Vertrieb'],
     ['buchhaltung', 'Buchhaltung'], ['novas', 'Novas'], ['datenschutz', 'Datenschutz'], ['wto', 'Warentransport Online'],
     ['it-faq', 'IT-FAQ'], ['testumgebung', 'Testumgebung']
-  ].map(([area, label]) => ({ value: `${country}-${area}`, route: `${country}/${area}`, label: `${countryLabel} / ${label}` })));
+  ].map(([value, label]) => ({ value, label }));
+  const SITE_OPTIONS = COUNTRIES.flatMap(({ value: country, label: countryLabel }) =>
+    AREAS.map(({ value: area, label }) => ({ value: `${country}-${area}`, route: `${country}/${area}`, country, area, label: `${countryLabel} / ${label}` }))
+  );
   const SITE_LABELS = Object.fromEntries(SITE_OPTIONS.map(item => [item.value, item.label]));
   const SITE_ROUTES = Object.fromEntries(SITE_OPTIONS.map(item => [item.value, item.route]));
   function normalizeLegacySite(value){
     const clean = (value || '').trim().toLowerCase();
     if(SITE_OPTIONS.some(item => item.value === clean)) return clean;
-    if(['allgemein','schaden','betrieb','vertrieb','buchhaltung','novas','datenschutz','wto','it-faq','testumgebung'].includes(clean)) return 'at-' + clean;
+    if(AREAS.some(item => item.value === clean)) return 'at-' + clean;
     return clean;
+  }
+  function splitSiteKey(value){
+    const key = normalizeLegacySite(value || 'at-schaden');
+    const item = SITE_OPTIONS.find(option => option.value === key) || SITE_OPTIONS.find(option => option.value === 'at-schaden');
+    return { country: item.country, area: item.area };
+  }
+  function setSiteSelection(countrySelect, areaSelect, value){
+    if(!countrySelect || !areaSelect) return;
+    const parts = splitSiteKey(value);
+    countrySelect.value = parts.country;
+    areaSelect.value = parts.area;
+  }
+  function selectedSite(countrySelect, areaSelect, includeAll=false){
+    const country = (countrySelect?.value || '').trim().toLowerCase();
+    const area = (areaSelect?.value || '').trim().toLowerCase();
+    if(includeAll && (!country || !area)) return '';
+    return `${country || 'at'}-${area || 'schaden'}`;
   }
   function siteRoute(site){
     const key = normalizeLegacySite(site || 'at-schaden');
     return SITE_ROUTES[key] || key.replace('-', '/');
   }
-  function populateSiteSelect(select, includeAll=false){
+  function populateCountrySelect(select, includeAll=false){
     if(!select) return;
-    const current = normalizeLegacySite(select.value);
-    select.innerHTML = includeAll ? '<option value="">(alle)</option>' : '';
-    SITE_OPTIONS.forEach((item) => {
+    const current = (select.value || '').trim().toLowerCase();
+    select.innerHTML = includeAll ? '<option value="">(alle Länder)</option>' : '';
+    COUNTRIES.forEach((item) => {
       const opt = document.createElement('option');
       opt.value = item.value;
       opt.textContent = item.label;
       select.appendChild(opt);
     });
-    select.value = SITE_OPTIONS.some(item => item.value === current) ? current : (includeAll ? '' : 'at-schaden');
+    select.value = COUNTRIES.some(item => item.value === current) ? current : (includeAll ? '' : 'at');
   }
-  [siteSel, sortSite, document.getElementById('gr-site')].forEach(select => populateSiteSelect(select));
-  [changeAreaSelect, document.getElementById('hist-area')].forEach(select => populateSiteSelect(select, true));
+  function populateAreaSelect(select, includeAll=false){
+    if(!select) return;
+    const current = (select.value || '').trim().toLowerCase();
+    select.innerHTML = includeAll ? '<option value="">(alle Bereiche)</option>' : '';
+    AREAS.forEach((item) => {
+      const opt = document.createElement('option');
+      opt.value = item.value;
+      opt.textContent = item.label;
+      select.appendChild(opt);
+    });
+    select.value = AREAS.some(item => item.value === current) ? current : (includeAll ? '' : 'schaden');
+  }
+  populateCountrySelect(siteCountrySel); populateAreaSelect(siteSel);
+  populateCountrySelect(sortCountry); populateAreaSelect(sortSite);
+  populateCountrySelect(grCountrySelect); populateAreaSelect(document.getElementById('gr-site'));
+  populateCountrySelect(changeCountrySelect, true); populateAreaSelect(changeAreaSelect, true);
+  populateCountrySelect(histCountrySelect, true); populateAreaSelect(document.getElementById('hist-area'), true);
   function getSite(){
-    return ((siteSel && siteSel.value) ? siteSel.value : 'at-schaden').trim().toLowerCase();
+    return selectedSite(siteCountrySel, siteSel) || 'at-schaden';
   }
 
   function setDiffView(view){
@@ -668,7 +724,7 @@
   }
 
   async function loadSortFolders(){
-    const area = (sortSite.value || getSite()).trim().toLowerCase();
+    const area = selectedSite(sortCountry, sortSite) || getSite();
     const data = await fetchJSON(`/admin/order/folders?area=${encodeURIComponent(area)}`);
     const current = sortFolder.value;
     sortFolder.innerHTML = '';
@@ -684,7 +740,7 @@
   }
 
   async function loadSortOrder(){
-    const area = (sortSite.value || getSite()).trim().toLowerCase();
+    const area = selectedSite(sortCountry, sortSite) || getSite();
     const folder = sortFolder.value || '';
     setStatus('Lade Sortierung...');
     setSortStatus('Lade Sortierung...');
@@ -696,7 +752,7 @@
   }
 
   async function openSortModal(){
-    sortSite.value = getSite();
+    setSiteSelection(sortCountry, sortSite, getSite());
     sortModal.style.display = 'flex';
     setSortStatus('');
     await loadSortFolders();
@@ -704,7 +760,7 @@
   }
 
   async function saveSortOrder(){
-    const area = (sortSite.value || getSite()).trim().toLowerCase();
+    const area = selectedSite(sortCountry, sortSite) || getSite();
     const folder = sortFolder.value || '';
     sortSaveBtn.disabled = true;
     sortSaveBtn.textContent = 'Speichere...';
@@ -752,12 +808,14 @@
     if(sortSaveBtn.disabled) return;
     saveSortOrder().catch(e => alert(e.message));
   };
-  sortSite.addEventListener('change', async () => {
+  async function handleSortContextChange(){
     try{
       await loadSortFolders();
       await loadSortOrder();
-    }catch(e){ alert(e.message); }
-  });
+    }catch(e){ setSortStatus(e.message, true); }
+  }
+  sortSite.addEventListener('change', handleSortContextChange);
+  sortCountry.addEventListener('change', handleSortContextChange);
   sortFolder.addEventListener('change', () => loadSortOrder().catch(e => alert(e.message)));
   sortList.addEventListener('click', (event) => {
     const up = event.target.closest('[data-sort-up]');
@@ -799,7 +857,7 @@
           who.textContent = `angemeldet als ${me.name || me.username} (${me.role})`;
           bindHistoryUI();
           await loadFileOptionsForSite('', histFileOptions);
-          await loadFileOptionsForSite(grSite?.value || '', grFileOptions);
+          await loadFileOptionsForSite(selectedSite(grCountrySelect, grSite), grFileOptions);
           await loadOpenDrafts();
           await loadHistory();
           await loadVersion();
@@ -811,7 +869,7 @@
 
   function getFilteredOpenDrafts(){
     const q = (changeSearchInput?.value || '').trim().toLowerCase();
-    const area = (changeAreaSelect?.value || '').trim().toLowerCase();
+    const area = selectedSite(changeCountrySelect, changeAreaSelect, true);
     return openDraftItems.filter((it) => {
       if(area && (it.area || '').toLowerCase() !== area) return false;
       if(!q) return true;
@@ -1242,7 +1300,7 @@
   }
 
   async function loadGitHistory(){
-    const area = (grSite.value || '').trim().toLowerCase();
+    const area = selectedSite(grCountrySelect, grSite);
     const file = (grFile.value || '').trim();
     const limit = Number(grLimit.value || 50) || 50;
     if(!area || !file){ alert('Bereich und Datei angeben'); return; }
@@ -1265,7 +1323,7 @@
       return;
     }
 
-    const area = (grSite.value || '').trim().toLowerCase();
+    const area = selectedSite(grCountrySelect, grSite);
     const file = (grFile.value || '').trim();
     const selected = grCommits[i].version_id || grCommits[i].hash;
     if(!selected){
@@ -1284,17 +1342,19 @@
   }
 
   grLoad.addEventListener('click', () => loadGitHistory().catch(e => alert(e.message)));
-  grSite.addEventListener('change', () => {
+  async function handleRollbackScopeChange(){
     grFile.value = '';
-    loadFileOptionsForSite(grSite.value, grFileOptions).catch(console.error);
-  });
+    await loadFileOptionsForSite(selectedSite(grCountrySelect, grSite), grFileOptions);
+  }
+  grCountrySelect.addEventListener('change', () => handleRollbackScopeChange().catch(console.error));
+  grSite.addEventListener('change', () => handleRollbackScopeChange().catch(console.error));
 
   grSyncBtn?.addEventListener('click', () => alert('Inhalts-Sync nach Git ist deaktiviert.'));
 
   grRollbackBtn.addEventListener('click', async () => {
     if(grSelectedIdx < 0) return;
 
-    const area = (grSite.value || '').trim().toLowerCase();
+    const area = selectedSite(grCountrySelect, grSite);
     const file = (grFile.value || '').trim();
     const target = grCommits[grSelectedIdx].version_id || grCommits[grSelectedIdx].hash;
 
@@ -1418,7 +1478,7 @@
 
   async function loadHistory(){
     const action = qs('#hist-action').value.trim();
-    const area   = qs('#hist-area').value.trim();
+    const area   = selectedSite(histCountrySelect, qs('#hist-area'), true);
     const file   = qs('#hist-file').value.trim();
     const user   = qs('#hist-user').value.trim();
     const limit  = Number(qs('#hist-limit').value||200) || 200;
@@ -1447,11 +1507,13 @@
       loadHistory().catch(err=>alert(err.message));
     });
     qs('#hist-action').addEventListener('change', ()=>loadHistory().catch(console.error));
-    qs('#hist-area').addEventListener('change', async ()=>{
+    const handleHistoryScopeChange = async ()=>{
       qs('#hist-file').value = '';
-      await loadFileOptionsForSite(qs('#hist-area').value, histFileOptions);
+      await loadFileOptionsForSite(selectedSite(histCountrySelect, qs('#hist-area'), true), histFileOptions);
       await loadHistory();
-    });
+    };
+    qs('#hist-area').addEventListener('change', handleHistoryScopeChange);
+    histCountrySelect.addEventListener('change', handleHistoryScopeChange);
     ['#hist-file','#hist-user','#hist-limit'].forEach(sel=>{
       qs(sel).addEventListener('keydown', (ev)=>{ if(ev.key==='Enter') loadHistory().catch(console.error); });
       qs(sel).addEventListener('input', scheduleHistoryLoad);
@@ -1518,11 +1580,12 @@
     return data;
   }
 
-  // Persist Bereich-Auswahl
-  if(siteSel){
-    siteSel.value = normalizeLegacySite(localStorage.getItem('admin:site') || siteSel.value || 'at-schaden');
-    if(!SITE_OPTIONS.some(item => item.value === siteSel.value)) siteSel.value = 'at-schaden';
-    siteSel.addEventListener('change', ()=> localStorage.setItem('admin:site', getSite()));
+  // Persist Land-/Bereich-Auswahl
+  if(siteSel && siteCountrySel){
+    setSiteSelection(siteCountrySel, siteSel, localStorage.getItem('admin:site') || 'at-schaden');
+    const rememberAdminSite = () => localStorage.setItem('admin:site', getSite());
+    siteSel.addEventListener('change', rememberAdminSite);
+    siteCountrySel.addEventListener('change', rememberAdminSite);
   }
 
   document.getElementById("btn-publish-site").addEventListener("click", async () => {
@@ -1605,7 +1668,7 @@
       await ensureAdmin();
       bindHistoryUI();
       await loadFileOptionsForSite('', histFileOptions);
-      await loadFileOptionsForSite(grSite?.value || '', grFileOptions);
+      await loadFileOptionsForSite(selectedSite(grCountrySelect, grSite), grFileOptions);
       await loadOpenDrafts();
       await loadHistory();
       await loadVersion();
@@ -1617,6 +1680,11 @@
 </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
