@@ -158,6 +158,39 @@ bootstrap_de_country_content() {
   bootstrap_de_area_from_at "datenschutz" "markdown-only"
 }
 
+bootstrap_country_area_from_at() {
+  local country="$1"
+  local area="$2"
+  local source_docs="sites/at/${area}/docs"
+  local target_docs="sites/${country}/${area}/docs"
+
+  [[ "$country" != "at" ]] || return 0
+  [[ -d "$source_docs" ]] || return 0
+  mkdir -p "$target_docs"
+
+  if site_docs_have_markdown "$target_docs"; then
+    return 0
+  fi
+
+  if ! site_docs_have_markdown "$source_docs"; then
+    return 0
+  fi
+
+  rsync -a "$source_docs/" "$target_docs/"
+  log "Bootstrap ${country^^}/${area}: Live-Inhalte aus AT uebernommen"
+}
+
+bootstrap_si_country_content() {
+  local at_area_dir
+  local area
+  for at_area_dir in sites/at/*; do
+    [[ -d "$at_area_dir" ]] || continue
+    area="$(basename "$at_area_dir")"
+    [[ -f "$at_area_dir/mkdocs.yml" ]] || continue
+    bootstrap_country_area_from_at "si" "$area"
+  done
+}
+
 sync_shared_mkdocs_assets() {
   local area
   local docs_dir
@@ -223,6 +256,7 @@ git clean -fd
 restore_content_snapshot "$CONTENT_SNAPSHOT"
 migrate_legacy_flat_sites_to_at
 bootstrap_de_country_content
+bootstrap_si_country_content
 rm -rf "$CONTENT_SNAPSHOT"
 CONTENT_SNAPSHOT=""
 load_areas
