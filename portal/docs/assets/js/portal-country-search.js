@@ -96,8 +96,7 @@
     const current = currentCountryCode();
     const nav = document.createElement('div');
     nav.className = 'asko-country-nav';
-    nav.innerHTML = '<label class="asko-country-select-label" for="askoCountrySelect">Anderes Land auswählen</label>' +
-      '<select id="askoCountrySelect" class="asko-country-select" aria-label="Anderes Land auswählen">' +
+    nav.innerHTML = '<select id=\"askoCountrySelect\" class=\"asko-country-select\" aria-label=\"Land auswählen\" title=\"Land auswählen\">' +
       COUNTRIES.map(function(country){
         return '<option value="' + country.code + '"' + (country.code === current ? ' selected' : '') + '>' + escapeHtml(country.label) + '</option>';
       }).join('') +
@@ -229,6 +228,7 @@
     });
   });
 })();
+
 
 
 
