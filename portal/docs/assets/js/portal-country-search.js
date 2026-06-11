@@ -139,6 +139,8 @@
     const page = document.querySelector('.asko-page');
     if(!page) return;
     document.body.classList.add('asko-portal');
+    const countryCode = currentCountryCode();
+    if(countryCode) document.body.classList.add('asko-country-' + countryCode);
 
     document.querySelectorAll('.asko-tile[href]').forEach(function(tile){
       tile.addEventListener('click', function(event){
@@ -228,6 +230,8 @@
     });
   });
 })();
+
+
 
 
 

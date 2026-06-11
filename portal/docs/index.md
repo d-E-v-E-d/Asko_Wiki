@@ -1,4 +1,4 @@
-<!-- ASKO Wiki Länderportal -->
+﻿<!-- ASKO Wiki Länderportal -->
 <div class="asko-page">
   <header class="asko-portal-header">
     <div class="asko-portal-header-inner">
@@ -59,7 +59,7 @@
     margin-right:auto!important;
   }
   @media (min-width:76.25em){
-    body.asko-portal .md-main__inner{max-width:1100px;}
+    body.asko-portal .md-main__inner{max-width:1180px;}
   }
   body.asko-portal .md-content__inner>header{display:none!important;}
   body.asko-portal .md-content__inner{margin:0;}
@@ -70,7 +70,7 @@
     padding:26px 18px 18px;
   }
   body.asko-portal .asko-portal-header-inner{
-    max-width:1100px;
+    max-width:1180px;
     margin:0 auto;
     display:flex;
     flex-direction:column;
@@ -109,13 +109,13 @@
     padding:26px 0 46px;
   }
   body.asko-portal .asko-tiles__inner{
-    max-width:1100px;
+    max-width:1180px;
     margin:0 auto;
     padding:0 18px;
   }
   body.asko-portal .asko-grid{
     display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-template-columns:repeat(5,minmax(0,1fr));
     gap:18px;
   }
   body.asko-portal .asko-tile{
@@ -163,3 +163,4 @@
     body.asko-portal .asko-grid{grid-template-columns:1fr;}
   }
 </style>
+
