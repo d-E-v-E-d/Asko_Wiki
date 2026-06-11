@@ -14,13 +14,14 @@
         .topbar{display:flex;flex-direction:column;gap:8px;padding:10px 14px;border-bottom:0;background:linear-gradient(90deg,var(--asko-teal),var(--asko-teal-dark));color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(15,23,42,.12)}
         .topbar-left,.topbar-right{display:flex;align-items:center;gap:10px;min-width:0}
         .topbar-left{flex:1 1 auto;flex-wrap:nowrap}
-        .topbar-right{flex:0 0 auto;margin-left:auto;padding-left:14px;border-left:1px solid rgba(255,255,255,.35);flex-wrap:wrap;justify-content:flex-end}
+        .topbar-actions{display:flex;align-items:center;gap:10px;margin-left:auto;min-width:0;flex:0 0 auto}
+        .topbar-right{flex:0 0 auto;margin-left:0;padding-left:14px;border-left:1px solid rgba(255,255,255,.35);flex-wrap:wrap;justify-content:flex-end}
         .topbar input[type=text]{min-width:320px;padding:6px 10px;border:1px solid rgba(255,255,255,.55);border-radius:8px;background:#fff;color:#0f172a;font-size:13px}
         .topbar select{padding:6px 28px 6px 10px;border:1px solid rgba(255,255,255,.55);border-radius:8px;background:#fff;color:#0f172a;font-size:13px;font-weight:700}
         .topbar label{display:flex;align-items:center;gap:6px;font-size:13px;color:#fff;font-weight:700}
         .editor-header-row{display:flex;align-items:center;gap:10px;width:100%;min-width:0}
         .editor-header-main{justify-content:flex-start;flex-wrap:nowrap}
-        .editor-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:0;white-space:nowrap}
+        .editor-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:0;white-space:nowrap;flex:0 0 auto}
         .editor-filter-row{flex:1 1 auto;flex-wrap:nowrap;margin-left:2px;gap:8px;width:auto}
         .editor-tool-row{align-items:flex-start}
         .editor-filter-row label{height:31px;white-space:nowrap;align-items:center}
@@ -266,7 +267,6 @@
 <body data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
 <div class="topbar">
   <div class="editor-header-row editor-header-main">
-    <div class="editor-title">Editor</div>
     <div class="editor-header-row editor-filter-row topbar-left">
     <label> Land:&nbsp;
         <select id="countrySel"></select>
@@ -292,13 +292,16 @@
     </label>
     <span id="source" class="chip">–</span>
   </div>
-    <div class="topbar-right">
+    <div class="topbar-actions">
+      <div class="editor-title">Editor</div>
+      <div class="topbar-right">
       <span id="status" class="status"></span>
       <span id="who" class="who"></span>
       <button id="logoutBtn" class="btn logout" title="Benutzer wechseln">Benutzer wechseln</button>
       <button id="adminBtn" class="btn admin">Zum Admin-Tool</button>
       <button id="portalBtn" class="btn portal" title="Zurück zum Portal">Zum Portal</button>
     </div>
+  </div>
   </div>
   <div class="editor-header-row editor-tool-row">
     <div class="toolbar">
@@ -2347,20 +2350,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
