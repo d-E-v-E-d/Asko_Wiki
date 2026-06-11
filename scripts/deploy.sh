@@ -116,6 +116,47 @@ migrate_legacy_flat_sites_to_at() {
     log "Migrated legacy site $area -> at/$area"
   done
 }
+site_docs_have_markdown() {
+  local docs_dir="$1"
+  [[ -d "$docs_dir" ]] && find "$docs_dir" -type f -name '*.md' -print -quit 2>/dev/null | grep -q .
+}
+
+bootstrap_de_area_from_at() {
+  local area="$1"
+  local mode="${2:-full}"
+  local source_docs="sites/at/${area}/docs"
+  local target_docs="sites/de/${area}/docs"
+
+  [[ -d "$source_docs" ]] || return 0
+  mkdir -p "$target_docs"
+
+  if site_docs_have_markdown "$target_docs"; then
+    return 0
+  fi
+
+  if ! site_docs_have_markdown "$source_docs"; then
+    return 0
+  fi
+
+  if [[ "$mode" == "markdown-only" ]]; then
+    rsync -a \
+      --include='*/' \
+      --include='*.md' \
+      --include='.pages' \
+      --exclude='*' \
+      "$source_docs/" "$target_docs/"
+    log "Bootstrap DE/${area}: Markdown-Struktur aus AT uebernommen (Anlagen/Assets ausgelassen)"
+  else
+    rsync -a "$source_docs/" "$target_docs/"
+    log "Bootstrap DE/${area}: Live-Inhalte aus AT uebernommen"
+  fi
+}
+
+bootstrap_de_country_content() {
+  bootstrap_de_area_from_at "it-faq" "full"
+  bootstrap_de_area_from_at "wto" "full"
+  bootstrap_de_area_from_at "datenschutz" "markdown-only"
+}
 
 sync_shared_mkdocs_assets() {
   local area
@@ -181,6 +222,7 @@ git reset --hard origin/main
 git clean -fd
 restore_content_snapshot "$CONTENT_SNAPSHOT"
 migrate_legacy_flat_sites_to_at
+bootstrap_de_country_content
 rm -rf "$CONTENT_SNAPSHOT"
 CONTENT_SNAPSHOT=""
 load_areas
@@ -234,8 +276,4 @@ sudo nginx -t
 sudo systemctl reload nginx
 
 log "Deploy OK"
-
-
-
-
 

@@ -21,7 +21,6 @@
         <a class="asko-tile" href="./wto/" role="listitem"><span class="asko-tile__label">Warentransportversicherung-Online</span></a>
         <a class="asko-tile" href="./datenschutz/" role="listitem"><span class="asko-tile__label">Datenschutz</span></a>
         <a class="asko-tile" href="./it-faq/" role="listitem"><span class="asko-tile__label">IT-FAQ</span></a>
-        <a class="asko-tile asko-tile--testumgebung" href="./testumgebung/" role="listitem"><span class="asko-tile__label">Testumgebung</span></a>
       </div>
     </div>
   </section>
@@ -72,3 +71,4 @@
   body.asko-portal .asko-tile__label{font-weight:700;font-size:1.05rem;line-height:1.25;overflow-wrap:anywhere;}
   @media (max-width:700px){body.asko-portal .asko-portal-header-inner{align-items:flex-start}.asko-logo{width:72px}.asko-grid{grid-template-columns:1fr}}
 </style>
+
