@@ -51,6 +51,18 @@
     .btn.success:hover{background:#166534;border-color:#166534}
     .btn.logout{background:#fee2e2;border-color:#fecaca;color:#991b1b}
     .btn.logout:hover{background:#fecaca}
+    .country-select{--country-accent:rgba(15,23,42,.28);--country-soft:rgba(15,23,42,.05);box-shadow:inset 4px 0 0 var(--country-accent), inset 0 -2px 0 var(--country-accent);background:linear-gradient(90deg,var(--country-soft),#fff 38%)!important}
+    .country-select[data-country="at"]{--country-accent:rgba(220,38,38,.78);--country-soft:rgba(220,38,38,.14)}
+    .country-select[data-country="de"]{--country-accent:rgba(15,23,42,.78);--country-soft:rgba(15,23,42,.12)}
+    .country-select[data-country="si"]{--country-accent:rgba(37,99,235,.78);--country-soft:rgba(37,99,235,.14)}
+    .country-select[data-country="it"]{--country-accent:rgba(22,163,74,.78);--country-soft:rgba(22,163,74,.14)}
+    .country-select[data-country="ro"]{--country-accent:rgba(253,224,71,.82);--country-soft:rgba(253,224,71,.18)}
+    .country-select option[value=""]{background:#fff;color:#475569}
+    .country-select option[value="at"]{background:#fee2e2;color:#7f1d1d}
+    .country-select option[value="de"]{background:#e5e7eb;color:#111827}
+    .country-select option[value="si"]{background:#dbeafe;color:#1e3a8a}
+    .country-select option[value="it"]{background:#dcfce7;color:#14532d}
+    .country-select option[value="ro"]{background:#fef9c3;color:#713f12}
     pre{margin:0;white-space:pre;overflow:auto;font:12px/1.5 ui-monospace,Consolas,Menlo,monospace;padding:10px}
     .block{flex:1;border-top:1px solid var(--border)}
     .rendered-block{display:none;flex:1;border-top:1px solid var(--border);overflow:auto;padding:16px 18px}
@@ -486,11 +498,16 @@
     const item = SITE_OPTIONS.find(option => option.value === key) || SITE_OPTIONS.find(option => option.value === 'at-schaden');
     return { country: item.country, area: item.area };
   }
+  function updateCountrySelectStyle(select){
+    if(!select) return;
+    select.dataset.country = (select.value || '').trim().toLowerCase();
+  }
   function setSiteSelection(countrySelect, areaSelect, value){
     if(!countrySelect || !areaSelect) return;
     const parts = splitSiteKey(value);
     countrySelect.value = parts.country;
     areaSelect.value = parts.area;
+    updateCountrySelectStyle(countrySelect);
   }
   function selectedSite(countrySelect, areaSelect, includeAll=false){
     const country = (countrySelect?.value || '').trim().toLowerCase();
@@ -505,6 +522,7 @@
   function populateCountrySelect(select, includeAll=false){
     if(!select) return;
     const current = (select.value || '').trim().toLowerCase();
+    select.classList.add('country-select');
     select.innerHTML = includeAll ? '<option value="">(alle Länder)</option>' : '';
     COUNTRIES.forEach((item) => {
       const opt = document.createElement('option');
@@ -513,6 +531,11 @@
       select.appendChild(opt);
     });
     select.value = COUNTRIES.some(item => item.value === current) ? current : (includeAll ? '' : 'at');
+    updateCountrySelectStyle(select);
+    if(!select.dataset.countryStyleBound){
+      select.addEventListener('change', () => updateCountrySelectStyle(select));
+      select.dataset.countryStyleBound = '1';
+    }
   }
   function populateAreaSelect(select, includeAll=false){
     if(!select) return;

@@ -29,6 +29,17 @@
         .editor-filter-row #countrySel{min-width:116px}
         .editor-filter-row #siteSel{min-width:136px}
         .editor-filter-row input[type=text]{min-width:190px;width:min(24vw,300px)}
+        .country-select{--country-accent:rgba(15,23,42,.28);--country-soft:rgba(15,23,42,.05);box-shadow:inset 4px 0 0 var(--country-accent), inset 0 -2px 0 var(--country-accent);background:linear-gradient(90deg,var(--country-soft),#fff 38%)!important}
+        .country-select[data-country="at"]{--country-accent:rgba(220,38,38,.78);--country-soft:rgba(220,38,38,.14)}
+        .country-select[data-country="de"]{--country-accent:rgba(15,23,42,.78);--country-soft:rgba(15,23,42,.12)}
+        .country-select[data-country="si"]{--country-accent:rgba(37,99,235,.78);--country-soft:rgba(37,99,235,.14)}
+        .country-select[data-country="it"]{--country-accent:rgba(22,163,74,.78);--country-soft:rgba(22,163,74,.14)}
+        .country-select[data-country="ro"]{--country-accent:rgba(253,224,71,.82);--country-soft:rgba(253,224,71,.18)}
+        .country-select option[value="at"]{background:#fee2e2;color:#7f1d1d}
+        .country-select option[value="de"]{background:#e5e7eb;color:#111827}
+        .country-select option[value="si"]{background:#dbeafe;color:#1e3a8a}
+        .country-select option[value="it"]{background:#dcfce7;color:#14532d}
+        .country-select option[value="ro"]{background:#fef9c3;color:#713f12}
         .editor-tool-row .toolbar{width:100%}
         @media (max-width: 980px){
             .editor-header-main{flex-wrap:wrap}
@@ -761,10 +772,15 @@
       const item = SITE_OPTIONS.find(option => option.value === key) || SITE_OPTIONS.find(option => option.value === 'at-schaden');
       return { country: item.country, area: item.area };
     }
+    function updateCountrySelectStyle(select){
+      if(!select) return;
+      select.dataset.country = (select.value || '').trim().toLowerCase();
+    }
     function setSiteSelection(value){
       const parts = splitSiteKey(value);
       countrySel.value = parts.country;
       siteSel.value = parts.area;
+      updateCountrySelectStyle(countrySel);
     }
     function siteRoute(site){
       const key = normalizeLegacySite(site || 'at-schaden');
@@ -772,6 +788,7 @@
     }
     function populateCountrySelect(select){
       if(!select) return;
+      select.classList.add('country-select');
       select.innerHTML = '';
       COUNTRIES.forEach((item) => {
         const opt = document.createElement('option');
@@ -779,6 +796,7 @@
         opt.textContent = item.label;
         select.appendChild(opt);
       });
+      updateCountrySelectStyle(select);
     }
     function populateAreaSelect(select){
       if(!select) return;
@@ -2177,7 +2195,7 @@
         await loadCurrent();
     }
     siteSel.addEventListener('change', handleSiteContextChange);
-    countrySel.addEventListener('change', handleSiteContextChange);
+    countrySel.addEventListener('change', () => { updateCountrySelectStyle(countrySel); handleSiteContextChange(); });
 
     function getSelection(){
         const start = mdEl.selectionStart ?? 0;
