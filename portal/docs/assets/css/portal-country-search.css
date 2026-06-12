@@ -10,11 +10,32 @@ body.asko-portal.asko-country-ro{--country-accent:rgba(253,224,71,.82);--country
 body.asko-portal .asko-portal-header{
   box-shadow:inset 0 4px 0 var(--country-accent);
 }
-body.asko-portal .asko-portal-title{
-  text-decoration:underline;
-  text-decoration-color:var(--country-accent);
-  text-decoration-thickness:4px;
-  text-underline-offset:9px;
+body.asko-portal.asko-country-at .asko-portal-title,
+body.asko-portal.asko-country-de .asko-portal-title,
+body.asko-portal.asko-country-si .asko-portal-title,
+body.asko-portal.asko-country-it .asko-portal-title,
+body.asko-portal.asko-country-ro .asko-portal-title{
+  position:relative;
+  display:inline-block;
+  align-self:center;
+  color:var(--country-accent)!important;
+  text-decoration:none;
+}
+body.asko-portal.asko-country-at .asko-portal-title::after,
+body.asko-portal.asko-country-de .asko-portal-title::after,
+body.asko-portal.asko-country-si .asko-portal-title::after,
+body.asko-portal.asko-country-it .asko-portal-title::after,
+body.asko-portal.asko-country-ro .asko-portal-title::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-8px;
+  width:64%;
+  max-width:160px;
+  height:4px;
+  border-radius:999px;
+  background:var(--country-accent);
+  transform:translateX(-50%);
 }
 body.asko-portal .asko-landing{
   box-shadow:inset 0 14px 22px -22px var(--country-accent);
