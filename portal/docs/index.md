@@ -136,16 +136,11 @@
     background:rgba(0,0,0,.10);
     border-color:rgba(255,255,255,.6);
   }
-  body.asko-portal .asko-grid .asko-tile--at{border-color:rgba(220,38,38,.86)!important;}
-  body.asko-portal .asko-grid .asko-tile--de{border-color:rgba(15,23,42,.88)!important;}
-  body.asko-portal .asko-grid .asko-tile--si{border-color:rgba(37,99,235,.86)!important;}
-  body.asko-portal .asko-grid .asko-tile--it{border-color:rgba(22,163,74,.86)!important;}
-  body.asko-portal .asko-grid .asko-tile--ro{border-color:rgba(202,138,4,.90)!important;}
-  body.asko-portal .asko-grid .asko-tile--at:hover{border-color:rgba(248,113,113,.98)!important;}
-  body.asko-portal .asko-grid .asko-tile--de:hover{border-color:rgba(31,41,55,.98)!important;}
-  body.asko-portal .asko-grid .asko-tile--si:hover{border-color:rgba(96,165,250,.98)!important;}
-  body.asko-portal .asko-grid .asko-tile--it:hover{border-color:rgba(74,222,128,.98)!important;}
-  body.asko-portal .asko-grid .asko-tile--ro:hover{border-color:rgba(245,158,11,.98)!important;}
+  body.asko-portal .asko-tile--at .asko-tile__label{color:#fca5a5;}
+  body.asko-portal .asko-tile--de .asko-tile__label{color:#111827;}
+  body.asko-portal .asko-tile--si .asko-tile__label{color:#93c5fd;}
+  body.asko-portal .asko-tile--it .asko-tile__label{color:#86efac;}
+  body.asko-portal .asko-tile--ro .asko-tile__label{color:#fbbf24;}
   body.asko-portal .asko-tile--testumgebung{
     background:#fee2e2;
     border-color:#f87171;
