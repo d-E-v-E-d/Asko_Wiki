@@ -12,11 +12,11 @@
   <section class="asko-landing">
     <div class="asko-tiles__inner">
       <div class="asko-grid" role="list">
-        <a class="asko-tile" href="./at/" role="listitem"><span class="asko-tile__label">Österreich</span></a>
-        <a class="asko-tile" href="./de/" role="listitem"><span class="asko-tile__label">Deutschland</span></a>
-        <a class="asko-tile" href="./si/" role="listitem"><span class="asko-tile__label">Slowenien</span></a>
-        <a class="asko-tile" href="./it/" role="listitem"><span class="asko-tile__label">Italien</span></a>
-        <a class="asko-tile" href="./ro/" role="listitem"><span class="asko-tile__label">Rumänien</span></a>
+        <a class="asko-tile asko-tile--at" href="./at/" role="listitem"><span class="asko-tile__label">Österreich</span></a>
+        <a class="asko-tile asko-tile--de" href="./de/" role="listitem"><span class="asko-tile__label">Deutschland</span></a>
+        <a class="asko-tile asko-tile--si" href="./si/" role="listitem"><span class="asko-tile__label">Slowenien</span></a>
+        <a class="asko-tile asko-tile--it" href="./it/" role="listitem"><span class="asko-tile__label">Italien</span></a>
+        <a class="asko-tile asko-tile--ro" href="./ro/" role="listitem"><span class="asko-tile__label">Rumänien</span></a>
       </div>
     </div>
   </section>
@@ -136,6 +136,16 @@
     background:rgba(0,0,0,.10);
     border-color:rgba(255,255,255,.6);
   }
+  body.asko-portal .asko-grid .asko-tile--at{border-color:rgba(220,38,38,.86)!important;}
+  body.asko-portal .asko-grid .asko-tile--de{border-color:rgba(15,23,42,.88)!important;}
+  body.asko-portal .asko-grid .asko-tile--si{border-color:rgba(37,99,235,.86)!important;}
+  body.asko-portal .asko-grid .asko-tile--it{border-color:rgba(22,163,74,.86)!important;}
+  body.asko-portal .asko-grid .asko-tile--ro{border-color:rgba(202,138,4,.90)!important;}
+  body.asko-portal .asko-grid .asko-tile--at:hover{border-color:rgba(248,113,113,.98)!important;}
+  body.asko-portal .asko-grid .asko-tile--de:hover{border-color:rgba(31,41,55,.98)!important;}
+  body.asko-portal .asko-grid .asko-tile--si:hover{border-color:rgba(96,165,250,.98)!important;}
+  body.asko-portal .asko-grid .asko-tile--it:hover{border-color:rgba(74,222,128,.98)!important;}
+  body.asko-portal .asko-grid .asko-tile--ro:hover{border-color:rgba(245,158,11,.98)!important;}
   body.asko-portal .asko-tile--testumgebung{
     background:#fee2e2;
     border-color:#f87171;
