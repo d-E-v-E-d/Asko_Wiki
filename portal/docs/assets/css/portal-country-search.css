@@ -6,7 +6,7 @@ body.asko-portal.asko-country-at{--country-accent:rgba(220,38,38,.78);--country-
 body.asko-portal.asko-country-de{--country-accent:rgba(15,23,42,.78);--country-accent-soft:rgba(15,23,42,.12);}
 body.asko-portal.asko-country-si{--country-accent:rgba(37,99,235,.78);--country-accent-soft:rgba(37,99,235,.14);}
 body.asko-portal.asko-country-it{--country-accent:rgba(22,163,74,.78);--country-accent-soft:rgba(22,163,74,.14);}
-body.asko-portal.asko-country-ro{--country-accent:rgba(253,224,71,.82);--country-accent-soft:rgba(253,224,71,.18);}
+body.asko-portal.asko-country-ro{--country-accent:rgba(202,138,4,.88);--country-accent-soft:rgba(202,138,4,.16);}
 body.asko-portal .asko-portal-header{
   box-shadow:inset 0 4px 0 var(--country-accent);
 }
