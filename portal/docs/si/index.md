@@ -18,7 +18,7 @@
         <a class="asko-tile" href="./vertrieb/" role="listitem"><span class="asko-tile__label">Vertrieb</span></a>
         <a class="asko-tile" href="./buchhaltung/" role="listitem"><span class="asko-tile__label">Buchhaltung</span></a>
         <a class="asko-tile" href="./novas/" role="listitem"><span class="asko-tile__label">Novas</span></a>
-        <a class="asko-tile" href="./wto/" role="listitem"><span class="asko-tile__label">Warentransportversicherung-Online</span></a>
+        <a class="asko-tile" href="./wto/" role="listitem"><span class="asko-tile__label">Warentransport Online</span></a>
         <a class="asko-tile" href="./datenschutz/" role="listitem"><span class="asko-tile__label">Datenschutz</span></a>
         <a class="asko-tile" href="./it-faq/" role="listitem"><span class="asko-tile__label">IT-FAQ</span></a>
         <a class="asko-tile asko-tile--testumgebung" href="./testumgebung/" role="listitem"><span class="asko-tile__label">Testumgebung</span></a>
