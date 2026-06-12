@@ -136,11 +136,6 @@
     background:rgba(0,0,0,.10);
     border-color:rgba(255,255,255,.6);
   }
-  body.asko-portal .asko-tile--at .asko-tile__label{color:#fca5a5;}
-  body.asko-portal .asko-tile--de .asko-tile__label{color:#111827;}
-  body.asko-portal .asko-tile--si .asko-tile__label{color:#93c5fd;}
-  body.asko-portal .asko-tile--it .asko-tile__label{color:#86efac;}
-  body.asko-portal .asko-tile--ro .asko-tile__label{color:#fbbf24;}
   body.asko-portal .asko-tile--testumgebung{
     background:#fee2e2;
     border-color:#f87171;
