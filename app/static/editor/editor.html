@@ -83,7 +83,7 @@
             height:auto;
             min-height:0;
         }
-        .layout.cheat-collapsed{grid-template-rows:minmax(0, 1fr) 0}
+        .layout.cheat-collapsed{grid-template-rows:minmax(0, 1fr) auto}
         .pane{display:flex;flex-direction:column;height:100%;min-height:0}
 
         /* FIX: nur der Pane-Header (direktes Kind) soll so aussehen – NICHT Markdown-h2 */
@@ -176,7 +176,8 @@
             flex-direction:column;
             min-height:0;
         }
-        .layout.cheat-collapsed .cheat-pane{ display:none; }
+        .layout.cheat-collapsed .cheat-pane{ display:flex; }
+        .layout.cheat-collapsed .cheat-body{display:none}
 
         .cheat-pane header{
             position:sticky;
@@ -329,7 +330,6 @@
         <button class="btn" id="imgBtn">Bild einfügen</button>
         <input class="hidden" id="imgInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,image/avif,.png,.jpg,.jpeg,.gif,.webp,.svg,.avif" />
         <button class="btn primary" id="saveBtn">Speichern</button>
-        <button class="btn" id="toggleCheatBtn" title="Formatvorlagen ein-/ausblenden">Formatvorlagen ein-/ausblenden</button>
         <button class="btn" id="undoBtn" title="letzten Schritt rückgängig">&larr;</button>
         <button class="btn" id="redoBtn" title="einen Schritt vor">&rarr;</button>
     </div>
@@ -728,7 +728,6 @@
     const editorLoginBtn = qs('#editorLoginBtn');
 
     const layoutEl = qs('#layout');
-    const toggleCheatBtn = qs('#toggleCheatBtn');
     const collapseCheatBtn = qs('#collapseCheatBtn');
     const undoBtn = qs('#undoBtn');
     const redoBtn = qs('#redoBtn');
@@ -2139,13 +2138,14 @@
             layoutEl.classList.remove('cheat-collapsed');
             localStorage.setItem('editor:cheatCollapsed','0');
         }
+        collapseCheatBtn.textContent = collapsed ? 'Aufklappen' : 'Zuklappen';
+        collapseCheatBtn.title = collapsed ? 'Formatierung wählen aufklappen' : 'Formatierung wählen zuklappen';
     }
 
-    toggleCheatBtn.addEventListener('click', () => {
+    collapseCheatBtn.addEventListener('click', () => {
         const collapsed = layoutEl.classList.contains('cheat-collapsed');
         setCheatCollapsed(!collapsed);
     });
-    collapseCheatBtn.addEventListener('click', () => setCheatCollapsed(true));
 
     undoBtn.addEventListener('click', () => { doUndo(); renderPreviewDebounced(); });
     redoBtn.addEventListener('click', () => { doRedo(); renderPreviewDebounced(); });
